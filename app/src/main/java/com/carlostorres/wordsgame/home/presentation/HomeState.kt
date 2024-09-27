@@ -10,6 +10,7 @@ data class HomeState(
     val intento3 : TryInfo = TryInfo(),
     val intento4 : TryInfo = TryInfo(),
     val intento5 : TryInfo = TryInfo(),
+    val isGameWon : Boolean = false
 )
 
 data class TryInfo(

@@ -38,9 +38,26 @@ class HomeViewModel @Inject constructor(
 
     }
 
+    fun checkInputEqualsSecretWord() : Boolean {
+        for (i in secretWord.indices) {
+            if (secretWord[i].uppercase() != state.inputText[i].uppercase()) {
+                return false
+            }
+        }
+        return true
+    }
+
     fun onAcceptClick() {
 
         val resultado = validateIfWordContainsLetter()
+
+        Log.d("secretWord", "${state.inputText.uppercase()} == ${secretWord.uppercase()}")
+
+        if (state.inputText.uppercase() == secretWord.uppercase()){
+            state = state.copy(
+                isGameWon = true
+            )
+        }
 
         when (state.tryNumber) {
             0 -> {
@@ -94,9 +111,11 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
+
             else -> {
                 resetGame()
             }
+
         }
 
     }
