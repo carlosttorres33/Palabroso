@@ -5,27 +5,88 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-
+    private val useCases: HomeUseCases
 ) : ViewModel() {
 
-    val secretWord = "papas"
+    //val secretWord = "papas"
     var state by mutableStateOf(HomeState())
         private set
+
+//    init {
+//        setUpGame()
+//    }
+
+    fun setUpGame() {
+
+        resetGame()
+
+        state = state.copy(
+            gameSituation = GameSituations.GameLoading
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            try {
+
+                val word = useCases.getRandomWordUseCase(state.wordsList)
+
+                if (word.isNotEmpty()){
+                    state = state.copy(
+                        actualSecretWord = word,
+                        gameSituation = GameSituations.GameInProgress,
+                        wordsList = state.wordsList.plus(word)
+                    )
+                }
+
+//                val words = useCases.getAllWordsUseCase().map { it.word }
+//
+//                if (words.isEmpty()){
+//                    useCases.upsertAllWordsUseCase()
+//                }
+//
+//                words.forEach { palabra ->
+//                    if (!state.wordsList.contains(palabra)) {
+//                        state = state.copy(
+//                            wordsList = state.wordsList.plus(palabra),
+//                            actualSecretWord = palabra,
+//                            gameSituation = GameSituations.GameInProgress
+//                        )
+//                        return@forEach
+//                    }
+//                }
+
+            } catch (e: Exception) {
+
+
+            }
+
+        }
+
+
+    }
+
+    fun validarPalabrasEnLista(palabras: List<String>, lista: List<String>): Boolean {
+        return palabras.all { palabra -> lista.any { it.contains(palabra) } }
+    }
 
     fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
 
         val resultado = mutableListOf<Pair<String, WordCharState>>()
 
-        for (i in secretWord.indices) {
-            if (secretWord[i].uppercase() == state.inputText[i].uppercase()) {
+        for (i in state.actualSecretWord.indices) {
+            if (state.actualSecretWord[i].uppercase() == state.inputText[i].uppercase()) {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnPosition))
-            } else if (secretWord.uppercase().contains(state.inputText[i].uppercase())) {
+            } else if (state.actualSecretWord.uppercase().contains(state.inputText[i].uppercase())) {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
             } else {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsNotInWord))
@@ -38,9 +99,9 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun checkInputEqualsSecretWord() : Boolean {
-        for (i in secretWord.indices) {
-            if (secretWord[i].uppercase() != state.inputText[i].uppercase()) {
+    fun checkInputEqualsSecretWord(): Boolean {
+        for (i in state.actualSecretWord.indices) {
+            if (state.actualSecretWord[i].uppercase() != state.inputText[i].uppercase()) {
                 return false
             }
         }
@@ -51,11 +112,18 @@ class HomeViewModel @Inject constructor(
 
         val resultado = validateIfWordContainsLetter()
 
-        Log.d("secretWord", "${state.inputText.uppercase()} == ${secretWord.uppercase()}")
+        Log.d("secretWord", "${state.inputText.uppercase()} == ${state.actualSecretWord.uppercase()}")
 
-        if (state.inputText.uppercase() == secretWord.uppercase()){
+        if (state.tryNumber >= 5) {
             state = state.copy(
-                isGameWon = true
+                gameSituation = GameSituations.GameLost
+            )
+            return
+        }
+
+        if (state.inputText.uppercase() == state.actualSecretWord.uppercase()) {
+            state = state.copy(
+                gameSituation = GameSituations.GameWon
             )
         }
 
@@ -81,6 +149,7 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
+
             2 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
@@ -91,6 +160,7 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
+
             3 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
@@ -101,6 +171,7 @@ class HomeViewModel @Inject constructor(
                     )
                 )
             }
+
             4 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
@@ -120,9 +191,20 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun resetGame(){
+    fun resetGame() {
 
-        state = HomeState()
+        state = state.copy(
+            inputText = "",
+            tryNumber = 0,
+            intento1 = TryInfo(),
+            intento2 = TryInfo(),
+            intento3 = TryInfo(),
+            intento4 = TryInfo(),
+            intento5 = TryInfo(),
+            isGameWon = false,
+            isGameLost = false,
+            actualSecretWord = "",
+        )
 
     }
 

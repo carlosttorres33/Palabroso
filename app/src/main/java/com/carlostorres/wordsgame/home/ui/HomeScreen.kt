@@ -1,5 +1,6 @@
 package com.carlostorres.wordsgame.home.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,22 +13,29 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.home.presentation.GameSituations
 import com.carlostorres.wordsgame.home.presentation.HomeEvents
 import com.carlostorres.wordsgame.home.presentation.HomeViewModel
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +44,10 @@ fun HomeScreen(
 ) {
 
     val state = viewModel.state
+
+    LaunchedEffect(Unit) {
+        viewModel.setUpGame()
+    }
 
     Scaffold(
 
@@ -46,34 +58,74 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            
-            if (state.isGameWon){
-                Dialog(onDismissRequest = { viewModel.resetGame() }) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
 
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+            AnimatedContent(targetState = state.gameSituation, label = "") { situations ->
 
-                            Text(text = "GANASTE")
+                when (situations) {
+                    GameSituations.GameInProgress -> {
 
-                            Button(onClick = { viewModel.resetGame() }) {
-                                Text(text = "Jugar de nuevo")
+                    }
+                    GameSituations.GameLost -> {
+                        Dialog(onDismissRequest = { viewModel.setUpGame() }) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+
+                                    Text(text = "Perdiste :c")
+
+                                    Button(
+                                        onClick = {
+                                            viewModel.setUpGame()
+                                        }
+                                    ) {
+                                        Text(text = "Jugar de nuevo")
+                                    }
+
+                                }
                             }
-
                         }
+                    }
+
+                    GameSituations.GameWon -> {
+                        Dialog(onDismissRequest = { viewModel.setUpGame() }) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+
+                                    Text(text = "GANASTE")
+
+                                    Button(onClick = { viewModel.setUpGame() }) {
+                                        Text(text = "Jugar de nuevo")
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    GameSituations.GameLoading -> {
 
                     }
                 }
-            }
 
+            }
 
             Column(
                 modifier = Modifier
@@ -84,7 +136,7 @@ fun HomeScreen(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = viewModel.secretWord,
+                    text = viewModel.state.actualSecretWord,
                     textAlign = TextAlign.Center
                 )
 
