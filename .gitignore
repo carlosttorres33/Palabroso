@@ -48,10 +48,4 @@ output.json
 obj/
 .externalNativeBuild
 
-#Strings
-strings.xml
-res/values/strings.xml
-app/src/main/res/values/strings.xml
-values/strings.xml
-
 google-services.json
