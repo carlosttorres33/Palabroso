@@ -114,17 +114,15 @@ class HomeViewModel @Inject constructor(
 
         Log.d("secretWord", "${state.inputText.uppercase()} == ${state.actualSecretWord.uppercase()}")
 
-        if (state.tryNumber >= 5) {
-            state = state.copy(
-                gameSituation = GameSituations.GameLost
-            )
-            return
-        }
-
         if (state.inputText.uppercase() == state.actualSecretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon
             )
+        }else if (state.tryNumber >= 4) {
+            state = state.copy(
+                gameSituation = GameSituations.GameLost
+            )
+            return
         }
 
         when (state.tryNumber) {
@@ -191,7 +189,7 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun resetGame() {
+    private fun resetGame() {
 
         state = state.copy(
             inputText = "",
