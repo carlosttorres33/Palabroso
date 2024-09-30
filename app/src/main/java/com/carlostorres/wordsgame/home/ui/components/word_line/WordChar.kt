@@ -1,5 +1,6 @@
 package com.carlostorres.wordsgame.home.ui.components.word_line
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +23,8 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 fun WordChar(
     modifier: Modifier = Modifier,
     charState: WordCharState = WordCharState.Empty,
-    char: String
+    char: String,
+    isTurn: Boolean = false
 ) {
 
     Card(
@@ -39,7 +41,8 @@ fun WordChar(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
-        shape = RoundedCornerShape(28.dp)
+        shape = RoundedCornerShape(28.dp),
+        border = BorderStroke(1.dp, if (isTurn)Color.Green else Color.Black)
     ) {
 
         Box(

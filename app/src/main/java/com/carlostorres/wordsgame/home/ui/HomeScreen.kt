@@ -183,13 +183,15 @@ fun HomeScreen(
                             WordChar(
                                 modifier = Modifier,
                                 charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else ""
+                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                isTurn = true
                             )
                         } else {
                             WordChar(
                                 modifier = Modifier,
                                 charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento1.resultado[index].first //state.intento1.word[index].toString()
+                                char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                isTurn = false
                             )
                         }
 
@@ -212,13 +214,14 @@ fun HomeScreen(
                             WordChar(
                                 modifier = Modifier,
                                 charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else ""
+                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                isTurn = true
                             )
                         } else if (state.tryNumber > 1) {
                             WordChar(
                                 modifier = Modifier,
                                 charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento2.resultado[index].first //state.intento1.word[index].toString()
+                                char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
                             )
                         } else {
                             WordChar(char = "")
@@ -243,7 +246,8 @@ fun HomeScreen(
                             WordChar(
                                 modifier = Modifier,
                                 charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else ""
+                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                isTurn = true
                             )
                         } else if (state.tryNumber > 2) {
                             WordChar(
@@ -274,7 +278,8 @@ fun HomeScreen(
                             WordChar(
                                 modifier = Modifier,
                                 charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else ""
+                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                isTurn = true
                             )
                         } else if (state.tryNumber > 3) {
                             WordChar(
@@ -305,7 +310,8 @@ fun HomeScreen(
                             WordChar(
                                 modifier = Modifier,
                                 charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else ""
+                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                isTurn = true
                             )
                         } else if (state.tryNumber > 4) {
                             WordChar(
