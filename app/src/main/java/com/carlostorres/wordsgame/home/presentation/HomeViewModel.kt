@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
+import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -79,17 +80,32 @@ class HomeViewModel @Inject constructor(
         return palabras.all { palabra -> lista.any { it.contains(palabra) } }
     }
 
-    fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
+    private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
 
         val resultado = mutableListOf<Pair<String, WordCharState>>()
 
         for (i in state.actualSecretWord.indices) {
             if (state.actualSecretWord[i].uppercase() == state.inputText[i].uppercase()) {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnPosition))
+                state = state.copy(
+                    keyboard = state.keyboard.map {
+                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnPosition) else it
+                    }
+                )
             } else if (state.actualSecretWord.uppercase().contains(state.inputText[i].uppercase())) {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
+                state = state.copy(
+                    keyboard = state.keyboard.map {
+                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnWord) else it
+                    }
+                )
             } else {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsNotInWord))
+                state = state.copy(
+                    keyboard = state.keyboard.map {
+                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsNotInWord) else it
+                    }
+                )
             }
         }
 
@@ -108,7 +124,7 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    fun onAcceptClick() {
+    private fun onAcceptClick() {
 
         val resultado = validateIfWordContainsLetter()
 

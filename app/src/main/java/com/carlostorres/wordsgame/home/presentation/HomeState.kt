@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.home.presentation
 
 import com.carlostorres.wordsgame.home.data.local.model.WordEntity
+import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 
 data class HomeState(
@@ -17,8 +18,37 @@ data class HomeState(
     val gameSituation : GameSituations = GameSituations.GameInProgress,
 
     val actualSecretWord : String = "",
-    val wordsList : List<String> = emptyList()
+    val wordsList : List<String> = emptyList(),
 
+    val keyboard : List<KeyboardChar> = listOf(
+        KeyboardChar("Q"),
+        KeyboardChar("W"),
+        KeyboardChar("E"),
+        KeyboardChar("R"),
+        KeyboardChar("T"),
+        KeyboardChar("Y"),
+        KeyboardChar("U"),
+        KeyboardChar("I"),
+        KeyboardChar("O"),
+        KeyboardChar("P"),
+        KeyboardChar("A"),
+        KeyboardChar("S"),
+        KeyboardChar("D"),
+        KeyboardChar("F"),
+        KeyboardChar("G"),
+        KeyboardChar("H"),
+        KeyboardChar("J"),
+        KeyboardChar("K"),
+        KeyboardChar("L"),
+        KeyboardChar("Ñ"),
+        KeyboardChar("Z"),
+        KeyboardChar("X"),
+        KeyboardChar("C"),
+        KeyboardChar("V"),
+        KeyboardChar("B"),
+        KeyboardChar("N"),
+        KeyboardChar("M")
+    )
 )
 
 sealed class GameSituations{

@@ -30,13 +30,15 @@ fun KeyboardButton(
     Card(
         modifier = modifier
             .clickable {
-                onClick(char)
+                if (type != ButtonType.IsNotInWord) {
+                    onClick(char)
+                }
             },
         colors = CardDefaults.cardColors(
             containerColor = when (type) {
                 ButtonType.IsOnWord -> Color.Yellow
-                ButtonType.IsNotInWord -> Color.Green
-                ButtonType.IsOnPosition -> Color.Gray
+                ButtonType.IsNotInWord -> Color.Gray
+                ButtonType.IsOnPosition -> Color.Green
                 ButtonType.Unclicked -> Color.White
             }
         ),
@@ -87,8 +89,8 @@ private fun KeyboardButtonPreview() {
 }
 
 sealed class ButtonType {
-    object IsOnWord: ButtonType()
-    object IsOnPosition: ButtonType()
-    object IsNotInWord: ButtonType()
-    object Unclicked: ButtonType()
+    object IsOnWord : ButtonType()
+    object IsOnPosition : ButtonType()
+    object IsNotInWord : ButtonType()
+    object Unclicked : ButtonType()
 }

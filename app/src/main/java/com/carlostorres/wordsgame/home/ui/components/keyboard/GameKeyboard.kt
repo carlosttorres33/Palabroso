@@ -15,14 +15,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun GameKeyboard(
     modifier: Modifier = Modifier,
-    onButtonClick: (String) -> Unit
+    onButtonClick: (String) -> Unit,
+    keyboard: List<KeyboardChar> = emptyList()
 ) {
-
-    val abecedario = listOf(
-        "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
-        "A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ",
-        "Z", "X", "C", "V", "B", "N", "M"
-    )
 
     Box(
         modifier = modifier
@@ -36,14 +31,14 @@ fun GameKeyboard(
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
 
-            items(abecedario){
+            items(keyboard){
 
                 KeyboardButton(
-                    char = it,
+                    char = it.char,
                     onClick = { charClicked ->
                         onButtonClick(charClicked)
                     },
-                    type = ButtonType.Unclicked
+                    type = it.type
                 )
 
             }
@@ -53,6 +48,11 @@ fun GameKeyboard(
     }
     
 }
+
+data class KeyboardChar(
+    val char: String,
+    val type: ButtonType = ButtonType.Unclicked
+)
 
 @Preview (showSystemUi = true)
 @Composable

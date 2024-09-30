@@ -303,7 +303,8 @@ fun HomeScreen(
                         if (state.inputText.length < 5) {
                             viewModel.onEvent(HomeEvents.OnInputTextChange(charClicked))
                         }
-                    }
+                    },
+                    keyboard = state.keyboard
                 )
 
                 Row(
