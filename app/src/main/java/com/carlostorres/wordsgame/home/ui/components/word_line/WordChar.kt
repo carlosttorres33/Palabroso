@@ -1,5 +1,11 @@
 package com.carlostorres.wordsgame.home.ui.components.word_line
 
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +16,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +34,20 @@ fun WordChar(
     isTurn: Boolean = false
 ) {
 
+    val transition = rememberInfiniteTransition(label = "")
+    val alphaAnim by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1500,
+                easing = FastOutLinearInEasing
+            ),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = ""
+    )
+
     Card(
         modifier = modifier
             .height(50.dp),
@@ -42,7 +63,7 @@ fun WordChar(
             defaultElevation = 10.dp
         ),
         shape = RoundedCornerShape(28.dp),
-        border = BorderStroke(1.dp, if (isTurn)Color.Green else Color.Black)
+        border = BorderStroke(1.dp, if (isTurn)Color.Green.copy(alpha = alphaAnim) else Color.Black)
     ) {
 
         Box(
