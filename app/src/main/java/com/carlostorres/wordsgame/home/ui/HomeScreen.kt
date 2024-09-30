@@ -105,6 +105,7 @@ fun HomeScreen(
                                 ) {
 
                                     Text(text = "Perdiste :c")
+                                    Text(text = "La palabra era: ${state.actualSecretWord}")
 
                                     Button(
                                         onClick = {

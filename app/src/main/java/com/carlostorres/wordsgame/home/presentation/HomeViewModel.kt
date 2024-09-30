@@ -30,11 +30,11 @@ class HomeViewModel @Inject constructor(
 
     fun setUpGame() {
 
-        resetGame()
-
         state = state.copy(
             gameSituation = GameSituations.GameLoading
         )
+
+        resetGame()
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
 
                 val word = useCases.getRandomWordUseCase(state.wordsList)
 
-                if (word.isNotEmpty()){
+                if (word.isNotEmpty()) {
                     state = state.copy(
                         actualSecretWord = word,
                         gameSituation = GameSituations.GameInProgress,
@@ -93,7 +93,9 @@ class HomeViewModel @Inject constructor(
                         if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnPosition) else it
                     }
                 )
-            } else if (state.actualSecretWord.uppercase().contains(state.inputText[i].uppercase())) {
+            } else if (state.actualSecretWord.uppercase()
+                    .contains(state.inputText[i].uppercase())
+            ) {
                 resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
                 state = state.copy(
                     keyboard = state.keyboard.map {
@@ -129,13 +131,16 @@ class HomeViewModel @Inject constructor(
 
         val resultado = validateIfWordContainsLetter()
 
-        Log.d("secretWord", "${state.inputText.uppercase()} == ${state.actualSecretWord.uppercase()}")
+        Log.d(
+            "secretWord",
+            "${state.inputText.uppercase()} == ${state.actualSecretWord.uppercase()}"
+        )
 
         if (state.inputText.uppercase() == state.actualSecretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon
             )
-        }else if (state.tryNumber >= 4) {
+        } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost
             )
@@ -240,7 +245,6 @@ class HomeViewModel @Inject constructor(
             intento5 = TryInfo(),
             isGameWon = false,
             isGameLost = false,
-            actualSecretWord = "",
             keyboard = listOf(
                 KeyboardChar("Q"),
                 KeyboardChar("W"),
@@ -269,9 +273,9 @@ class HomeViewModel @Inject constructor(
                 KeyboardChar("B"),
                 KeyboardChar("N"),
                 KeyboardChar("M")
-            )
+            ),
+            actualSecretWord = "",
         )
-
     }
 
 
