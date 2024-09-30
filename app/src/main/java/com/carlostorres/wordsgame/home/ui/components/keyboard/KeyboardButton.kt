@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.carlostorres.wordsgame.ui.bounceClick
 
 @Composable
 fun KeyboardButton(
@@ -29,6 +30,7 @@ fun KeyboardButton(
 
     Card(
         modifier = modifier
+            .bounceClick()
             .clickable {
                 if (type != ButtonType.IsNotInWord) {
                     onClick(char)

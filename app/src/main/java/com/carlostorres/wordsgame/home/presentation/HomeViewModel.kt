@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
+import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -205,23 +206,6 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    private fun resetGame() {
-
-        state = state.copy(
-            inputText = "",
-            tryNumber = 0,
-            intento1 = TryInfo(),
-            intento2 = TryInfo(),
-            intento3 = TryInfo(),
-            intento4 = TryInfo(),
-            intento5 = TryInfo(),
-            isGameWon = false,
-            isGameLost = false,
-            actualSecretWord = "",
-        )
-
-    }
-
     fun onEvent(event: HomeEvents) {
 
         when (event) {
@@ -241,6 +225,52 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+
+    }
+
+    private fun resetGame() {
+
+        state = state.copy(
+            inputText = "",
+            tryNumber = 0,
+            intento1 = TryInfo(),
+            intento2 = TryInfo(),
+            intento3 = TryInfo(),
+            intento4 = TryInfo(),
+            intento5 = TryInfo(),
+            isGameWon = false,
+            isGameLost = false,
+            actualSecretWord = "",
+            keyboard = listOf(
+                KeyboardChar("Q"),
+                KeyboardChar("W"),
+                KeyboardChar("E"),
+                KeyboardChar("R"),
+                KeyboardChar("T"),
+                KeyboardChar("Y"),
+                KeyboardChar("U"),
+                KeyboardChar("I"),
+                KeyboardChar("O"),
+                KeyboardChar("P"),
+                KeyboardChar("A"),
+                KeyboardChar("S"),
+                KeyboardChar("D"),
+                KeyboardChar("F"),
+                KeyboardChar("G"),
+                KeyboardChar("H"),
+                KeyboardChar("J"),
+                KeyboardChar("K"),
+                KeyboardChar("L"),
+                KeyboardChar("Ñ"),
+                KeyboardChar("Z"),
+                KeyboardChar("X"),
+                KeyboardChar("C"),
+                KeyboardChar("V"),
+                KeyboardChar("B"),
+                KeyboardChar("N"),
+                KeyboardChar("M")
+            )
+        )
 
     }
 
