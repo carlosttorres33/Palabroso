@@ -30,13 +30,13 @@ class HomeViewModel @Inject constructor(
 
     fun setUpGame() {
 
-        state = state.copy(
-            gameSituation = GameSituations.GameLoading
-        )
-
-        resetGame()
-
         viewModelScope.launch(Dispatchers.IO) {
+
+            state = state.copy(
+                gameSituation = GameSituations.GameLoading
+            )
+
+            resetGame()
 
             try {
 

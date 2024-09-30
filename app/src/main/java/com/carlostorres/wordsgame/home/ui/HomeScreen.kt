@@ -41,10 +41,6 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
-import nl.dionsegijn.konfetti.core.Party
-import nl.dionsegijn.konfetti.core.Position
-import nl.dionsegijn.konfetti.core.emitter.Emitter
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -68,85 +64,68 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
 
-            AnimatedContent(
-                targetState = state.gameSituation,
-                transitionSpec = {
-                    // Entra deslizándose desde la izquierda
-                    slideInHorizontally(
-                        initialOffsetX = { -it }, // Comienza fuera de la pantalla a la izquierda
-                        animationSpec = tween(durationMillis = 500) // Duración de 500ms
-                    ) + fadeIn(animationSpec = tween(durationMillis = 500)) with
-                            // Sale deslizándose hacia la derecha
-                            slideOutHorizontally(
-                                targetOffsetX = { it }, // Se mueve fuera de la pantalla a la derecha
-                                animationSpec = tween(durationMillis = 500)
-                            ) + fadeOut(animationSpec = tween(durationMillis = 500))
-                },
-                label = ""
-            ) { situations ->
-
-                when (situations) {
-                    GameSituations.GameInProgress -> {
-
+            when (state.gameSituation) {
+                GameSituations.GameLoading -> {
+                    Dialog(onDismissRequest = { /*TODO*/ }) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
                     }
-                    GameSituations.GameLost -> {
-                        Dialog(onDismissRequest = { viewModel.setUpGame() }) {
-                            Card(
+                }
+                GameSituations.GameInProgress -> {}
+                GameSituations.GameLost -> {
+                    Dialog(onDismissRequest = { viewModel.setUpGame() }) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(32.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
 
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(32.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
+                                Text(text = "Perdiste :c")
+                                Text(text = "La palabra era: ${state.actualSecretWord}")
 
-                                    Text(text = "Perdiste :c")
-                                    Text(text = "La palabra era: ${state.actualSecretWord}")
-
-                                    Button(
-                                        onClick = {
-                                            viewModel.setUpGame()
-                                        }
-                                    ) {
-                                        Text(text = "Jugar de nuevo")
+                                Button(
+                                    onClick = {
+                                        viewModel.setUpGame()
                                     }
-
+                                ) {
+                                    Text(text = "Jugar de nuevo")
                                 }
+
                             }
                         }
                     }
+                }
+                GameSituations.GameWon -> {
+                    Dialog(onDismissRequest = { viewModel.setUpGame() }) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
 
-                    GameSituations.GameWon -> {
-                        Dialog(onDismissRequest = { viewModel.setUpGame() }) {
-                            Card(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(32.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
 
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(32.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
+                                Text(text = "GANASTE")
 
-                                    Text(text = "GANASTE")
-
-                                    Button(onClick = { viewModel.setUpGame() }) {
-                                        Text(text = "Jugar de nuevo")
-                                    }
-
+                                Button(onClick = { viewModel.setUpGame() }) {
+                                    Text(text = "Jugar de nuevo")
                                 }
+
                             }
                         }
-                    }
-                    GameSituations.GameLoading -> {
-
                     }
                 }
 
