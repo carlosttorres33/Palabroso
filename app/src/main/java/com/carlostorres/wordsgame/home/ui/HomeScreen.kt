@@ -1,6 +1,13 @@
 package com.carlostorres.wordsgame.home.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,8 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.home.presentation.GameSituations
@@ -37,7 +46,7 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
@@ -59,7 +68,22 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
 
-            AnimatedContent(targetState = state.gameSituation, label = "") { situations ->
+            AnimatedContent(
+                targetState = state.gameSituation,
+                transitionSpec = {
+                    // Entra deslizándose desde la izquierda
+                    slideInHorizontally(
+                        initialOffsetX = { -it }, // Comienza fuera de la pantalla a la izquierda
+                        animationSpec = tween(durationMillis = 500) // Duración de 500ms
+                    ) + fadeIn(animationSpec = tween(durationMillis = 500)) with
+                            // Sale deslizándose hacia la derecha
+                            slideOutHorizontally(
+                                targetOffsetX = { it }, // Se mueve fuera de la pantalla a la derecha
+                                animationSpec = tween(durationMillis = 500)
+                            ) + fadeOut(animationSpec = tween(durationMillis = 500))
+                },
+                label = ""
+            ) { situations ->
 
                 when (situations) {
                     GameSituations.GameInProgress -> {
@@ -136,8 +160,10 @@ fun HomeScreen(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = viewModel.state.actualSecretWord,
-                    textAlign = TextAlign.Center
+                    text = "WORDS GAME",
+                    textAlign = TextAlign.Center,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
