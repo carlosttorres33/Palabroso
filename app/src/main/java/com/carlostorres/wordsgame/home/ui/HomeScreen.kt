@@ -41,6 +41,7 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.home.ui.components.word_line.WordLine
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -148,164 +149,40 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
-                    columns = StaggeredGridCells.Fixed(5),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                WordLine(
+                    tryNumber = state.tryNumber,
+                    inputText = state.inputText,
+                    tryInfo = state.intento1,
+                    numberRow = 0
+                )
 
-                    items(5) { index ->
+                WordLine(
+                    tryNumber = state.tryNumber,
+                    inputText = state.inputText,
+                    tryInfo = state.intento2,
+                    numberRow = 1
+                )
 
-                        if (state.tryNumber == 0) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
-                                isTurn = false
-                            )
-                        }
+                WordLine(
+                    tryNumber = state.tryNumber,
+                    inputText = state.inputText,
+                    tryInfo = state.intento3,
+                    numberRow = 2
+                )
 
-                    }
+                WordLine(
+                    tryNumber = state.tryNumber,
+                    inputText = state.inputText,
+                    tryInfo = state.intento4,
+                    numberRow = 3
+                )
 
-                }
-
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
-                    columns = StaggeredGridCells.Fixed(5),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-
-                    items(5) { index ->
-
-                        if (state.tryNumber == 1) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else if (state.tryNumber > 1) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
-                            )
-                        } else {
-                            WordChar(char = "")
-                        }
-
-                    }
-
-                }
-
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
-                    columns = StaggeredGridCells.Fixed(5),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-
-                    items(5) { index ->
-
-                        if (state.tryNumber == 2) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else if (state.tryNumber > 2) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento3.resultado[index].first //state.intento1.word[index].toString()
-                            )
-                        } else {
-                            WordChar(char = "")
-                        }
-
-                    }
-
-                }
-
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
-                    columns = StaggeredGridCells.Fixed(5),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-
-                    items(5) { index ->
-
-                        if (state.tryNumber == 3) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else if (state.tryNumber > 3) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento4.resultado[index].first //state.intento1.word[index].toString()
-                            )
-                        } else {
-                            WordChar(char = "")
-                        }
-
-                    }
-
-                }
-
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
-                    columns = StaggeredGridCells.Fixed(5),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-
-                    items(5) { index ->
-
-                        if (state.tryNumber == 4) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else if (state.tryNumber > 4) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento5.resultado[index].first //state.intento1.word[index].toString()
-                            )
-                        } else {
-                            WordChar(char = "")
-                        }
-
-                    }
-
-                }
+                WordLine(
+                    tryNumber = state.tryNumber,
+                    inputText = state.inputText,
+                    tryInfo = state.intento5,
+                    numberRow = 4
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
