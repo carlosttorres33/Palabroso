@@ -149,12 +149,36 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                WordLine(
-                    tryNumber = state.tryNumber,
-                    inputText = state.inputText,
-                    tryInfo = state.intento1,
-                    numberRow = 0
-                )
+                LazyVerticalStaggeredGrid(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                    columns = StaggeredGridCells.Fixed(5),
+                    verticalItemSpacing = 10.dp,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+
+                    items(5) { index ->
+
+                        if (state.tryNumber == 0) {
+                            WordChar(
+                                modifier = Modifier,
+                                charState = WordCharState.Empty,
+                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                isTurn = true
+                            )
+                        } else {
+                            WordChar(
+                                modifier = Modifier,
+                                charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                isTurn = false
+                            )
+                        }
+
+                    }
+
+                }
 
                 WordLine(
                     tryNumber = state.tryNumber,

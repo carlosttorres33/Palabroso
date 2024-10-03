@@ -235,46 +235,10 @@ class HomeViewModel @Inject constructor(
 
     private fun resetGame() {
 
-        state = state.copy(
-            inputText = "",
-            tryNumber = 0,
-            intento1 = TryInfo(),
-            intento2 = TryInfo(),
-            intento3 = TryInfo(),
-            intento4 = TryInfo(),
-            intento5 = TryInfo(),
-            isGameWon = false,
-            isGameLost = false,
-            keyboard = listOf(
-                KeyboardChar("Q"),
-                KeyboardChar("W"),
-                KeyboardChar("E"),
-                KeyboardChar("R"),
-                KeyboardChar("T"),
-                KeyboardChar("Y"),
-                KeyboardChar("U"),
-                KeyboardChar("I"),
-                KeyboardChar("O"),
-                KeyboardChar("P"),
-                KeyboardChar("A"),
-                KeyboardChar("S"),
-                KeyboardChar("D"),
-                KeyboardChar("F"),
-                KeyboardChar("G"),
-                KeyboardChar("H"),
-                KeyboardChar("J"),
-                KeyboardChar("K"),
-                KeyboardChar("L"),
-                KeyboardChar("Ñ"),
-                KeyboardChar("Z"),
-                KeyboardChar("X"),
-                KeyboardChar("C"),
-                KeyboardChar("V"),
-                KeyboardChar("B"),
-                KeyboardChar("N"),
-                KeyboardChar("M")
-            ),
-            actualSecretWord = "",
+        val valuesSaved = state
+
+        state = HomeState().copy(
+            wordsList = valuesSaved.wordsList
         )
     }
 

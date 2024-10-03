@@ -40,64 +40,113 @@ fun WordLine(
 
         items(5) { index ->
 
-            if (tryNumber == 0) {
+//            if (tryNumber == 0) {
+//
+//                if (tryNumber == 0) {
+//                    WordChar(
+//                        modifier = Modifier,
+//                        charState = WordCharState.Empty,
+//                        char = if (index < inputText.length) inputText[index].toString() else "",
+//                        isTurn = true
+//                    )
+//                } else {
+//                    WordChar(
+//                        modifier = Modifier,
+//                        charState = tryInfo.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+//                        char = tryInfo.resultado[index].first, //state.intento1.word[index].toString()
+//                        isTurn = false
+//                    )
+//                }
+//
+//            }else{
+//                AnimatedContent(
+//                    targetState = tryInfo,
+//                    label = "",
+//                    transitionSpec = {
+//                        fadeIn(animationSpec = tween(durationMillis = 2000)) with
+//                                fadeOut(animationSpec = tween(durationMillis = 2000))
+//                    }
+//                ) { target ->
+//
+//                    if (tryNumber == numberRow) {
+//                        WordChar(
+//                            modifier = Modifier,
+//                            charState = WordCharState.Empty,
+//                            char = if (inputText.isEmpty()) {
+//                                ""
+//                            } else {
+//                                if (index < inputText.length) {
+//                                    inputText[index].toString()
+//                                } else ""
+//                            },
+//                            isTurn = true
+//                        )
+//                    } else if (tryNumber < numberRow) {
+//                        WordChar(
+//                            modifier = Modifier,
+//                            charState = tryInfo.resultado[index].second,
+//                            char = tryInfo.resultado[index].first,
+//                        )
+//                    } else {
+//                        WordChar(char = "")
+//                    }
+//                }
+//            }
 
-                if (tryNumber == 0) {
-                    WordChar(
-                        modifier = Modifier,
-                        charState = WordCharState.Empty,
-                        char = if (index < inputText.length) inputText[index].toString() else "",
-                        isTurn = true
-                    )
-                } else {
-                    WordChar(
-                        modifier = Modifier,
-                        charState = tryInfo.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                        char = tryInfo.resultado[index].first, //state.intento1.word[index].toString()
-                        isTurn = false
-                    )
+            AnimatedContent(
+                targetState = tryNumber,
+                label = "",
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(durationMillis = 2000)) with
+                            fadeOut(animationSpec = tween(durationMillis = 2000))
                 }
+            ) { target ->
 
-            }else{
-                AnimatedContent(
-                    targetState = tryInfo,
-                    label = "",
-                    transitionSpec = {
-                        fadeIn(animationSpec = tween(durationMillis = 2000)) with
-                                fadeOut(animationSpec = tween(durationMillis = 2000))
+                when {
+                    target > numberRow -> {
+                        WordChar(
+                            modifier = Modifier,
+                            charState = tryInfo.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                            char = tryInfo.resultado[index].first, //state.intento1.word[index].toString()
+                        )
                     }
-                ) { target ->
-
-                    if (tryNumber == numberRow) {
-                        WordChar(
-                            modifier = Modifier,
-                            charState = WordCharState.Empty,
-                            char = if (inputText.isEmpty()) {
-                                ""
-                            } else {
-                                if (index < inputText.length) {
-                                    inputText[index].toString()
-                                } else ""
-                            },
-                            isTurn = true
-                        )
-                    } else if (tryNumber < numberRow) {
-                        WordChar(
-                            modifier = Modifier,
-                            charState = tryInfo.resultado[index].second,
-                            char = tryInfo.resultado[index].first,
-                        )
-                    } else {
-                        WordChar(char = "")
+                    else -> {
+                        if (tryNumber == numberRow) {
+                            WordChar(
+                                modifier = Modifier,
+                                charState = WordCharState.Empty,
+                                char = if (index < inputText.length) inputText[index].toString() else "",
+                                isTurn = true
+                            )
+                        }else{
+                            WordChar(char = "")
+                        }
                     }
                 }
             }
 
 
-
         }
+
+//        if (tryNumber == numberRow) {
+//            WordChar(
+//                modifier = Modifier,
+//                charState = WordCharState.Empty,
+//                char = if (index < inputText.length) inputText[index].toString() else "",
+//                isTurn = true
+//            )
+//        } else if (tryNumber > numberRow) {
+//            WordChar(
+//                modifier = Modifier,
+//                charState = tryInfo.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+//                char = tryInfo.resultado[index].first, //state.intento1.word[index].toString()
+//            )
+//        } else {
+//            WordChar(char = "")
+//        }
 
 
     }
+
 
 }
