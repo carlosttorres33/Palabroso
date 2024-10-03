@@ -34,6 +34,10 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import nl.dionsegijn.konfetti.compose.KonfettiView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun HomeScreen(
@@ -100,32 +104,50 @@ fun HomeScreen(
                 }
 
                 GameSituations.GameWon -> {
-                    Dialog(onDismissRequest = {}) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
 
-                            Column(
+                    Dialog(onDismissRequest = {}) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(32.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                    .align(Alignment.Center)
                             ) {
 
-                                Text(text = "GANASTE")
-
-                                Button(
-                                    onClick = {
-                                        viewModel.showInterstitial(activity)
-                                    }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(32.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(text = "Jugar de nuevo")
-                                }
 
+                                    Text(text = "GANASTE")
+
+                                    Button(
+                                        onClick = {
+                                            viewModel.showInterstitial(activity)
+                                        }
+                                    ) {
+                                        Text(text = "Jugar de nuevo")
+                                    }
+
+                                }
                             }
                         }
+                        KonfettiView(
+                            modifier = Modifier.fillMaxSize(),
+                            parties = listOf(
+                                Party(
+                                    emitter = Emitter(duration = 4, TimeUnit.SECONDS).perSecond(30)
+                                ),
+                                Party(
+                                    emitter = Emitter(duration = 4, TimeUnit.SECONDS).perSecond(30)
+                                ),
+                                Party(
+                                    emitter = Emitter(duration = 4, TimeUnit.SECONDS).perSecond(30)
+                                )
+                            )
+                        )
                     }
                 }
 
