@@ -1,5 +1,6 @@
 package com.carlostorres.wordsgame.home.presentation
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,10 @@ import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,13 +25,8 @@ class HomeViewModel @Inject constructor(
     private val useCases: HomeUseCases
 ) : ViewModel() {
 
-    //val secretWord = "papas"
     var state by mutableStateOf(HomeState())
         private set
-
-//    init {
-//        setUpGame()
-//    }
 
     fun setUpGame() {
 
@@ -50,35 +50,17 @@ class HomeViewModel @Inject constructor(
                     )
                 }
 
-//                val words = useCases.getAllWordsUseCase().map { it.word }
-//
-//                if (words.isEmpty()){
-//                    useCases.upsertAllWordsUseCase()
-//                }
-//
-//                words.forEach { palabra ->
-//                    if (!state.wordsList.contains(palabra)) {
-//                        state = state.copy(
-//                            wordsList = state.wordsList.plus(palabra),
-//                            actualSecretWord = palabra,
-//                            gameSituation = GameSituations.GameInProgress
-//                        )
-//                        return@forEach
-//                    }
-//                }
-
             } catch (e: Exception) {
 
+                state = state.copy(
+                    gameSituation = GameSituations.GameLost
+                )
 
             }
 
         }
 
 
-    }
-
-    fun validarPalabrasEnLista(palabras: List<String>, lista: List<String>): Boolean {
-        return palabras.all { palabra -> lista.any { it.contains(palabra) } }
     }
 
     private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
@@ -116,15 +98,6 @@ class HomeViewModel @Inject constructor(
 
         return resultado
 
-    }
-
-    fun checkInputEqualsSecretWord(): Boolean {
-        for (i in state.actualSecretWord.indices) {
-            if (state.actualSecretWord[i].uppercase() != state.inputText[i].uppercase()) {
-                return false
-            }
-        }
-        return true
     }
 
     private fun onAcceptClick() {
@@ -230,6 +203,58 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+
+    }
+
+    fun showInterstitial(activity: Activity){
+
+        state = state.copy(
+            gameSituation = GameSituations.GameLoading
+        )
+
+        loadInterstitial(activity){ interstitialAd ->
+            if(interstitialAd != null){
+
+                interstitialAd.show(activity)
+                interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+                    override fun onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent()
+                        setUpGame()
+                    }
+                }
+
+            }else{
+                setUpGame()
+                Log.d("Ad Error", "Ad is null")
+
+            }
+        }
+
+    }
+
+    private fun loadInterstitial(activity: Activity, callback : (InterstitialAd?) -> Unit ){
+
+        val adRequest = com.google.android.gms.ads.AdRequest.Builder().build()
+
+        InterstitialAd.load(
+            activity,
+            "ca-app-pub-8184827769738877/6817794094",
+            adRequest,
+            object : InterstitialAdLoadCallback(){
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    super.onAdFailedToLoad(error)
+                    Log.d("Ad Error", "Error: ${error.message}")
+                    callback(null)
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    super.onAdLoaded(interstitialAd)
+                    callback(interstitialAd)
+                }
+
+            }
+        )
 
     }
 

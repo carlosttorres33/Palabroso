@@ -1,6 +1,5 @@
 package com.carlostorres.wordsgame.home.presentation
 
-import com.carlostorres.wordsgame.home.data.local.model.WordEntity
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 

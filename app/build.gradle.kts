@@ -86,4 +86,7 @@ dependencies {
     //Confetti
     implementation ("nl.dionsegijn:konfetti-compose:2.0.4")
 
+    //AdMob
+    implementation("com.google.android.gms:play-services-ads:23.3.0")
+
 }

@@ -1,13 +1,6 @@
 package com.carlostorres.wordsgame.home.ui
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
+import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,13 +14,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,11 +35,12 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+
+    val activity = LocalContext.current as Activity
 
     val state = viewModel.state
 
@@ -72,9 +66,10 @@ fun HomeScreen(
                         }
                     }
                 }
+
                 GameSituations.GameInProgress -> {}
                 GameSituations.GameLost -> {
-                    Dialog(onDismissRequest = { viewModel.setUpGame() }) {
+                    Dialog(onDismissRequest = {}) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -93,7 +88,7 @@ fun HomeScreen(
 
                                 Button(
                                     onClick = {
-                                        viewModel.setUpGame()
+                                        viewModel.showInterstitial(activity)
                                     }
                                 ) {
                                     Text(text = "Jugar de nuevo")
@@ -103,8 +98,9 @@ fun HomeScreen(
                         }
                     }
                 }
+
                 GameSituations.GameWon -> {
-                    Dialog(onDismissRequest = { viewModel.setUpGame() }) {
+                    Dialog(onDismissRequest = {}) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -120,7 +116,11 @@ fun HomeScreen(
 
                                 Text(text = "GANASTE")
 
-                                Button(onClick = { viewModel.setUpGame() }) {
+                                Button(
+                                    onClick = {
+                                        viewModel.showInterstitial(activity)
+                                    }
+                                ) {
                                     Text(text = "Jugar de nuevo")
                                 }
 
