@@ -18,8 +18,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.home.presentation.GameSituations
 import com.carlostorres.wordsgame.home.presentation.HomeEvents
 import com.carlostorres.wordsgame.home.presentation.HomeViewModel
+import com.carlostorres.wordsgame.home.ui.components.CountBox
+import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
@@ -47,6 +54,10 @@ fun HomeScreen(
     val activity = LocalContext.current as Activity
 
     val state = viewModel.state
+
+    var showWordAlreadyTried by remember {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.setUpGame()
@@ -159,14 +170,26 @@ fun HomeScreen(
                     .fillMaxSize()
             ) {
 
-                Text(
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    text = "WORDS GAME",
-                    textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    CountBox(char = 'W', count = state.gameWinsCount, color = Color.Green)
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        modifier = Modifier,
+                        text = "WORDS GAME",
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    CountBox(char = 'L', count = state.gameLostCount, color = Color.Red)
+
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -351,10 +374,15 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f),
                         char = "Aceptar",
                         onClick = { charClicked ->
-                            if (state.inputText.length == 5 && state.tryNumber < 5) {
-                                viewModel.onEvent(HomeEvents.OnAcceptClick)
+                            if (state.wordsTried.contains(state.inputText)) {
+                                showWordAlreadyTried = true
+                            } else {
+                                if (state.inputText.length == 5 && state.tryNumber < 5) {
+                                    viewModel.onEvent(HomeEvents.OnAcceptClick)
+                                }
                             }
-                        }
+                        },
+                        type = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -369,6 +397,36 @@ fun HomeScreen(
 
                 }
 
+            }
+
+            if (showWordAlreadyTried) {
+                Dialog(onDismissRequest = {showWordAlreadyTried = false}) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            Text(text = "Esa palabra ya la has intentado, intenta con otra")
+
+                            Button(
+                                onClick = {
+                                    showWordAlreadyTried = false
+                                }
+                            ) {
+                                Text(text = "OK")
+                            }
+
+                        }
+                    }
+                }
             }
 
         }

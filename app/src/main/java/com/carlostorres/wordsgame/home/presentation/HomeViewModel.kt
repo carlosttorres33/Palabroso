@@ -104,6 +104,8 @@ class HomeViewModel @Inject constructor(
 
     private fun onAcceptClick() {
 
+        state = state.copy(wordsTried = state.wordsTried.plus(state.inputText))
+
         val resultado = validateIfWordContainsLetter()
 
         Log.d(
@@ -113,11 +115,13 @@ class HomeViewModel @Inject constructor(
 
         if (state.inputText.uppercase() == state.actualSecretWord.uppercase()) {
             state = state.copy(
-                gameSituation = GameSituations.GameWon
+                gameSituation = GameSituations.GameWon,
+                gameWinsCount = state.gameWinsCount + 1
             )
         } else if (state.tryNumber >= 4) {
             state = state.copy(
-                gameSituation = GameSituations.GameLost
+                gameSituation = GameSituations.GameLost,
+                gameLostCount = state.gameLostCount + 1
             )
             return
         }
@@ -194,11 +198,9 @@ class HomeViewModel @Inject constructor(
                     inputText = state.inputText + event.inputText
                 )
             }
-
             is HomeEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
-
             is HomeEvents.OnDeleteClick -> {
                 state = state.copy(
                     inputText = state.inputText.dropLast(1)

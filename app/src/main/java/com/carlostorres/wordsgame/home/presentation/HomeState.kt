@@ -15,10 +15,8 @@ data class HomeState(
     val isGameWon : Boolean = false,
     val isGameLost : Boolean = false,
     val gameSituation : GameSituations = GameSituations.GameInProgress,
-
     val actualSecretWord : String = "",
     val wordsList : List<String> = emptyList(),
-
     val keyboard : List<KeyboardChar> = listOf(
         KeyboardChar("Q"),
         KeyboardChar("W"),
@@ -47,7 +45,10 @@ data class HomeState(
         KeyboardChar("B"),
         KeyboardChar("N"),
         KeyboardChar("M")
-    )
+    ),
+    val gameWinsCount : Int = 0,
+    val gameLostCount : Int = 0,
+    val wordsTried : List<String> = emptyList()
 )
 
 sealed class GameSituations{
