@@ -1,6 +1,13 @@
 package com.carlostorres.wordsgame.home.ui
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +54,7 @@ import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
@@ -205,21 +213,44 @@ fun HomeScreen(
 
                     items(5) { index ->
 
-                        if (state.tryNumber == 0) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
-                                isTurn = false
-                            )
+                        AnimatedContent(
+                            targetState = state.tryNumber,
+                            transitionSpec = {
+                                // Define la animación aquí (fadeIn/fadeOut, slideIn/slideOut, etc.)
+                                if (targetState > 0 && initialState <= 0) {
+                                    slideInVertically() + fadeIn() with slideOutVertically() + fadeOut()
+                                } else if (targetState <= 0 && initialState > 0) {
+                                    slideInVertically(initialOffsetY = { it }) + fadeIn() with slideOutVertically(
+                                        targetOffsetY = { -it }) + fadeOut()
+                                } else {
+                                    fadeIn() with fadeOut() // Sin animación si tryNumber no cambia de mayor a 1 o viceversa
+                                }
+                            }
+                        ) { target ->
+
+                            if (target <= 0) {
+                                WordChar(
+                                    modifier = Modifier,
+                                    charState = WordCharState.Empty,
+                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                    isTurn = true
+                                )
+                            } else {
+                                WordChar(
+                                    modifier = Modifier,
+//                                    charState = if (state.intento1.resultado.isNotEmpty()) {
+//                                        state.intento1.resultado[index].second
+//                                    } else {
+//                                        WordCharState.Empty
+//                                    },
+                                    charState = state.intento1.resultado[index].second,
+                                    char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                    isTurn = false
+                                )
+                            }
+
                         }
+
 
                     }
 
@@ -236,22 +267,54 @@ fun HomeScreen(
 
                     items(5) { index ->
 
-                        if (state.tryNumber == 1) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = WordCharState.Empty,
-                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                isTurn = true
-                            )
-                        } else if (state.tryNumber > 1) {
-                            WordChar(
-                                modifier = Modifier,
-                                charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
-                            )
-                        } else {
-                            WordChar(char = "")
+                        AnimatedContent(
+                            targetState = state.tryNumber,
+                            transitionSpec = {
+                                // Define la animación aquí (fadeIn/fadeOut, slideIn/slideOut, etc.)
+                                if (targetState > 1 && initialState <= 1) {
+                                    slideInVertically() + fadeIn() with slideOutVertically() + fadeOut()
+                                } else if (targetState <= 1 && initialState > 1) {
+                                    slideInVertically(initialOffsetY = { it }) + fadeIn() with slideOutVertically(
+                                        targetOffsetY = { -it }) + fadeOut()
+                                } else {
+                                    fadeIn() with fadeOut() // Sin animación si tryNumber no cambia de mayor a 1 o viceversa
+                                }
+                            }
+                        ) { tryNumber ->
+                            if (tryNumber == 1) {
+                                WordChar(
+                                    modifier = Modifier,
+                                    charState = WordCharState.Empty,
+                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+                                    isTurn = true
+                                )
+                            } else if (tryNumber > 1) {
+                                WordChar(
+                                    modifier = Modifier,
+                                    charState = state.intento2.resultado[index].second,
+                                    char = state.intento2.resultado[index].first
+                                )
+                            } else {
+                                WordChar(char = "")
+                            }
                         }
+
+//                        if (state.tryNumber == 1) {
+//                            WordChar(
+//                                modifier = Modifier,
+//                                charState = WordCharState.Empty,
+//                                char = if (index < state.inputText.length) state.inputText[index].toString() else "",
+//                                isTurn = true
+//                            )
+//                        } else if (state.tryNumber > 1) {
+//                            WordChar(
+//                                modifier = Modifier,
+//                                charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+//                                char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
+//                            )
+//                        } else {
+//                            WordChar(char = "")
+//                        }
 
                     }
 
@@ -377,7 +440,7 @@ fun HomeScreen(
             }
 
             if (showWordAlreadyTried) {
-                Dialog(onDismissRequest = {showWordAlreadyTried = false}) {
+                Dialog(onDismissRequest = { showWordAlreadyTried = false }) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
