@@ -52,6 +52,8 @@ class HomeViewModel @Inject constructor(
 
             } catch (e: Exception) {
 
+                Log.d("Error", e.message.toString())
+
                 state = state.copy(
                     gameSituation = GameSituations.GameLost
                 )

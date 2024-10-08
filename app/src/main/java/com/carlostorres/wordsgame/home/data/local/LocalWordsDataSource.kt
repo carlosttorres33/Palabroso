@@ -1,6 +1,5 @@
 package com.carlostorres.wordsgame.home.data.local
 
-import com.carlostorres.wordsgame.home.data.WordGameDao
 import com.carlostorres.wordsgame.home.data.local.model.WordEntity
 import javax.inject.Inject
 
