@@ -265,8 +265,8 @@ class HomeViewModel @Inject constructor(
     private fun resetGame() {
 
         state = state.copy(
-            inputText = "",
             tryNumber = 0,
+            inputText = "",
             intento1 = TryInfo(),
             intento2 = TryInfo(),
             intento3 = TryInfo(),

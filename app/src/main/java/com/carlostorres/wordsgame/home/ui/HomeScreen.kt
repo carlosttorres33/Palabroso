@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -361,41 +362,17 @@ fun HomeScreen(
                             viewModel.onEvent(HomeEvents.OnInputTextChange(charClicked))
                         }
                     },
-                    keyboard = state.keyboard
+                    keyboard = state.keyboard,
+                    onAcceptClick = {
+                        viewModel.onEvent(HomeEvents.OnAcceptClick)
+                    },
+                    onAcceptState = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord,
+                    onBackspaceClick = {
+                        viewModel.onEvent(HomeEvents.OnDeleteClick)
+                    }
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 36.dp)
-                ) {
-
-                    KeyboardButton(
-                        modifier = Modifier.weight(1f),
-                        char = "Aceptar",
-                        onClick = { charClicked ->
-                            if (state.wordsTried.contains(state.inputText)) {
-                                showWordAlreadyTried = true
-                            } else {
-                                if (state.inputText.length == 5 && state.tryNumber < 5) {
-                                    viewModel.onEvent(HomeEvents.OnAcceptClick)
-                                }
-                            }
-                        },
-                        type = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    KeyboardButton(
-                        modifier = Modifier.weight(1f),
-                        char = "borrar",
-                        onClick = { charClicked ->
-                            viewModel.onEvent(HomeEvents.OnDeleteClick)
-                        }
-                    )
-
-                }
+                Spacer(modifier = Modifier.height(20.dp))
 
             }
 
