@@ -1,6 +1,8 @@
 package com.carlostorres.wordsgame.home.ui
 
 import android.app.Activity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,18 +10,26 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,10 +40,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.home.presentation.GameSituations
 import com.carlostorres.wordsgame.home.presentation.HomeEvents
 import com.carlostorres.wordsgame.home.presentation.HomeViewModel
+import com.carlostorres.wordsgame.home.ui.components.CountBox
+import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
-import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
+import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkRed
+import com.carlostorres.wordsgame.ui.theme.DarkTextGray
+import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightRed
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.emitter.Emitter
@@ -48,18 +68,27 @@ fun HomeScreen(
 
     val state = viewModel.state
 
+    var showWordAlreadyTried by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.setUpGame()
+        if (state.actualSecretWord.isEmpty()) {
+            viewModel.setUpGame()
+        }
     }
 
     Scaffold(
-
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LightBackgroundGray)
     ) { paddingValues ->
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray)
         ) {
 
             when (state.gameSituation) {
@@ -76,7 +105,10 @@ fun HomeScreen(
                     Dialog(onDismissRequest = {}) {
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
+                            )
                         ) {
 
                             Column(
@@ -87,15 +119,29 @@ fun HomeScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
 
-                                Text(text = "Perdiste :c")
-                                Text(text = "La palabra era: ${state.actualSecretWord}")
+                                Text(
+                                    text = "Perdiste :c",
+                                    color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                                )
+                                Text(
+                                    text = "La palabra era: ${state.actualSecretWord}",
+                                    color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                                )
 
                                 Button(
+                                    modifier = Modifier
+                                        .bounceClick(),
                                     onClick = {
                                         viewModel.showInterstitial(activity)
-                                    }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isSystemInDarkTheme()) Color.Black else DarkCustomGray
+                                    )
                                 ) {
-                                    Text(text = "Jugar de nuevo")
+                                    Text(
+                                        text = "Jugar de nuevo",
+                                        color = if (isSystemInDarkTheme()) Color.White else Color.White
+                                    )
                                 }
 
                             }
@@ -110,7 +156,10 @@ fun HomeScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .align(Alignment.Center)
+                                    .align(Alignment.Center),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
+                                )
                             ) {
 
                                 Column(
@@ -121,14 +170,25 @@ fun HomeScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
 
-                                    Text(text = "GANASTE")
+                                    Text(
+                                        text = "GANASTE",
+                                        color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                                    )
 
                                     Button(
+                                        modifier = Modifier
+                                            .bounceClick(),
                                         onClick = {
                                             viewModel.showInterstitial(activity)
-                                        }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isSystemInDarkTheme()) Color.Black else DarkCustomGray
+                                        )
                                     ) {
-                                        Text(text = "Jugar de nuevo")
+                                        Text(
+                                            text = "Jugar de nuevo",
+                                            color = if (isSystemInDarkTheme()) Color.White else Color.White
+                                        )
                                     }
 
                                 }
@@ -159,21 +219,41 @@ fun HomeScreen(
                     .fillMaxSize()
             ) {
 
-                Text(
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    text = "WORDS GAME",
-                    textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+
+                    CountBox(
+                        char = 'W',
+                        count = state.gameWinsCount,
+                        color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        modifier = Modifier,
+                        text = "WORDS GAME",
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    CountBox(
+                        char = 'L',
+                        count = state.gameLostCount,
+                        color = if (isSystemInDarkTheme()) DarkRed else LightRed
+                    )
+
+                }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -204,7 +284,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -236,7 +316,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -268,7 +348,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -300,7 +380,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -338,37 +418,54 @@ fun HomeScreen(
                             viewModel.onEvent(HomeEvents.OnInputTextChange(charClicked))
                         }
                     },
-                    keyboard = state.keyboard
+                    keyboard = state.keyboard,
+                    onAcceptClick = {
+                        if (state.wordsTried.contains(state.inputText)) {
+                            showWordAlreadyTried = true
+                        } else {
+                            viewModel.onEvent(HomeEvents.OnAcceptClick)
+                        }
+                    },
+                    onAcceptState = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord,
+                    onBackspaceClick = {
+                        viewModel.onEvent(HomeEvents.OnDeleteClick)
+                    }
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 36.dp)
-                ) {
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    KeyboardButton(
-                        modifier = Modifier.weight(1f),
-                        char = "Aceptar",
-                        onClick = { charClicked ->
-                            if (state.inputText.length == 5 && state.tryNumber < 5) {
-                                viewModel.onEvent(HomeEvents.OnAcceptClick)
+            }
+
+            if (showWordAlreadyTried) {
+                Dialog(onDismissRequest = { showWordAlreadyTried = false }) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            Text(text = "Esa palabra ya la has intentado, intenta con otra")
+
+                            Button(
+                                modifier = Modifier
+                                    .bounceClick(),
+                                onClick = {
+                                    showWordAlreadyTried = false
+                                }
+                            ) {
+                                Text(text = "OK")
                             }
+
                         }
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    KeyboardButton(
-                        modifier = Modifier.weight(1f),
-                        char = "borrar",
-                        onClick = { charClicked ->
-                            viewModel.onEvent(HomeEvents.OnDeleteClick)
-                        }
-                    )
-
+                    }
                 }
-
             }
 
         }

@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.home.data
+package com.carlostorres.wordsgame.home.data.local
 
 import androidx.room.Dao
 import androidx.room.Query
