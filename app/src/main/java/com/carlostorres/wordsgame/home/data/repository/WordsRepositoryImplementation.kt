@@ -4,6 +4,7 @@ import com.carlostorres.wordsgame.home.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.home.data.local.model.WordEntity
 import com.carlostorres.wordsgame.home.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.home.domain.repository.WordsRepository
+import com.carlostorres.wordsgame.utils.InternetCheck
 import javax.inject.Inject
 
 class WordsRepositoryImplementation @Inject constructor(
@@ -21,15 +22,26 @@ class WordsRepositoryImplementation @Inject constructor(
 
     override suspend fun getRandomWord(wordsTried : List<String>) : String{
 
-        var word = remoteDataSource.getRandomWord()
+        return if (InternetCheck.isNetworkAvailable()){
+            var word = remoteDataSource.getRandomWord()
 
-        println(word)
+            println(word)
 
-        while (wordsTried.contains(word)){
-            word = remoteDataSource.getRandomWord()
+            while (wordsTried.contains(word)){
+                word = remoteDataSource.getRandomWord()
+            }
+
+            word.trim().take(5)
+        } else {
+            while (localDataSource.getWords().isEmpty()){
+                localDataSource.upsertWords()
+            }
+
+            val words = localDataSource.getWords()
+
+
+            words.filter { !wordsTried.contains(it.word) }.random().word
         }
-
-        return word.trim().take(5)
 
     }
 
