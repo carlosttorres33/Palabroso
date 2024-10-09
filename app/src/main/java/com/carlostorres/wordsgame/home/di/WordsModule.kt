@@ -7,11 +7,15 @@ import com.carlostorres.wordsgame.home.data.local.WordGameDatabase
 import com.carlostorres.wordsgame.home.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.home.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.home.data.remote.WordApi
+import com.carlostorres.wordsgame.home.data.repository.DataStoreOperationsImpl
 import com.carlostorres.wordsgame.home.data.repository.WordsRepositoryImplementation
+import com.carlostorres.wordsgame.home.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.home.domain.repository.WordsRepository
 import com.carlostorres.wordsgame.home.domain.usecases.GetAllWordsUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.GetRandomWordUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
+import com.carlostorres.wordsgame.home.domain.usecases.ReadInstructionsUseCase
+import com.carlostorres.wordsgame.home.domain.usecases.SaveInstructionsUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.UpsertAllWordsUseCase
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
 import dagger.Module
@@ -26,6 +30,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object WordsModule {
+
+    @Provides
+    @Singleton
+    fun provideDataStoreOperations(
+        @ApplicationContext context: Context
+    ) : DataStoreOperations {
+        return DataStoreOperationsImpl(context)
+    }
 
     @Provides
     @Singleton
@@ -56,11 +68,14 @@ object WordsModule {
     @Provides
     @Singleton
     fun provideHomeUseCases(
-        wordsRepository: WordsRepository
+        wordsRepository: WordsRepository,
+        dataStoreOperations: DataStoreOperations
     ) : HomeUseCases = HomeUseCases(
-        getAllWordsUseCase = GetAllWordsUseCase(wordsRepository = wordsRepository),
-        upsertAllWordsUseCase = UpsertAllWordsUseCase(wordsRepository = wordsRepository),
-        getRandomWordUseCase = GetRandomWordUseCase(wordsRepository = wordsRepository)
+        getAllWordsUseCase = GetAllWordsUseCase(wordsRepository),
+        upsertAllWordsUseCase = UpsertAllWordsUseCase(wordsRepository),
+        getRandomWordUseCase = GetRandomWordUseCase(wordsRepository),
+        saveInstructionsUseCase = SaveInstructionsUseCase(dataStoreOperations),
+        readInstructionsUseCase = ReadInstructionsUseCase(dataStoreOperations)
     )
 
     @Singleton

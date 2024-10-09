@@ -48,7 +48,8 @@ data class HomeState(
     ),
     val gameWinsCount : Int = 0,
     val gameLostCount : Int = 0,
-    val wordsTried : List<String> = emptyList()
+    val wordsTried : List<String> = emptyList(),
+    val seenInstructions : Boolean = true
 )
 
 sealed class GameSituations{

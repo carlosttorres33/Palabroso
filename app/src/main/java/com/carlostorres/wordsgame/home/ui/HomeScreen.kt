@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.home.ui
 
 import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,15 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,16 +38,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.home.presentation.GameSituations
 import com.carlostorres.wordsgame.home.presentation.HomeEvents
 import com.carlostorres.wordsgame.home.presentation.HomeViewModel
 import com.carlostorres.wordsgame.home.ui.components.CountBox
+import com.carlostorres.wordsgame.home.ui.components.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
@@ -67,6 +77,8 @@ fun HomeScreen(
     val activity = LocalContext.current as Activity
 
     val state = viewModel.state
+
+    val seenInstructions by viewModel.seenInstructions.collectAsState()
 
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
@@ -248,7 +260,37 @@ fun HomeScreen(
 
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        modifier = Modifier
+                            .border(
+                                1.dp,
+                                if (isSystemInDarkTheme()) Color.White else Color.Black,
+                                RoundedCornerShape(12.dp)
+                            )
+                            .background(
+                                if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray,
+                                RoundedCornerShape(12.dp)
+                            ),
+                        onClick = {
+                            viewModel.seeInstructions(false)
+                            //viewModel.saveSeenInstructionsState(false)
+                            //viewModel.readInstructions()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_question_mark_24),
+                            contentDescription = "",
+                            tint = if (isSystemInDarkTheme()) Color.White else Color.Black
+                        )
+                    }
+                }
 
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
@@ -434,6 +476,16 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+            }
+
+            if (!state.seenInstructions){
+                InstructionsDialog(
+                    onClick = {
+                        viewModel.saveSeenInstructionsState(seen = true)
+                        viewModel.seeInstructions(true)
+                        //viewModel.readInstructions()
+                    }
+                )
             }
 
             if (showWordAlreadyTried) {

@@ -17,6 +17,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +30,34 @@ class HomeViewModel @Inject constructor(
 
     var state by mutableStateOf(HomeState())
         private set
+
+    private val _seenInstructions = MutableStateFlow(true)
+    val seenInstructions : StateFlow<Boolean> = _seenInstructions
+
+    init {
+        readInstructions()
+    }
+
+    private fun readInstructions(){
+        viewModelScope.launch(Dispatchers.IO) {
+            _seenInstructions.value = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
+            state = state.copy(
+                seenInstructions = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
+            )
+        }
+    }
+
+    fun saveSeenInstructionsState(seen : Boolean){
+        viewModelScope.launch(Dispatchers.IO) {
+            useCases.saveInstructionsUseCase(seen)
+        }
+    }
+
+    fun seeInstructions(seen: Boolean){
+        state = state.copy(
+            seenInstructions = seen
+        )
+    }
 
     fun setUpGame() {
 
