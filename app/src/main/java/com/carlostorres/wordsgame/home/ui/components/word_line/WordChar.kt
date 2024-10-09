@@ -7,9 +7,11 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,6 +25,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
+import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkTextGray
+import com.carlostorres.wordsgame.ui.theme.DarkYellow
+import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.LightCustomGray
+import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightYellow
 
 @Composable
 fun WordChar(
@@ -48,32 +58,38 @@ fun WordChar(
 
     Card(
         modifier = modifier
-            .height(50.dp),
+            .height(72.dp)
+            .padding(vertical = 10.dp),
         colors = CardDefaults.cardColors(
-            containerColor = when(charState){
-                WordCharState.Empty -> Color.White
-                WordCharState.IsNotInWord -> Color.Gray
-                WordCharState.IsOnPosition -> Color.Green
-                WordCharState.IsOnWord -> Color.Yellow
+            containerColor = when (charState) {
+                WordCharState.Empty -> if (isSystemInDarkTheme()) Color.Black else LightBackgroundGray
+                WordCharState.IsNotInWord -> if (isSystemInDarkTheme()) DarkCustomGray else LightCustomGray
+                WordCharState.IsOnPosition -> if (isSystemInDarkTheme()) DarkGreen else LightGreen
+                WordCharState.IsOnWord -> if (isSystemInDarkTheme()) DarkYellow else LightYellow
             }
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
         shape = RoundedCornerShape(28.dp),
-        border = BorderStroke(1.dp, if (isTurn)Color.Green.copy(alpha = alphaAnim) else Color.Black)
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (isTurn) {
+                if (isSystemInDarkTheme()) DarkGreen.copy(alpha = alphaAnim) else LightGreen.copy(alpha = alphaAnim)
+            } else Color.Black
+        )
     ) {
 
         Box(
             modifier = Modifier
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
 
             Text(
                 text = char,
                 fontSize = 30.sp,
-                color = Color.Black,
+                color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
                 fontWeight = FontWeight.Black
             )
 
@@ -94,8 +110,8 @@ private fun WordCharPreview() {
 }
 
 sealed class WordCharState {
-    object Empty: WordCharState()
-    object IsOnWord: WordCharState()
-    object IsOnPosition: WordCharState()
-    object IsNotInWord: WordCharState()
+    object Empty : WordCharState()
+    object IsOnWord : WordCharState()
+    object IsOnPosition : WordCharState()
+    object IsNotInWord : WordCharState()
 }

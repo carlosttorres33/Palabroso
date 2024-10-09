@@ -21,16 +21,6 @@ class WordsRepositoryImplementation @Inject constructor(
 
     override suspend fun getRandomWord(wordsTried : List<String>) : String{
 
-//
-//        while (localDataSource.getWords().isEmpty()){
-//            localDataSource.upsertWords()
-//        }
-//
-//        val words = localDataSource.getWords()
-//
-//
-//        return words.filter { !wordsTried.contains(it.word) }.random().word
-
         var word = remoteDataSource.getRandomWord()
 
         println(word)
@@ -41,6 +31,17 @@ class WordsRepositoryImplementation @Inject constructor(
 
         return word.trim().take(5)
 
+    }
+
+    override suspend fun getOfflineRandomWord(wordsTried: List<String>): String {
+        while (localDataSource.getWords().isEmpty()){
+            localDataSource.upsertWords()
+        }
+
+        val words = localDataSource.getWords()
+
+
+        return words.filter { !wordsTried.contains(it.word) }.random().word
     }
 
 }

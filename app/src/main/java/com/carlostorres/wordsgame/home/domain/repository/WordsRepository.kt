@@ -9,5 +9,6 @@ interface WordsRepository {
     fun upsertWords()
 
     suspend fun getRandomWord(wordsTried : List<String>) : String
+    suspend fun getOfflineRandomWord(wordsTried : List<String>) : String
 
 }

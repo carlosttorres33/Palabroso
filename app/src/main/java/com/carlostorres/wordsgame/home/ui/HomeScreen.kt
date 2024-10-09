@@ -1,6 +1,8 @@
 package com.carlostorres.wordsgame.home.ui
 
 import android.app.Activity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,9 +43,16 @@ import com.carlostorres.wordsgame.home.presentation.HomeViewModel
 import com.carlostorres.wordsgame.home.ui.components.CountBox
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
-import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardButton
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
+import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkRed
+import com.carlostorres.wordsgame.ui.theme.DarkTextGray
+import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightRed
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.emitter.Emitter
@@ -61,17 +72,22 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.setUpGame()
+        if (state.actualSecretWord.isEmpty()) {
+            viewModel.setUpGame()
+        }
     }
 
     Scaffold(
-
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LightBackgroundGray)
     ) { paddingValues ->
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray)
         ) {
 
             when (state.gameSituation) {
@@ -88,7 +104,10 @@ fun HomeScreen(
                     Dialog(onDismissRequest = {}) {
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
+                            )
                         ) {
 
                             Column(
@@ -99,15 +118,27 @@ fun HomeScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
 
-                                Text(text = "Perdiste :c")
-                                Text(text = "La palabra era: ${state.actualSecretWord}")
+                                Text(
+                                    text = "Perdiste :c",
+                                    color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                                )
+                                Text(
+                                    text = "La palabra era: ${state.actualSecretWord}",
+                                    color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                                )
 
                                 Button(
                                     onClick = {
                                         viewModel.showInterstitial(activity)
-                                    }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isSystemInDarkTheme()) Color.Black else DarkCustomGray
+                                    )
                                 ) {
-                                    Text(text = "Jugar de nuevo")
+                                    Text(
+                                        text = "Jugar de nuevo",
+                                        color = if (isSystemInDarkTheme()) Color.White else Color.White
+                                    )
                                 }
 
                             }
@@ -122,7 +153,10 @@ fun HomeScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .align(Alignment.Center)
+                                    .align(Alignment.Center),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
+                                )
                             ) {
 
                                 Column(
@@ -133,14 +167,23 @@ fun HomeScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
 
-                                    Text(text = "GANASTE")
+                                    Text(
+                                        text = "GANASTE",
+                                        color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                                    )
 
                                     Button(
                                         onClick = {
                                             viewModel.showInterstitial(activity)
-                                        }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isSystemInDarkTheme()) Color.Black else DarkCustomGray
+                                        )
                                     ) {
-                                        Text(text = "Jugar de nuevo")
+                                        Text(
+                                            text = "Jugar de nuevo",
+                                            color = if (isSystemInDarkTheme()) Color.White else Color.White
+                                        )
                                     }
 
                                 }
@@ -178,7 +221,11 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
 
-                    CountBox(char = 'W', count = state.gameWinsCount, color = Color.Green)
+                    CountBox(
+                        char = 'W',
+                        count = state.gameWinsCount,
+                        color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
+                    )
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         modifier = Modifier,
@@ -188,7 +235,11 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    CountBox(char = 'L', count = state.gameLostCount, color = Color.Red)
+                    CountBox(
+                        char = 'L',
+                        count = state.gameLostCount,
+                        color = if (isSystemInDarkTheme()) DarkRed else LightRed
+                    )
 
                 }
 
@@ -197,7 +248,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -228,7 +279,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -260,7 +311,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -292,7 +343,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -324,7 +375,7 @@ fun HomeScreen(
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 12.dp),
+                        .padding(horizontal = 32.dp),
                     columns = StaggeredGridCells.Fixed(5),
                     verticalItemSpacing = 10.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -364,7 +415,11 @@ fun HomeScreen(
                     },
                     keyboard = state.keyboard,
                     onAcceptClick = {
-                        viewModel.onEvent(HomeEvents.OnAcceptClick)
+                        if (state.wordsTried.contains(state.inputText)) {
+                            showWordAlreadyTried = true
+                        } else {
+                            viewModel.onEvent(HomeEvents.OnAcceptClick)
+                        }
                     },
                     onAcceptState = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord,
                     onBackspaceClick = {
@@ -377,7 +432,7 @@ fun HomeScreen(
             }
 
             if (showWordAlreadyTried) {
-                Dialog(onDismissRequest = {showWordAlreadyTried = false}) {
+                Dialog(onDismissRequest = { showWordAlreadyTried = false }) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

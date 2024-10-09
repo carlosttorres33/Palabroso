@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.home.ui.components.keyboard
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
+import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkYellow
+import com.carlostorres.wordsgame.ui.theme.LightCustomGray
+import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightYellow
 
 @Composable
 fun KeyboardButton(
@@ -39,10 +47,10 @@ fun KeyboardButton(
             },
         colors = CardDefaults.cardColors(
             containerColor = when (type) {
-                ButtonType.IsOnWord -> Color.Yellow
-                ButtonType.IsNotInWord -> Color.Gray
-                ButtonType.IsOnPosition -> Color.Green
-                ButtonType.Unclicked -> Color.White
+                ButtonType.IsOnWord -> if (isSystemInDarkTheme()) DarkYellow else LightYellow
+                ButtonType.IsNotInWord -> if (isSystemInDarkTheme()) DarkCustomGray else LightCustomGray
+                ButtonType.IsOnPosition -> if (isSystemInDarkTheme()) DarkGreen else LightGreen
+                ButtonType.Unclicked -> if (isSystemInDarkTheme()) DarkBackgroundGray  else Color.White
             }
         ),
         border = BorderStroke(1.dp, color = Color.Black),

@@ -304,6 +304,7 @@ class HomeViewModel @Inject constructor(
                 KeyboardChar("M")
             ),
             actualSecretWord = "",
+            wordsTried = emptyList()
         )
     }
 
