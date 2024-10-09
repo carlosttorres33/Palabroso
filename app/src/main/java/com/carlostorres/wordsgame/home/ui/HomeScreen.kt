@@ -45,6 +45,7 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
@@ -128,6 +129,8 @@ fun HomeScreen(
                                 )
 
                                 Button(
+                                    modifier = Modifier
+                                        .bounceClick(),
                                     onClick = {
                                         viewModel.showInterstitial(activity)
                                     },
@@ -173,6 +176,8 @@ fun HomeScreen(
                                     )
 
                                     Button(
+                                        modifier = Modifier
+                                            .bounceClick(),
                                         onClick = {
                                             viewModel.showInterstitial(activity)
                                         },
@@ -449,6 +454,8 @@ fun HomeScreen(
                             Text(text = "Esa palabra ya la has intentado, intenta con otra")
 
                             Button(
+                                modifier = Modifier
+                                    .bounceClick(),
                                 onClick = {
                                     showWordAlreadyTried = false
                                 }

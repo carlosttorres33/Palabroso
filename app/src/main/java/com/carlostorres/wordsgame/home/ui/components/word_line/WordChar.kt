@@ -2,9 +2,12 @@ package com.carlostorres.wordsgame.home.ui.components.word_line
 
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,10 +20,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +50,17 @@ fun WordChar(
     isTurn: Boolean = false
 ) {
 
+    var isJumping by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isJumping)1.1f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        finishedListener = { isJumping = false } // Restablece isJumping cuando la animación termina
+    )
+
+
     val transition = rememberInfiniteTransition(label = "")
     val alphaAnim by transition.animateFloat(
         initialValue = 1f,
@@ -56,8 +75,16 @@ fun WordChar(
         label = ""
     )
 
+    LaunchedEffect(key1 = char) {
+        isJumping = true // Inicia la animación cuando cambia el texto
+    }
+
     Card(
         modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .height(72.dp)
             .padding(vertical = 10.dp),
         colors = CardDefaults.cardColors(
