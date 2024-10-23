@@ -15,10 +15,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 
 enum class ButtonState { Pressed, Idle }
-fun Modifier.bounceClick() = composed {
+
+fun Modifier.bounceClick(enabled: Boolean = true) = composed {
     var buttonState by remember { mutableStateOf(ButtonState.Idle) }
     val scale by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0.70f else 1f)
 
+    if (!enabled){
+        return@composed this
+    }
     this
         .graphicsLayer {
             scaleX = scale

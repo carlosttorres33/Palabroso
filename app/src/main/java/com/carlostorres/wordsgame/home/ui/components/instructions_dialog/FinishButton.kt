@@ -6,7 +6,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,7 +33,8 @@ fun FinishButton(
 
     Row(
         modifier = modifier
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .height(40.dp),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -50,7 +53,7 @@ fun FinishButton(
 
             Button(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxSize(),
                 onClick = { onClick() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = DarkGreen,

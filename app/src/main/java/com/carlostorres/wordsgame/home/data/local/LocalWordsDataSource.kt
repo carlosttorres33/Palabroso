@@ -17,7 +17,7 @@ class LocalWordsDataSource @Inject constructor(
             "Abuso",
             "Acoso",
             "Adios",
-            "Aples",
+            "Alpes",
             "Arena",
             "Audio",
             "Bravo",

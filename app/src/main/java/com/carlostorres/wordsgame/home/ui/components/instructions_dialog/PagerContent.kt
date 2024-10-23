@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,15 +30,15 @@ import com.carlostorres.wordsgame.ui.theme.DarkYellow
 
 @Composable
 fun PagerContent(
+    modifier: Modifier = Modifier,
     page: InstructionsPages,
     index: Int
 ) {
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.Top
     ) {
 
         Text(
@@ -173,16 +174,16 @@ fun PagerContent(
             else -> {}
         }
 
-        if (page.image != null) {
-            Image(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .aspectRatio(1f),
-                painter = painterResource(id = page.image),
-                contentDescription = "",
-                contentScale = ContentScale.FillHeight
-            )
-        }
+//        if (page.image != null) {
+//            Image(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .aspectRatio(1f),
+//                painter = painterResource(id = page.image),
+//                contentDescription = "",
+//                contentScale = ContentScale.Inside
+//            )
+//        }
 
     }
 

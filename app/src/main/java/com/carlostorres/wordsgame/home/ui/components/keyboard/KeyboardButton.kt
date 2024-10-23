@@ -39,7 +39,7 @@ fun KeyboardButton(
 
     Card(
         modifier = modifier
-            .bounceClick()
+            .bounceClick(type != ButtonType.IsNotInWord)
             .clickable {
                 if (type != ButtonType.IsNotInWord) {
                     onClick(char)

@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,29 +44,33 @@ fun InstructionsDialog(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(vertical = 64.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
             )
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(horizontal = 16.dp, vertical = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 HorizontalPager(
-                    modifier = Modifier,
+                    modifier = Modifier.weight(1f),
                     count = pages.size,
                     state = pagerState
                 ) { actualPage ->
 
                     PagerContent(
+                        modifier = Modifier
+                            .fillMaxSize(),
                         page = pages[actualPage],
                         index = actualPage
                     )
+
                 }
 
                 HorizontalPagerIndicator(
