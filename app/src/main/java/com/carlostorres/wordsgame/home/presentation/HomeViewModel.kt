@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.carlostorres.wordsgame.home.domain.repository.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
@@ -35,7 +36,18 @@ class HomeViewModel @Inject constructor(
     val seenInstructions : StateFlow<Boolean> = _seenInstructions
 
     init {
+        checkUserVersion()
         readInstructions()
+    }
+
+    private fun checkUserVersion(){
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = useCases.canAccessToAppUseCase()
+            Log.d("Version", result.toString())
+            state = state.copy(
+                blockVersion = !result
+            )
+        }
     }
 
     private fun readInstructions(){

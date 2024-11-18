@@ -4,7 +4,7 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 
 data class HomeState(
-
+    val blockVersion : Boolean = false,
     val inputText: String = "",
     val tryNumber: Int = 0,
     val intento1 : TryInfo = TryInfo(),
