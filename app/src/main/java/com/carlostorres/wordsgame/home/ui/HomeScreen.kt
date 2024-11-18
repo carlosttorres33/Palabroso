@@ -50,6 +50,7 @@ import com.carlostorres.wordsgame.home.presentation.GameSituations
 import com.carlostorres.wordsgame.home.presentation.HomeEvents
 import com.carlostorres.wordsgame.home.presentation.HomeViewModel
 import com.carlostorres.wordsgame.home.ui.components.CountBox
+import com.carlostorres.wordsgame.home.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.home.ui.components.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
@@ -486,6 +487,10 @@ fun HomeScreen(
                         //viewModel.readInstructions()
                     }
                 )
+            }
+
+            if (state.blockVersion){
+                UpdateDialog()
             }
 
             if (showWordAlreadyTried) {

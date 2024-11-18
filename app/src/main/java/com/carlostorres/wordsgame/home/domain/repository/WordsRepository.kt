@@ -11,4 +11,7 @@ interface WordsRepository {
     suspend fun getRandomWord(wordsTried : List<String>) : String
     suspend fun getOfflineRandomWord(wordsTried : List<String>) : String
 
+    suspend fun getMinAllowedVersion() : List<Int>
+    fun getCurrentVersion() : List<Int>
+
 }

@@ -7,4 +7,6 @@ object Constants {
     const val PREFERENCES_NAME = "wordsGame_preferences"
     const val INSTRUCTIONS_KEY = "instructions_seen"
 
+    const val REMOTE_CONFIG_MIN_VERSION_KEY = "min_version"
+
 }

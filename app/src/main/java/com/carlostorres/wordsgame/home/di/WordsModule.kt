@@ -9,6 +9,7 @@ import com.carlostorres.wordsgame.home.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.home.data.remote.WordApi
 import com.carlostorres.wordsgame.home.data.repository.DataStoreOperationsImpl
 import com.carlostorres.wordsgame.home.data.repository.WordsRepositoryImplementation
+import com.carlostorres.wordsgame.home.domain.repository.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.home.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.home.domain.repository.WordsRepository
 import com.carlostorres.wordsgame.home.domain.usecases.GetAllWordsUseCase
@@ -18,6 +19,10 @@ import com.carlostorres.wordsgame.home.domain.usecases.ReadInstructionsUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.SaveInstructionsUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.UpsertAllWordsUseCase
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -75,7 +80,8 @@ object WordsModule {
         upsertAllWordsUseCase = UpsertAllWordsUseCase(wordsRepository),
         getRandomWordUseCase = GetRandomWordUseCase(wordsRepository),
         saveInstructionsUseCase = SaveInstructionsUseCase(dataStoreOperations),
-        readInstructionsUseCase = ReadInstructionsUseCase(dataStoreOperations)
+        readInstructionsUseCase = ReadInstructionsUseCase(dataStoreOperations),
+        canAccessToAppUseCase = CanAccessToAppUseCase(wordsRepository)
     )
 
     @Singleton
@@ -102,8 +108,22 @@ object WordsModule {
     @Provides
     @Singleton
     fun provideWordsRepository(
+        @ApplicationContext context: Context,
         localDataSource : LocalWordsDataSource,
-        remoteDataSource: RemoteWordDataSource
-    ) : WordsRepository = WordsRepositoryImplementation(localDataSource, remoteDataSource)
+        remoteDataSource: RemoteWordDataSource,
+        remoteConfig: FirebaseRemoteConfig
+    ) : WordsRepository = WordsRepositoryImplementation(
+        context = context,
+        localDataSource = localDataSource,
+        remoteDataSource = remoteDataSource,
+        remoteConfig = remoteConfig
+    )
+
+    @Singleton
+    @Provides
+    fun provideRemoteConfig() = Firebase.remoteConfig.apply {
+        setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 30 })
+        fetchAndActivate()
+    }
 
 }
