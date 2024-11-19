@@ -37,20 +37,25 @@ class WordsRepositoryImplementation @Inject constructor(
 
             println(word)
 
-            while (wordsTried.contains(word)){
+            while (wordsTried.contains(word) || word.length != 5){
                 word = remoteDataSource.getRandomWord()
             }
 
+            Log.d("SecretWord", word)
             word.trim().take(5)
+
         } else {
+
             while (localDataSource.getWords().isEmpty()){
                 localDataSource.upsertWords()
             }
 
             val words = localDataSource.getWords()
 
+            val word = words.filter { !wordsTried.contains(it.word) }.random().word
 
-            words.filter { !wordsTried.contains(it.word) }.random().word
+            Log.d("SecretWord", word)
+            word
         }
 
     }

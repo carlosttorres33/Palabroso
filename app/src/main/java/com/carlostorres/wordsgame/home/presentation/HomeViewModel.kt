@@ -3,6 +3,7 @@ package com.carlostorres.wordsgame.home.presentation
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -276,6 +277,7 @@ class HomeViewModel @Inject constructor(
                 }
 
             }else{
+                Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
                 setUpGame()
                 Log.d("Ad Error", "Ad is null")
 

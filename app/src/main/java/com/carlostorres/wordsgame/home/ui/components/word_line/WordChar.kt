@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,14 +53,13 @@ fun WordChar(
 
     var isJumping by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isJumping)1.1f else 1f,
+        targetValue = if (isJumping)1.05f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
         ),
         finishedListener = { isJumping = false } // Restablece isJumping cuando la animación termina
     )
-
 
     val transition = rememberInfiniteTransition(label = "")
     val alphaAnim by transition.animateFloat(
@@ -85,8 +85,7 @@ fun WordChar(
                 scaleX = scale
                 scaleY = scale
             }
-            .height(72.dp)
-            .padding(vertical = 10.dp),
+            .padding(vertical = 7.dp),
         colors = CardDefaults.cardColors(
             containerColor = when (charState) {
                 WordCharState.Empty -> if (isSystemInDarkTheme()) Color.Black else LightBackgroundGray
@@ -98,7 +97,7 @@ fun WordChar(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
-        shape = RoundedCornerShape(28.dp),
+        shape = CircleShape,
         border = BorderStroke(
             width = 1.dp,
             color = if (isTurn) {

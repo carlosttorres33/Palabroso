@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.home.ui.components.instructions_dialog
+package com.carlostorres.wordsgame.home.ui.components.dialogs.instructions_dialog
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween

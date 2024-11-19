@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.carlostorres.wordsgame.home.ui.HomeRebuild
 import com.carlostorres.wordsgame.home.ui.HomeScreen
 
 @Composable
@@ -21,7 +22,7 @@ fun NavManager() {
         ){
 
             HomeScreen()
-
+            //HomeRebuild()
         }
 
     }
