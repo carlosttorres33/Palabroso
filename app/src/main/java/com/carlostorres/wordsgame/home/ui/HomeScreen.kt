@@ -1,33 +1,21 @@
 package com.carlostorres.wordsgame.home.ui
 
 import android.app.Activity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,9 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,7 +37,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.home.presentation.GameSituations
 import com.carlostorres.wordsgame.home.presentation.HomeEvents
 import com.carlostorres.wordsgame.home.presentation.HomeViewModel
@@ -68,24 +53,19 @@ import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
-import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
-import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
-import nl.dionsegijn.konfetti.compose.KonfettiView
-import nl.dionsegijn.konfetti.core.Party
-import nl.dionsegijn.konfetti.core.emitter.Emitter
-import java.util.concurrent.TimeUnit
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
 
-    val activity = LocalContext.current as Activity
+    val context = LocalContext.current
+    val activity = context as Activity
 
     val state = viewModel.state
 
@@ -93,6 +73,12 @@ fun HomeScreen(
 
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
+    }
+
+    val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+    LaunchedEffect(key1 = requestedOrientation) {
+        activity?.requestedOrientation = requestedOrientation
     }
 
     LaunchedEffect(Unit) {
@@ -263,207 +249,287 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    LazyVerticalStaggeredGrid(
-                        modifier = Modifier
-                            .width(rangeWidth)
-                            .background(Color.Transparent),
-                        columns = StaggeredGridCells.Fixed(5),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
+                    //region first try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
 
-                        items(5) { index ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
 
-                            if (state.tryNumber == 0) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = WordCharState.Empty,
-                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                    isTurn = true
-                                )
-                            } else {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                    char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
-                                    isTurn = false
-                                )
-                            }
+                            repeat(5) { index ->
 
-                        }
-                    }
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
 
-                    LazyVerticalStaggeredGrid(
-                        modifier = Modifier
-                            .width(rangeWidth)
-                            .background(Color.Transparent),
-                        columns = StaggeredGridCells.Fixed(5),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
+                                if (state.tryNumber == 0) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                        isTurn = false
+                                    )
+                                }
 
-                        items(5) { index ->
-
-                            if (state.tryNumber == 1) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = WordCharState.Empty,
-                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                    isTurn = true
-                                )
-                            } else if (state.tryNumber > 1) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                    char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
-                                )
-                            } else {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    char = ""
-                                )
-                            }
-
-                        }
-                    }
-
-                    LazyVerticalStaggeredGrid(
-                        modifier = Modifier
-                            .width(rangeWidth)
-                            .background(Color.Transparent),
-                        columns = StaggeredGridCells.Fixed(5),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-
-                        items(5) { index ->
-
-                            if (state.tryNumber == 2) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = WordCharState.Empty,
-                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                    isTurn = true
-                                )
-                            } else if (state.tryNumber > 2) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                    char = state.intento3.resultado[index].first //state.intento1.word[index].toString()
-                                )
-                            } else {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    char = ""
-                                )
-                            }
-
-                        }
-                    }
-
-                    LazyVerticalStaggeredGrid(
-                        modifier = Modifier
-                            .width(rangeWidth)
-                            .background(Color.Transparent),
-                        columns = StaggeredGridCells.Fixed(5),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-
-                        items(5) { index ->
-
-                            if (state.tryNumber == 3) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = WordCharState.Empty,
-                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                    isTurn = true
-                                )
-                            } else if (state.tryNumber > 3) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                    char = state.intento4.resultado[index].first //state.intento1.word[index].toString()
-                                )
-                            } else {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ), char = ""
-                                )
-                            }
-
-                        }
-                    }
-
-                    LazyVerticalStaggeredGrid(
-                        modifier = Modifier
-                            .width(rangeWidth)
-                            .background(Color.Transparent),
-                        columns = StaggeredGridCells.Fixed(5),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-
-                        items(5) { index ->
-
-                            if (state.tryNumber == 4) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = WordCharState.Empty,
-                                    char = if (index < state.inputText.length) state.inputText[index].toString() else "",
-                                    isTurn = true
-                                )
-                            } else if (state.tryNumber > 4) {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ),
-                                    charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                    char = state.intento5.resultado[index].first //state.intento1.word[index].toString()
-                                )
-                            } else {
-                                WordChar(
-                                    modifier = Modifier
-                                        .height(
-                                            if (boxHeight > boxWidth) boxWidth else boxHeight
-                                        ), char = ""
-                                )
                             }
 
                         }
 
                     }
+                    //endregion
+
+                    //region second try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(5) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 1) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 1) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
+                    //region third try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(5) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 2) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 2) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento3.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
+                    //region furth try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(5) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 3) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 3) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento4.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
+                    //region fifth try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(5) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento5.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
 
                     Spacer(modifier = Modifier.weight(1f))
 

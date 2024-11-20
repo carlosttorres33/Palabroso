@@ -16,11 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
-import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
+import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import nl.dionsegijn.konfetti.compose.KonfettiView
@@ -53,7 +54,8 @@ fun GameWinDialog(
 
                     Text(
                         text = "GANASTE",
-                        color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+                        color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Button(
@@ -63,12 +65,12 @@ fun GameWinDialog(
                             onClick()
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSystemInDarkTheme()) Color.Black else DarkCustomGray
+                            containerColor = DarkGreen
                         )
                     ) {
                         Text(
                             text = "Jugar de nuevo",
-                            color = if (isSystemInDarkTheme()) Color.White else Color.White
+                            color = DarkTextGray
                         )
                     }
 
