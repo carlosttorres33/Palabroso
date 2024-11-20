@@ -29,8 +29,7 @@ fun GameKeyboard(
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
 

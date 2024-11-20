@@ -1,12 +1,16 @@
 package com.carlostorres.wordsgame.home.presentation
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.home.domain.repository.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
 import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
@@ -17,6 +21,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +31,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val useCases: HomeUseCases
 ) : ViewModel() {
 
@@ -271,6 +277,7 @@ class HomeViewModel @Inject constructor(
                 }
 
             }else{
+                Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
                 setUpGame()
                 Log.d("Ad Error", "Ad is null")
 
@@ -285,7 +292,7 @@ class HomeViewModel @Inject constructor(
 
         InterstitialAd.load(
             activity,
-            "ca-app-pub-8184827769738877/6817794094",
+            context.getString(R.string.ad_unit_id),
             adRequest,
             object : InterstitialAdLoadCallback(){
 

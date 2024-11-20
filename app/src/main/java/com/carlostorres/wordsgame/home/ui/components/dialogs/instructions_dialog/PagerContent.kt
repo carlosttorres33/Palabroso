@@ -1,22 +1,15 @@
-package com.carlostorres.wordsgame.home.ui.components.instructions_dialog
+package com.carlostorres.wordsgame.home.ui.components.dialogs.instructions_dialog
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +20,7 @@ import com.carlostorres.wordsgame.home.data.model.InstructionsPages
 import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkYellow
+import com.carlostorres.wordsgame.ui.theme.LightCustomGray
 
 @Composable
 fun PagerContent(
@@ -34,6 +28,8 @@ fun PagerContent(
     page: InstructionsPages,
     index: Int
 ) {
+
+    val textColor = if (isSystemInDarkTheme()) LightCustomGray else Color.Black
 
     Column(
         modifier = modifier,
@@ -54,15 +50,18 @@ fun PagerContent(
             0 -> {
                 Text(
                     text = "1. Ingresa una palabra de 5 letras utilizando el teclado en pantalla.",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "2. Presiona \"➤\" para enviar tu intento.",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "3. Observa los colores de las letras:",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = buildAnnotatedString {
@@ -73,7 +72,8 @@ fun PagerContent(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .padding(horizontal = 12.dp),
+                    color = textColor
                 )
                 Text(
                     text = buildAnnotatedString {
@@ -84,7 +84,8 @@ fun PagerContent(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .padding(horizontal = 12.dp),
+                    color = textColor
                 )
                 Text(
                     text = buildAnnotatedString {
@@ -95,15 +96,18 @@ fun PagerContent(
                     },
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "4. Usa las pistas de colores para ajustar tus siguientes intentos.",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "5. Continúa adivinando hasta que encuentres la palabra secreta o agotes tus 5 intentos.",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
             }
 
@@ -112,7 +116,8 @@ fun PagerContent(
                     text = "Si la palabra secreta es \"LLAVE\" y tu intento es \"FUEGO\":",
                     modifier = Modifier
                         .padding(bottom = 6.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = buildAnnotatedString {
@@ -124,7 +129,8 @@ fun PagerContent(
                     },
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = buildAnnotatedString {
@@ -136,7 +142,8 @@ fun PagerContent(
                     },
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = buildAnnotatedString {
@@ -148,26 +155,31 @@ fun PagerContent(
                     },
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    color = textColor
                 )
             }
 
             2 -> {
                 Text(
                     text = "Comienza con palabras que contengan vocales comunes (A, E, I, O, U).",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "Presta atención a las letras que ya has adivinado y sus colores.",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "Intenta usar letras nuevas en cada intento para obtener más información.",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
                 Text(
                     text = "¡Piensa estratégicamente y diviértete!",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
                 )
             }
 

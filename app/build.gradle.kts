@@ -15,7 +15,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.2.2"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -104,5 +104,8 @@ dependencies {
     // Accompanist
     implementation ("com.google.accompanist:accompanist-pager:0.28.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+
+    //Constraints
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
 }
