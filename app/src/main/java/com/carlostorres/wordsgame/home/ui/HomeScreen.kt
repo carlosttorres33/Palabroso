@@ -52,6 +52,7 @@ import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -107,7 +108,8 @@ fun HomeScreen(
                 winsCounter,
                 loseCounter,
                 gameTitle,
-                howToButton
+                howToButton,
+                bannerAd
             ) = createRefs()
 
             //region Game Situations Dialogs
@@ -196,7 +198,7 @@ fun HomeScreen(
                         bottom.linkTo(loseCounter.bottom)
                         width = Dimension.fillToConstraints
                     },
-                text = "WORDS GAME",
+                text = "PALABROSO",
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -226,7 +228,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .constrainAs(boardContainer) {
                         top.linkTo(howToButton.bottom, margin = 8.dp)
-                        bottom.linkTo(gameKeyboard.top)
+                        bottom.linkTo(bannerAd.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         height = Dimension.fillToConstraints
@@ -531,10 +533,19 @@ fun HomeScreen(
                     }
                     //endregion
 
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(0.4f))
 
                 }
             }
+
+            BannerAd(
+                modifier = Modifier
+                    .constrainAs(bannerAd){
+                        bottom.linkTo(gameKeyboard.top, margin = 18.dp)
+                        end.linkTo(parent.end)
+                        start.linkTo(parent.start)
+                    }
+            )
 
             GameKeyboard(
                 modifier = Modifier
