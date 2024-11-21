@@ -85,7 +85,7 @@ fun WordChar(
                 scaleX = scale
                 scaleY = scale
             }
-            .padding(vertical = 7.dp, horizontal = 3.dp),
+            .padding(vertical = 6.dp, horizontal = 3.dp),
         colors = CardDefaults.cardColors(
             containerColor = when (charState) {
                 WordCharState.Empty -> if (isSystemInDarkTheme()) Color.Black else LightBackgroundGray

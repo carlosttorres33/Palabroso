@@ -1,8 +1,11 @@
 package com.carlostorres.wordsgame.home.ui.components.keyboard
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,92 +26,108 @@ fun GameKeyboard(
     onBackspaceClick: () -> Unit,
 ) {
 
-    val configuration = LocalConfiguration.current
-
-    val screenWidth = configuration.screenWidthDp.dp
-
-    Column(
+    BoxWithConstraints(
         modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+            .fillMaxWidth()
     ) {
 
-//        LazyVerticalStaggeredGrid(
-//            columns = StaggeredGridCells.Fixed(10),
-//            verticalItemSpacing = 6.dp,
-//            horizontalArrangement = Arrangement.spacedBy(6.dp)
-//        ) {
-//
-//            items(keyboard){
-//
-//                KeyboardButton(
-//                    char = it.char,
-//                    onClick = { charClicked ->
-//                        onButtonClick(charClicked)
-//                    },
-//                    type = it.type
-//                )
-//
-//            }
-//
-//        }
+        val maxWidth = this.maxWidth
+        val buttonWidth = maxWidth / 10 - 3.dp
 
-        Row(modifier = Modifier.fillMaxWidth().height(45.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            (0..10).forEach { index ->
-                KeyboardButton(
-                    modifier = Modifier.width(screenWidth / 11 - 4.dp),
-                    char = keyboard[index].char,
-                    onClick = { charClicked ->
-                        onButtonClick(charClicked)
-                    },
-                    type = keyboard[index].type
-                )
-            }
-        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
 
-        Row(modifier = Modifier.fillMaxWidth().height(45.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            (10..20).forEach { index ->
-                KeyboardButton(
-                    modifier = Modifier.width(screenWidth / 11 - 4.dp),
-                    char = keyboard[index].char,
-                    onClick = { charClicked ->
-                        onButtonClick(charClicked)
-                    },
-                    type = keyboard[index].type
-                )
-            }
-        }
-
-        Row(modifier = Modifier.fillMaxWidth().height(45.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            ActionKeyboardButton(
-                modifier = Modifier.weight(1f),
-                icon = R.drawable.baseline_send_24,
-                onClick = {
-                    onAcceptClick()
-                },
-                type = onAcceptState
-            )
-            (20..keyboard.lastIndex).forEach { index ->
-                KeyboardButton(
-                    modifier = Modifier.width(screenWidth / 11 - 4.dp),
-                    char = keyboard[index].char,
-                    onClick = { charClicked ->
-                        onButtonClick(charClicked)
-                    },
-                    type = keyboard[index].type
-                )
-            }
-            ActionKeyboardButton(
-                modifier = Modifier.weight(1f),
-                icon = R.drawable.baseline_backspace_24,
-                onClick = {
-                    onBackspaceClick()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                (0..9).forEach { index ->
+                    KeyboardButton(
+                        modifier = Modifier
+                            .width(buttonWidth)
+                            .fillMaxHeight(),
+                        char = keyboard[index].char,
+                        onClick = { charClicked ->
+                            onButtonClick(charClicked)
+                        },
+                        type = keyboard[index].type
+                    )
                 }
-            )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                (10..19).forEach { index ->
+                    KeyboardButton(
+                        modifier = Modifier
+                            .width(buttonWidth)
+                            .fillMaxHeight(),
+                        char = keyboard[index].char,
+                        onClick = { charClicked ->
+                            onButtonClick(charClicked)
+                        },
+                        type = keyboard[index].type
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ActionKeyboardButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    icon = R.drawable.baseline_send_24,
+                    onClick = {
+                        onAcceptClick()
+                    },
+                    type = onAcceptState
+                )
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 3.dp)
+                        .fillMaxHeight(),
+                    horizontalArrangement = Arrangement
+                        .spacedBy(3.dp)
+                ) {
+                    (20..keyboard.lastIndex).forEach { index ->
+                        KeyboardButton(
+                            modifier = Modifier
+                                .width(buttonWidth)
+                                .fillMaxHeight(),
+                            char = keyboard[index].char,
+                            onClick = { charClicked ->
+                                onButtonClick(charClicked)
+                            },
+                            type = keyboard[index].type
+                        )
+                    }
+                }
+                ActionKeyboardButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    icon = R.drawable.baseline_backspace_24,
+                    onClick = {
+                        onBackspaceClick()
+                    }
+                )
+            }
         }
-
     }
-
 }
 
 data class KeyboardChar(

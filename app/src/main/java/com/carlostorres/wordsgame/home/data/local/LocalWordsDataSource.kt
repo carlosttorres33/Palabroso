@@ -33,8 +33,24 @@ class LocalWordsDataSource @Inject constructor(
             "Ideal",
             "Llave",
             "Metal",
-            "Radio"
-        ).filter { it.length == 5 }.map { WordEntity(word = it) }
+            "Radio",
+            "Antro",
+            "Banda",
+            "Chafa",
+            "Chale",
+            "Chido",
+            "Crudo",
+            "Facha",
+            "Fonda",
+            "Fresa",
+            "Gacho",
+            "Guapo",
+            "Guero",
+            "Jalar",
+            "Lucas",
+            "Padre",
+            "Rollo"
+        ).filter { it.trim().length == 5 }.map { WordEntity(word = it.uppercase()) }
 
         wordGameDao.upsertWords(wordList)
     }
