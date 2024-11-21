@@ -7,15 +7,13 @@ import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
-import com.carlostorres.wordsgame.home.domain.repository.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.home.domain.usecases.HomeUseCases
-import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
-import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
-import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
+import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
+import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
@@ -30,12 +28,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class EasyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: HomeUseCases
 ) : ViewModel() {
 
-    var state by mutableStateOf(HomeState())
+    var state by mutableStateOf(EasyState())
         private set
 
     private val _seenInstructions = MutableStateFlow(true)
@@ -239,18 +237,18 @@ class HomeViewModel @Inject constructor(
 
     }
 
-    fun onEvent(event: HomeEvents) {
+    fun onEvent(event: EasyEvents) {
 
         when (event) {
-            is HomeEvents.OnInputTextChange -> {
+            is EasyEvents.OnInputTextChange -> {
                 state = state.copy(
                     inputText = state.inputText + event.inputText
                 )
             }
-            is HomeEvents.OnAcceptClick -> {
+            is EasyEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
-            is HomeEvents.OnDeleteClick -> {
+            is EasyEvents.OnDeleteClick -> {
                 state = state.copy(
                     inputText = state.inputText.dropLast(1)
                 )

@@ -1,9 +1,9 @@
 package com.carlostorres.wordsgame.home.presentation
 
-import com.carlostorres.wordsgame.home.ui.components.keyboard.KeyboardChar
-import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
+import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 
-data class HomeState(
+data class EasyState(
     val blockVersion : Boolean = false,
     val inputText: String = "",
     val tryNumber: Int = 0,

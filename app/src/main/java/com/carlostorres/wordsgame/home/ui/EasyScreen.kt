@@ -38,19 +38,19 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.home.presentation.GameSituations
-import com.carlostorres.wordsgame.home.presentation.HomeEvents
-import com.carlostorres.wordsgame.home.presentation.HomeViewModel
-import com.carlostorres.wordsgame.home.ui.components.CountBox
-import com.carlostorres.wordsgame.home.ui.components.HowToPlayButton
-import com.carlostorres.wordsgame.home.ui.components.UpdateDialog
-import com.carlostorres.wordsgame.home.ui.components.dialogs.GameLoseDialog
-import com.carlostorres.wordsgame.home.ui.components.dialogs.GameWinDialog
-import com.carlostorres.wordsgame.home.ui.components.dialogs.LoadingDialog
-import com.carlostorres.wordsgame.home.ui.components.dialogs.instructions_dialog.InstructionsDialog
-import com.carlostorres.wordsgame.home.ui.components.keyboard.ButtonType
-import com.carlostorres.wordsgame.home.ui.components.keyboard.GameKeyboard
-import com.carlostorres.wordsgame.home.ui.components.word_line.WordChar
-import com.carlostorres.wordsgame.home.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.home.presentation.EasyEvents
+import com.carlostorres.wordsgame.home.presentation.EasyViewModel
+import com.carlostorres.wordsgame.ui.components.CountBox
+import com.carlostorres.wordsgame.ui.components.HowToPlayButton
+import com.carlostorres.wordsgame.ui.components.UpdateDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
+import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
+import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
+import com.carlostorres.wordsgame.ui.components.word_line.WordChar
+import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
@@ -61,8 +61,8 @@ import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+fun EasyScreen(
+    viewModel: EasyViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
@@ -556,7 +556,7 @@ fun HomeScreen(
                     },
                 onButtonClick = { charClicked ->
                     if (state.inputText.length < 5) {
-                        viewModel.onEvent(HomeEvents.OnInputTextChange(charClicked))
+                        viewModel.onEvent(EasyEvents.OnInputTextChange(charClicked))
                     }
                 },
                 keyboard = state.keyboard,
@@ -564,12 +564,12 @@ fun HomeScreen(
                     if (state.wordsTried.contains(state.inputText)) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(HomeEvents.OnAcceptClick)
+                        viewModel.onEvent(EasyEvents.OnAcceptClick)
                     }
                 },
                 onAcceptState = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord,
                 onBackspaceClick = {
-                    viewModel.onEvent(HomeEvents.OnDeleteClick)
+                    viewModel.onEvent(EasyEvents.OnDeleteClick)
                 }
             )
 

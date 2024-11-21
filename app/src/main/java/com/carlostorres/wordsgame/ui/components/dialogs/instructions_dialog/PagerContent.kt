@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.home.ui.components.dialogs.instructions_dialog
+package com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
