@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.carlostorres.wordsgame.home.data.model.InstructionsPages
+import com.carlostorres.wordsgame.game.data.model.InstructionsPages
 import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkYellow

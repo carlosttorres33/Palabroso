@@ -6,7 +6,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.carlostorres.wordsgame.home.ui.EasyScreen
+import com.carlostorres.wordsgame.game.ui.EasyScreen
+import com.carlostorres.wordsgame.game.ui.NormalScreen
 import com.carlostorres.wordsgame.menu.ui.MenuScreen
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 
@@ -23,8 +24,14 @@ fun NavManager() {
     ) {
 
         composable(
-            route = NavRoutes.Home.route,
+            route = NavRoutes.NormalGame.route,
         ) {
+            NormalScreen()
+        }
+
+        composable(
+            route = NavRoutes.EasyGame.route,
+        ){
             EasyScreen()
         }
 
@@ -35,10 +42,10 @@ fun NavManager() {
                 onDifficultySelected = { difficult ->
                     when (difficult) {
                         GameDifficult.Easy -> {
-                            Toast.makeText(context, "Facil", Toast.LENGTH_SHORT).show()
+                            navController.navigate(NavRoutes.EasyGame.route)
                         }
                         GameDifficult.Medium -> {
-                            navController.navigate(NavRoutes.Home.route)
+                            navController.navigate(NavRoutes.NormalGame.route)
                         }
                         GameDifficult.Hard -> {
                             Toast.makeText(context, "Dificil", Toast.LENGTH_SHORT).show()

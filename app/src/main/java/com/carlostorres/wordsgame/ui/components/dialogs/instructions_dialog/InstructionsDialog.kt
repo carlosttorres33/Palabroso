@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.carlostorres.wordsgame.home.data.model.InstructionsPages
+import com.carlostorres.wordsgame.game.data.model.InstructionsPages
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.google.accompanist.pager.ExperimentalPagerApi
