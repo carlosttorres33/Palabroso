@@ -3,7 +3,9 @@ package com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +34,8 @@ fun PagerContent(
     val textColor = if (isSystemInDarkTheme()) LightCustomGray else Color.Black
 
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .padding(start = 32.dp, end = 32.dp, top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -45,6 +48,8 @@ fun PagerContent(
             modifier = Modifier
                 .fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         when (index) {
             0 -> {

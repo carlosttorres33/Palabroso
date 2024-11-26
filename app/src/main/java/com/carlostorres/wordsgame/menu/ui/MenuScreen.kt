@@ -39,7 +39,8 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 @Composable
 fun MenuScreen(
     viewModel: MenuViewModel = hiltViewModel(),
-    onDifficultySelected: (GameDifficult) -> Unit
+    onDifficultySelected: (GameDifficult) -> Unit,
+    onHowToPlayClick: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -165,7 +166,7 @@ fun MenuScreen(
                         end.linkTo(parent.end, margin = 18.dp)
                     }
             ) {
-                viewModel.updateInstructionsState(false)
+                onHowToPlayClick()
             }
 
             BannerAd(
