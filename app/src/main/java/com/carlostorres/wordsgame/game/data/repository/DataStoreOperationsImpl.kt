@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -44,6 +45,7 @@ class DataStoreOperationsImpl @Inject constructor(
             }
             .map { preferences->
                 val onBoardingState = preferences[instructionsKey] ?: false
+                Log.d("Instructions", onBoardingState.toString())
                 onBoardingState
             }
     }

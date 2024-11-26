@@ -159,10 +159,6 @@ fun NormalScreen(
                 )
             }
 
-            if (state.blockVersion) {
-                UpdateDialog()
-            }
-
             if (showWordAlreadyTried) {
                 Dialog(onDismissRequest = { showWordAlreadyTried = false }) {
                     Card(

@@ -43,18 +43,7 @@ class NormalViewModel @Inject constructor(
     val seenInstructions : StateFlow<Boolean> = _seenInstructions
 
     init {
-        checkUserVersion()
         readInstructions()
-    }
-
-    private fun checkUserVersion(){
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = useCases.canAccessToAppUseCase()
-            Log.d("Version", result.toString())
-            state = state.copy(
-                blockVersion = !result
-            )
-        }
     }
 
     private fun readInstructions(){

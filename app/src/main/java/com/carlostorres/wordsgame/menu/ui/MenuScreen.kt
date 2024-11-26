@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -22,10 +23,14 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.menu.presentation.MenuViewModel
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
+import com.carlostorres.wordsgame.ui.components.UpdateDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
@@ -33,13 +38,16 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
-    //viewModel: MenuViewModel = hiltViewModel()
+    viewModel: MenuViewModel = hiltViewModel(),
     onDifficultySelected: (GameDifficult) -> Unit
 ) {
 
     val context = LocalContext.current
     val activity = context as Activity
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+    val state = viewModel.state
+    val readInstructions = viewModel.readInstructions.collectAsState(initial = false)
 
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
@@ -157,7 +165,7 @@ fun MenuScreen(
                         end.linkTo(parent.end, margin = 18.dp)
                     }
             ) {
-
+                viewModel.updateInstructionsState(false)
             }
 
             BannerAd(
@@ -170,9 +178,17 @@ fun MenuScreen(
                     }
             )
 
+            if (!readInstructions.value){
+                InstructionsDialog {
+                    viewModel.updateInstructionsState(true)
+                }
+            }
+
+            if (state.blockVersion) {
+                UpdateDialog()
+            }
+
         }
-
-
 
     }
 
