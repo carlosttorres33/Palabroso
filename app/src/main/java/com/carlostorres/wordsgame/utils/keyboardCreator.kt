@@ -1,5 +1,6 @@
 package com.carlostorres.wordsgame.utils
 
+import com.carlostorres.wordsgame.game.data.local.model.WordEntity
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 
 fun keyboardCreator() : List<KeyboardChar> {
@@ -33,3 +34,8 @@ fun keyboardCreator() : List<KeyboardChar> {
         KeyboardChar("M")
     )
 }
+
+fun String.toWordEntity() : WordEntity = WordEntity(
+    word = this.uppercase().trim(),
+    length = this.length
+)

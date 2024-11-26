@@ -3,6 +3,7 @@ package com.carlostorres.wordsgame.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -27,10 +28,14 @@ fun HowToPlayButton(
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray,
         ),
-        border = BorderStroke(2.dp, if (isSystemInDarkTheme()) Color.White else Color.Black),
+        border = BorderStroke(
+            2.dp,
+            if (isSystemInDarkTheme()) Color.White else Color.Black
+        ),
         onClick = {
             onClick()
-        }
+        },
+        shape = RoundedCornerShape(topEnd = 20.dp, topStart = 6.dp, bottomStart = 20.dp, bottomEnd = 6.dp)
     ) {
         Row {
             Text(

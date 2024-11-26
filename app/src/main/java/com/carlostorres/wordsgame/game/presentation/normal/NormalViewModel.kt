@@ -108,7 +108,7 @@ class NormalViewModel @Inject constructor(
                 Log.d("Error", e.message.toString())
 
                 state = state.copy(
-                    gameSituation = GameSituations.GameLost
+                    gameSituation = GameSituations.GameError(e.message ?: "Error desconocido")
                 )
 
             }

@@ -2,6 +2,8 @@ package com.carlostorres.wordsgame.game.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -46,6 +48,7 @@ import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
@@ -64,7 +67,8 @@ import com.carlostorres.wordsgame.utils.GameSituations
 
 @Composable
 fun EasyScreen(
-    viewModel: EasyViewModel = hiltViewModel()
+    viewModel: EasyViewModel = hiltViewModel(),
+    onHomeClick: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -112,26 +116,36 @@ fun EasyScreen(
             ) = createRefs()
 
             //region Game Situations Dialogs
-            when (state.gameSituation) {
-                GameSituations.GameLoading -> {
-                    LoadingDialog()
-                }
-
-                GameSituations.GameInProgress -> {}
-                GameSituations.GameLost -> {
-                    GameLoseDialog(secretWord = state.secretWord) {
-                        viewModel.showInterstitial(activity)
+            AnimatedContent(state.gameSituation, label = "") { situation ->
+                when (situation) {
+                    GameSituations.GameLoading -> {
+                        LoadingDialog()
                     }
-                }
 
-                GameSituations.GameWon -> {
-                    GameWinDialog {
-                        viewModel.showInterstitial(activity)
+                    GameSituations.GameInProgress -> {}
+                    GameSituations.GameLost -> {
+                        GameLoseDialog(secretWord = state.secretWord) {
+                            viewModel.showInterstitial(activity)
+                        }
                     }
-                }
 
-                is GameSituations.GameError -> {
+                    GameSituations.GameWon -> {
+                        GameWinDialog {
+                            viewModel.showInterstitial(activity)
+                        }
+                    }
 
+                    is GameSituations.GameError -> {
+                        GameErrorDialog(
+                            textError = situation.errorMessage,
+                            onRetryClick = {
+                                viewModel.setUpGame()
+                            },
+                            onHomeClick = {
+                                onHomeClick()
+                            }
+                        )
+                    }
                 }
             }
 
@@ -234,7 +248,7 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ){
+                    ) {
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
@@ -284,7 +298,7 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ){
+                    ) {
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
@@ -342,7 +356,7 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ){
+                    ) {
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
@@ -400,7 +414,7 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ){
+                    ) {
 
                         Row(
                             modifier = Modifier.fillMaxWidth()

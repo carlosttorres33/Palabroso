@@ -60,9 +60,9 @@ class EasyViewModel @Inject constructor(
 
             }catch (e : Exception){
                 Log.d("Error", e.message.toString())
-                Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
                 state = state.copy(
-                    gameSituation = GameSituations.GameError("Error al intentar iniciar el juego :c")
+                    gameSituation = GameSituations.GameError(e.message ?: "Error desconocido")
                 )
             }
 

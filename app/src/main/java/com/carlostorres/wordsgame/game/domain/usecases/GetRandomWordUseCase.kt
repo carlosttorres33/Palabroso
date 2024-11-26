@@ -10,6 +10,6 @@ class GetRandomWordUseCase @Inject constructor(
     suspend operator fun invoke(wordsTried : List<String>, wordLength : Int) : String = wordsRepository.getRandomWord(wordsTried, wordLength)
 
     //Offline Tests
-//    suspend operator fun invoke(wordsTried : List<String>) : String = wordsRepository.getOfflineRandomWord(wordsTried)
+//    suspend operator fun invoke(wordsTried : List<String>, wordLength : Int) : String = wordsRepository.getOfflineRandomWord(wordsTried, wordLength)
 
 }

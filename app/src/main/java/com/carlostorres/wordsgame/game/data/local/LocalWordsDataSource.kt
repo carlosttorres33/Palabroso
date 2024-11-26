@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.data.local
 
 import com.carlostorres.wordsgame.game.data.local.model.WordEntity
+import com.carlostorres.wordsgame.utils.toWordEntity
 import javax.inject.Inject
 
 class LocalWordsDataSource @Inject constructor(
@@ -9,6 +10,10 @@ class LocalWordsDataSource @Inject constructor(
 
     suspend fun getWords(): List<WordEntity> {
         return wordGameDao.getWords()
+    }
+
+    suspend fun getRandomWord(length: Int): String {
+        return wordGameDao.getRandomWord(length).word
     }
 
     fun upsertWords() {
@@ -50,7 +55,7 @@ class LocalWordsDataSource @Inject constructor(
             "Lucas",
             "Padre",
             "Rollo"
-        ).filter { it.trim().length == 5 }.map { WordEntity(word = it.uppercase()) }
+        ).filter { it.trim().length == 5 }.map { it.toWordEntity() }
 
         wordGameDao.upsertWords(wordList)
     }

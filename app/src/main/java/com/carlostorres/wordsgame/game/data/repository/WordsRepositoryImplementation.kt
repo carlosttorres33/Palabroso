@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.data.repository
 
 import android.content.Context
+import android.health.connect.datatypes.units.Length
 import android.util.Log
 import com.carlostorres.wordsgame.game.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.game.data.local.model.WordEntity
@@ -43,13 +44,7 @@ class WordsRepositoryImplementation @Inject constructor(
 
         } else {
 
-            while (localDataSource.getWords().isEmpty()){
-                localDataSource.upsertWords()
-            }
-
-            val words = localDataSource.getWords()
-
-            val word = words.filter { !wordsTried.contains(it.word) }.random().word
+            val word = getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
 
             Log.d("SecretWord", word)
             word
@@ -57,15 +52,16 @@ class WordsRepositoryImplementation @Inject constructor(
 
     }
 
-    override suspend fun getOfflineRandomWord(wordsTried: List<String>): String {
-        while (localDataSource.getWords().isEmpty()){
-            localDataSource.upsertWords()
+    override suspend fun getOfflineRandomWord(wordsTried: List<String>, length: Int): String {
+
+        var word = localDataSource.getRandomWord(length = length)
+
+        while (wordsTried.contains(word) || word.length != length){
+            word = localDataSource.getRandomWord(length = length)
         }
 
-        val words = localDataSource.getWords()
+        return word.uppercase()
 
-
-        return words.filter { !wordsTried.contains(it.word) }.random().word
     }
 
     override suspend fun getMinAllowedVersion(): List<Int> {

@@ -100,12 +100,12 @@ fun MenuScreen(
             Text(
                 modifier = Modifier
                     .constrainAs(instructionsText) {
-                        bottom.linkTo(btnEasy.top)
+                        bottom.linkTo(btnEasy.top, margin = 18.dp)
                         start.linkTo(parent.start, margin = 18.dp)
                         end.linkTo(parent.end, margin = 18.dp)
                         width = Dimension.fillToConstraints
                     },
-                text = "Selecciona la dificultad",
+                text = "Selecciona el modo de juego",
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -117,7 +117,7 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnEasy) {},
                 difficult = GameDifficult.Easy,
-                text = "4 Letras"
+                text = "4 x 4"
             ) {
                 onDifficultySelected(GameDifficult.Easy)
             }
@@ -127,7 +127,7 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnMedium) {},
                 difficult = GameDifficult.Medium,
-                text = "5 Letras"
+                text = "5 x 5"
             ) {
                 onDifficultySelected(GameDifficult.Medium)
             }
@@ -137,7 +137,7 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnHard) {},
                 difficult = GameDifficult.Hard,
-                text = "6 Letras"
+                text = "6 x 6"
             ) {
                 onDifficultySelected(GameDifficult.Hard)
             }

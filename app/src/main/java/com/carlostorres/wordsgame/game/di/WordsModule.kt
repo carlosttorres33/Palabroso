@@ -53,7 +53,9 @@ object WordsModule {
             context = context,
             klass = WordGameDatabase::class.java,
             name = "words.db"
-        ).build()
+        ).createFromAsset("database/words.db")
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides

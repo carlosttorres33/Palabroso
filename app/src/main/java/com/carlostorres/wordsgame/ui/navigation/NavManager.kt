@@ -26,13 +26,21 @@ fun NavManager() {
         composable(
             route = NavRoutes.NormalGame.route,
         ) {
-            NormalScreen()
+            NormalScreen(
+                onHomeClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(
             route = NavRoutes.EasyGame.route,
         ){
-            EasyScreen()
+            EasyScreen(
+                onHomeClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(

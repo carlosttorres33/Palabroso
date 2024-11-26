@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -52,6 +53,7 @@ import com.carlostorres.wordsgame.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.components.BannerAd
+import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -62,7 +64,8 @@ import com.carlostorres.wordsgame.utils.GameSituations
 
 @Composable
 fun NormalScreen(
-    viewModel: NormalViewModel = hiltViewModel()
+    viewModel: NormalViewModel = hiltViewModel(),
+    onHomeClick: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -113,25 +116,37 @@ fun NormalScreen(
             ) = createRefs()
 
             //region Game Situations Dialogs
-            when (state.gameSituation) {
-                GameSituations.GameLoading -> {
-                    LoadingDialog()
-                }
+            AnimatedContent(state.gameSituation, label = "") { situation ->
+                when (situation) {
+                    GameSituations.GameLoading -> {
+                        LoadingDialog()
+                    }
 
-                GameSituations.GameInProgress -> {}
-                GameSituations.GameLost -> {
-                    GameLoseDialog(secretWord = state.actualSecretWord) {
-                        viewModel.showInterstitial(activity)
+                    GameSituations.GameInProgress -> {}
+                    GameSituations.GameLost -> {
+                        GameLoseDialog(secretWord = state.actualSecretWord) {
+                            viewModel.showInterstitial(activity)
+                        }
+                    }
+
+                    GameSituations.GameWon -> {
+                        GameWinDialog {
+                            viewModel.showInterstitial(activity)
+                        }
+                    }
+
+                    is GameSituations.GameError -> {
+                        GameErrorDialog(
+                            textError = situation.errorMessage,
+                            onRetryClick = {
+                                viewModel.setUpGame()
+                            },
+                            onHomeClick = {
+                                onHomeClick()
+                            }
+                        )
                     }
                 }
-
-                GameSituations.GameWon -> {
-                    GameWinDialog {
-                        viewModel.showInterstitial(activity)
-                    }
-                }
-
-                is GameSituations.GameError -> {}
             }
 
             if (!state.seenInstructions) {
