@@ -1,5 +1,6 @@
 package com.carlostorres.wordsgame.ui.components.word_line
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -79,6 +80,7 @@ fun WordChar(
 
     Card(
         modifier = modifier
+            .animateContentSize()
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale

@@ -6,6 +6,10 @@ object Constants {
 
     const val PREFERENCES_NAME = "wordsGame_preferences"
     const val INSTRUCTIONS_KEY = "instructions_seen"
+    const val EASY_GAMES_PLAYED_KEY = "easy_games_played"
+    const val NORMAL_GAMES_PLAYED_KEY = "normal_games_played"
+    const val HARD_GAMES_PLAYED_KEY = "hard_games_played"
+    const val LAST_PLAYED_DATE_KEY = "last_played_date"
 
     const val REMOTE_CONFIG_MIN_VERSION_KEY = "min_version"
 

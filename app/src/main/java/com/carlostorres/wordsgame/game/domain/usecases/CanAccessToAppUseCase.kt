@@ -1,5 +1,6 @@
-package com.carlostorres.wordsgame.game.domain.repository
+package com.carlostorres.wordsgame.game.domain.usecases
 
+import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
 import javax.inject.Inject
 
 class CanAccessToAppUseCase @Inject constructor(

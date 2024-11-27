@@ -15,28 +15,33 @@ import javax.inject.Inject
 
 class WordsRepositoryImplementation @Inject constructor(
     private val context: Context,
-    private val remoteConfig : FirebaseRemoteConfig,
+    private val remoteConfig: FirebaseRemoteConfig,
     private val localDataSource: LocalWordsDataSource,
     private val remoteDataSource: RemoteWordDataSource
 ) : WordsRepository {
 
-    override suspend fun getWords(): List<WordEntity> {
-        return localDataSource.getWords()
-    }
+    override suspend fun getRandomWord(
+        wordsTried: List<String>,
+        wordLength: Int,
+        dayTries: Int
+    ): String {
 
-    override fun upsertWords() {
-        return localDataSource.upsertWords()
-    }
+        return if (InternetCheck.isNetworkAvailable()) {
 
-    override suspend fun getRandomWord(wordsTried : List<String>, wordLength: Int) : String{
-
-        return if (InternetCheck.isNetworkAvailable()){
-            var word = remoteDataSource.getRandomWord(length = wordLength)
+            var word = if (dayTries <= 5) {
+                remoteDataSource.getRandomWord(length = wordLength)
+            }else{
+                getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
+            }
 
             println(word)
 
-            while (wordsTried.contains(word) || word.length != wordLength){
-                word = remoteDataSource.getRandomWord(length = wordLength)
+            while (wordsTried.contains(word) || word.length != wordLength) {
+                word = if (dayTries <= 5) {
+                    getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
+                } else {
+                    remoteDataSource.getRandomWord(length = wordLength)
+                }
             }
 
             Log.d("SecretWord", word)
@@ -56,7 +61,7 @@ class WordsRepositoryImplementation @Inject constructor(
 
         var word = localDataSource.getRandomWord(length = length)
 
-        while (wordsTried.contains(word) || word.length != length){
+        while (wordsTried.contains(word) || word.length != length) {
             word = localDataSource.getRandomWord(length = length)
         }
 
@@ -71,9 +76,9 @@ class WordsRepositoryImplementation @Inject constructor(
 
         val minVersion = remoteConfig.getString(REMOTE_CONFIG_MIN_VERSION_KEY)
 
-        return if (minVersion.isBlank()){
-            return listOf(0,0,0)
-        }else{
+        return if (minVersion.isBlank()) {
+            return listOf(0, 0, 0)
+        } else {
             minVersion.split(".").map { it.toInt() }
         }
     }
@@ -84,9 +89,9 @@ class WordsRepositoryImplementation @Inject constructor(
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             packageInfo.versionName.split(".").map { it.toInt() }
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("", e.message.toString())
-            listOf(0,0,0)
+            listOf(0, 0, 0)
         }
     }
 

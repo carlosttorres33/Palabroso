@@ -54,6 +54,7 @@ import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -73,8 +74,6 @@ fun NormalScreen(
 
     val state = viewModel.state
 
-    val seenInstructions by viewModel.seenInstructions.collectAsState()
-
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
     }
@@ -87,7 +86,7 @@ fun NormalScreen(
 
     LaunchedEffect(Unit) {
         if (state.actualSecretWord.isEmpty()) {
-            viewModel.setUpGame()
+            viewModel.setUpGame(0)
         }
     }
 
@@ -111,7 +110,6 @@ fun NormalScreen(
                 winsCounter,
                 loseCounter,
                 gameTitle,
-                howToButton,
                 bannerAd
             ) = createRefs()
 
@@ -124,22 +122,33 @@ fun NormalScreen(
 
                     GameSituations.GameInProgress -> {}
                     GameSituations.GameLost -> {
-                        GameLoseDialog(secretWord = state.actualSecretWord) {
-                            viewModel.showInterstitial(activity)
-                        }
+                        GameLoseDialog(
+                            secretWord = state.actualSecretWord,
+                            onRetryClick = {
+                                viewModel.showInterstitial(activity,0)
+                            },
+                            onHomeClick = {
+                                onHomeClick()
+                            }
+                        )
                     }
 
                     GameSituations.GameWon -> {
-                        GameWinDialog {
-                            viewModel.showInterstitial(activity)
-                        }
+                        GameWinDialog(
+                            onRematchClick = {
+                                viewModel.showInterstitial(activity,0)
+                            },
+                            onHomeClick = {
+                                onHomeClick()
+                            }
+                        )
                     }
 
                     is GameSituations.GameError -> {
                         GameErrorDialog(
                             textError = situation.errorMessage,
                             onRetryClick = {
-                                viewModel.setUpGame()
+                                viewModel.setUpGame(0)
                             },
                             onHomeClick = {
                                 onHomeClick()
@@ -147,16 +156,6 @@ fun NormalScreen(
                         )
                     }
                 }
-            }
-
-            if (!state.seenInstructions) {
-                InstructionsDialog(
-                    onClick = {
-                        viewModel.saveSeenInstructionsState(seen = true)
-                        viewModel.seeInstructions(true)
-                        //viewModel.readInstructions()
-                    }
-                )
             }
 
             if (showWordAlreadyTried) {
@@ -227,20 +226,10 @@ fun NormalScreen(
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
 
-            HowToPlayButton(
-                modifier = Modifier
-                    .constrainAs(howToButton) {
-                        top.linkTo(loseCounter.bottom, margin = 8.dp)
-                        end.linkTo(parent.end)
-                    }
-            ) {
-                viewModel.seeInstructions(false)
-            }
-
             BoxWithConstraints(
                 modifier = Modifier
                     .constrainAs(boardContainer) {
-                        top.linkTo(howToButton.bottom, margin = 8.dp)
+                        top.linkTo(loseCounter.bottom, margin = 8.dp)
                         bottom.linkTo(bannerAd.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -251,8 +240,6 @@ fun NormalScreen(
 
                 val maxWidth = this.maxWidth
                 val maxHeight = this.maxHeight
-
-                val rangeWidth = max(0.dp, maxWidth)
 
                 val boxWidth = maxWidth / 5
                 val boxHeight = maxHeight / 5

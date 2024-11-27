@@ -39,35 +39,7 @@ class NormalViewModel @Inject constructor(
     var state by mutableStateOf(NormalState())
         private set
 
-    private val _seenInstructions = MutableStateFlow(true)
-    val seenInstructions : StateFlow<Boolean> = _seenInstructions
-
-    init {
-        readInstructions()
-    }
-
-    private fun readInstructions(){
-        viewModelScope.launch(Dispatchers.IO) {
-            _seenInstructions.value = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
-            state = state.copy(
-                seenInstructions = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
-            )
-        }
-    }
-
-    fun saveSeenInstructionsState(seen : Boolean){
-        viewModelScope.launch(Dispatchers.IO) {
-            useCases.saveInstructionsUseCase(seen)
-        }
-    }
-
-    fun seeInstructions(seen: Boolean){
-        state = state.copy(
-            seenInstructions = seen
-        )
-    }
-
-    fun setUpGame() {
+    fun setUpGame(trie : Int) {
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -81,7 +53,8 @@ class NormalViewModel @Inject constructor(
 
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.wordsList,
-                    wordLength = NORMAL_WORD_LENGTH
+                    wordLength = NORMAL_WORD_LENGTH,
+                    dayTries = trie
                 )
 
                 if (word.isNotEmpty()) {
@@ -251,7 +224,7 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    fun showInterstitial(activity: Activity){
+    fun showInterstitial(activity: Activity, trie : Int){
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
@@ -264,13 +237,13 @@ class NormalViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        setUpGame()
+                        setUpGame(trie)
                     }
                 }
 
             }else{
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                setUpGame()
+                setUpGame(trie)
                 Log.d("Ad Error", "Ad is null")
 
             }

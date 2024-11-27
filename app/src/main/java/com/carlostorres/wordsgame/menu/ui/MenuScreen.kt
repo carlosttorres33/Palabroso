@@ -2,6 +2,9 @@ package com.carlostorres.wordsgame.menu.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.icu.util.Calendar
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,6 +27,7 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.menu.presentation.MenuViewModel
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.BannerAd
@@ -34,6 +38,8 @@ import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.Inst
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +54,28 @@ fun MenuScreen(
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     val state = viewModel.state
-    val readInstructions = viewModel.readInstructions.collectAsState(initial = false)
+
+    val userDailyStats = viewModel.dailyStats.collectAsState(initial = UserDailyStats(easyGamesPlayed = 0, normalGamesPlayed = 0, hardGamesPlayed = 0, lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)))
 
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
+    val currentDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+
     LaunchedEffect(key1 = requestedOrientation) {
         activity?.requestedOrientation = requestedOrientation
+    }
+
+    LaunchedEffect(Unit) {
+        if (userDailyStats.value.lastPlayedDate != currentDate) {
+            viewModel.updateDailyStats(
+                UserDailyStats(
+                    easyGamesPlayed = 0,
+                    normalGamesPlayed = 0,
+                    hardGamesPlayed = 0,
+                    lastPlayedDate = currentDate
+                )
+            )
+        }
     }
 
     Scaffold(
@@ -126,7 +148,8 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnEasy) {},
                 difficult = GameDifficult.Easy,
-                text = "4 x 4"
+                text = "4 x 4",
+                enabled = userDailyStats.value.easyGamesPlayed < 5
             ) {
                 onDifficultySelected(GameDifficult.Easy)
             }
@@ -136,7 +159,8 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnMedium) {},
                 difficult = GameDifficult.Medium,
-                text = "5 x 5"
+                text = "5 x 5",
+                enabled = userDailyStats.value.normalGamesPlayed < 5
             ) {
                 onDifficultySelected(GameDifficult.Medium)
             }
@@ -178,12 +202,6 @@ fun MenuScreen(
                         width = Dimension.fillToConstraints
                     }
             )
-
-            if (!readInstructions.value){
-                InstructionsDialog {
-                    viewModel.updateInstructionsState(true)
-                }
-            }
 
             if (state.blockVersion) {
                 UpdateDialog()

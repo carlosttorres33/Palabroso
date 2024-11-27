@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.icu.util.Calendar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -16,8 +17,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +48,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.presentation.easy.EasyEvents
 import com.carlostorres.wordsgame.game.presentation.easy.EasyViewModel
 import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
@@ -49,6 +59,7 @@ import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
@@ -64,7 +75,9 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.utils.GameSituations
+import java.text.SimpleDateFormat
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EasyScreen(
     viewModel: EasyViewModel = hiltViewModel(),
@@ -75,6 +88,15 @@ fun EasyScreen(
     val activity = context as Activity
 
     val state = viewModel.state
+
+    val userDailyStats = viewModel.dailyStats.collectAsState(
+        initial = UserDailyStats(
+            easyGamesPlayed = 0,
+            normalGamesPlayed = 0,
+            hardGamesPlayed = 0,
+            lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+        )
+    )
 
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
@@ -88,7 +110,7 @@ fun EasyScreen(
 
     LaunchedEffect(Unit) {
         if (state.secretWord.isEmpty()) {
-            viewModel.setUpGame()
+            viewModel.setUpGame(userDailyStats.value.easyGamesPlayed)
         }
     }
 
@@ -96,7 +118,32 @@ fun EasyScreen(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
-        else LightBackgroundGray
+        else LightBackgroundGray,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "PALABROSO",
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            onHomeClick()
+                        }
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "",
+                            tint = if (isSystemInDarkTheme()) LightBackgroundGray else DarkBackgroundGray
+                        )
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
 
         ConstraintLayout(
@@ -111,8 +158,8 @@ fun EasyScreen(
                 gameKeyboard,
                 winsCounter,
                 loseCounter,
-                gameTitle,
-                bannerAd
+                bannerAd,
+                dailyGamesCount
             ) = createRefs()
 
             //region Game Situations Dialogs
@@ -124,22 +171,53 @@ fun EasyScreen(
 
                     GameSituations.GameInProgress -> {}
                     GameSituations.GameLost -> {
-                        GameLoseDialog(secretWord = state.secretWord) {
-                            viewModel.showInterstitial(activity)
-                        }
+                        GameLoseDialog(
+                            secretWord = state.secretWord,
+                            onRetryClick = {
+                                viewModel.showInterstitial(activity, userDailyStats.value.easyGamesPlayed)
+                                viewModel.updateDailyStats(
+                                    userDailyStats.value.copy(
+                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
+                                    )
+                                )
+                            },
+                            onHomeClick = {
+                                viewModel.updateDailyStats(
+                                    userDailyStats.value.copy(
+                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
+                                    )
+                                )
+                                onHomeClick()
+                            }
+                        )
                     }
 
                     GameSituations.GameWon -> {
-                        GameWinDialog {
-                            viewModel.showInterstitial(activity)
-                        }
+                        GameWinDialog(
+                            onRematchClick = {
+                                viewModel.showInterstitial(activity, userDailyStats.value.easyGamesPlayed)
+                                viewModel.updateDailyStats(
+                                    userDailyStats.value.copy(
+                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
+                                    )
+                                )
+                            },
+                            onHomeClick = {
+                                viewModel.updateDailyStats(
+                                    userDailyStats.value.copy(
+                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
+                                    )
+                                )
+                                onHomeClick()
+                            }
+                        )
                     }
 
                     is GameSituations.GameError -> {
                         GameErrorDialog(
                             textError = situation.errorMessage,
                             onRetryClick = {
-                                viewModel.setUpGame()
+                                viewModel.setUpGame(userDailyStats.value.easyGamesPlayed)
                             },
                             onHomeClick = {
                                 onHomeClick()
@@ -180,6 +258,13 @@ fun EasyScreen(
                     }
                 }
             }
+
+            if (userDailyStats.value.easyGamesPlayed >= 5) {
+                GameLimitDialog {
+                    onHomeClick()
+                }
+            }
+
             //endregion
 
             CountBox(
@@ -193,18 +278,12 @@ fun EasyScreen(
             )
 
             Text(
-                modifier = Modifier
-                    .constrainAs(gameTitle) {
-                        top.linkTo(parent.top)
-                        start.linkTo(winsCounter.start)
-                        end.linkTo(loseCounter.end)
-                        bottom.linkTo(loseCounter.bottom)
-                        width = Dimension.fillToConstraints
-                    },
-                text = "PALABROSO",
-                textAlign = TextAlign.Center,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                text = "Hoy: ${userDailyStats.value.easyGamesPlayed}",
+                modifier = Modifier.constrainAs(dailyGamesCount) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
 
             CountBox(

@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -19,15 +17,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.components.GameDifficult
+import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
-import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 
 @Composable
 fun GameLoseDialog(
     secretWord: String,
-    onButtonClick: () -> Unit
+    onRetryClick: () -> Unit,
+    onHomeClick: () -> Unit
 ) {
 
     Dialog(onDismissRequest = {}) {
@@ -58,21 +58,24 @@ fun GameLoseDialog(
                     color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
                 )
 
-                Button(
+                MyButton(
                     modifier = Modifier
                         .bounceClick(),
                     onClick = {
-                       onButtonClick()
+                       onRetryClick()
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkGreen
-                    )
-                ) {
-                    Text(
-                        text = "Jugar de nuevo",
-                        color = DarkTextGray
-                    )
-                }
+                    difficult = GameDifficult.Easy,
+                    text = "Reintentar"
+                )
+
+                MyButton(
+                    modifier = Modifier,
+                    onClick = {
+                        onHomeClick()
+                    },
+                    difficult = GameDifficult.Medium,
+                    text = "Volver al inicio"
+                )
 
             }
         }

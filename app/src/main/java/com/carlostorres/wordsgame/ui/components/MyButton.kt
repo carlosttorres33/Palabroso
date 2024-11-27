@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -52,7 +53,8 @@ fun MyButton(
     OutlinedButton(
         enabled = enabled,
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .bounceClick(),
         border = BorderStroke(2.dp, buttonColors),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
