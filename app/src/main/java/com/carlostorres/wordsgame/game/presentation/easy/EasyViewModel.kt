@@ -57,6 +57,8 @@ class EasyViewModel @Inject constructor(
 
             try {
 
+                Log.d("EasyViewModel", "Try number: $trie")
+
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
                     wordLength = EASY_WORD_LENGTH,
@@ -72,7 +74,7 @@ class EasyViewModel @Inject constructor(
                 }
 
             }catch (e : Exception){
-                Log.d("Error", e.message.toString())
+                Log.e("EasyViewModel", "Error" + e.message.toString())
                 //Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
                 state = state.copy(
                     gameSituation = GameSituations.GameError(e.message ?: "Error desconocido")
@@ -102,7 +104,7 @@ class EasyViewModel @Inject constructor(
             return
         }
 
-        Log.d("secretWord", "${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")
+        Log.d("EasyViewModel", "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")
 
         when(state.tryNumber){
             0 -> {
@@ -190,7 +192,7 @@ class EasyViewModel @Inject constructor(
             }
         }
 
-        Log.d("secretWord", "$result")
+        Log.d("EasyViewModel", "SecretWord: $result")
 
         when(state.tryNumber){
             0 -> {
@@ -247,7 +249,7 @@ class EasyViewModel @Inject constructor(
             }else{
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
                 setUpGame(trie)
-                Log.d("Ad Error", "Ad is null")
+                Log.e("EasyViewModel", "Ad is null")
 
             }
         }
@@ -266,7 +268,7 @@ class EasyViewModel @Inject constructor(
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     super.onAdFailedToLoad(error)
-                    Log.d("Ad Error", "Error: ${error.message}")
+                    Log.e("EasyViewModel", "Error loading ad: ${error.message}")
                     callback(null)
                 }
 

@@ -28,16 +28,18 @@ class WordsRepositoryImplementation @Inject constructor(
 
         return if (InternetCheck.isNetworkAvailable()) {
 
-            var word = if (dayTries <= 5) {
+            var word = if (dayTries < 4) {
+                Log.d("Repo", "Internet is available and first 4 tries")
                 remoteDataSource.getRandomWord(length = wordLength)
             }else{
+                Log.d("Repo", "Internet is available but 4 try so we get offline word")
                 getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
             }
 
             println(word)
 
             while (wordsTried.contains(word) || word.length != wordLength) {
-                word = if (dayTries <= 5) {
+                word = if (dayTries < 4) {
                     getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
                 } else {
                     remoteDataSource.getRandomWord(length = wordLength)
