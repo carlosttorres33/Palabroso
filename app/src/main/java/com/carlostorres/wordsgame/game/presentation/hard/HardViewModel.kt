@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.game.presentation.normal
+package com.carlostorres.wordsgame.game.presentation.hard
 
 import android.app.Activity
 import android.content.Context
@@ -14,9 +14,10 @@ import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
-import com.carlostorres.wordsgame.utils.Constants.NORMAL_WORD_LENGTH
+import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
@@ -35,12 +36,12 @@ import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 @HiltViewModel
-class NormalViewModel @Inject constructor(
+class HardViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: GameUseCases
 ) : ViewModel() {
 
-    var state by mutableStateOf(NormalState())
+    var state by mutableStateOf(HardState())
         private set
 
     private val _userDailyStats = MutableStateFlow<UserDailyStats>(
@@ -75,8 +76,8 @@ class NormalViewModel @Inject constructor(
 
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
-                    wordLength = NORMAL_WORD_LENGTH,
-                    dayTries = userDailyStats.value.normalGamesPlayed
+                    wordLength = HARD_WORD_LENGTH,
+                    dayTries = userDailyStats.value.hardGamesPlayed
                 )
 
                 if (word.isNotEmpty()) {
@@ -102,10 +103,10 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    private suspend fun increaseNormalGamesPlayed() {
+    private suspend fun increaseHardGamesPlayed() {
         useCases.updateDailyStatsUseCase(
             _userDailyStats.value.copy(
-                normalGamesPlayed = _userDailyStats.value.normalGamesPlayed + 1
+                hardGamesPlayed = _userDailyStats.value.hardGamesPlayed + 1
             )
         )
     }
@@ -121,13 +122,13 @@ class NormalViewModel @Inject constructor(
                 gameSituation = GameSituations.GameWon,
                 gameWinsCount = state.gameWinsCount + 1
             )
-            increaseNormalGamesPlayed()
-        } else if (state.tryNumber >= 4) {
+            increaseHardGamesPlayed()
+        } else if (state.tryNumber >= 5) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
-            increaseNormalGamesPlayed()
+            increaseHardGamesPlayed()
         }
 
         Log.d(
@@ -191,13 +192,23 @@ class NormalViewModel @Inject constructor(
                 )
             }
 
+            5 -> {
+                state = state.copy(
+                    tryNumber = state.tryNumber + 1,
+                    intento6 = state.intento6.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    ),
+                    inputText = "",
+                )
+            }
+
             else -> {
                 resetGame()
             }
         }
 
     }
-
 
     private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
 
@@ -236,20 +247,20 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    fun onEvent(event: NormalEvents) {
+    fun onEvent(event: HardEvents) {
 
         when (event) {
-            is NormalEvents.OnInputTextChange -> {
+            is HardEvents.OnInputTextChange -> {
                 state = state.copy(
                     inputText = state.inputText + event.inputText
                 )
             }
 
-            is NormalEvents.OnAcceptClick -> {
+            is HardEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
 
-            is NormalEvents.OnDeleteClick -> {
+            is HardEvents.OnDeleteClick -> {
                 state = state.copy(
                     inputText = state.inputText.dropLast(1)
                 )
@@ -271,7 +282,7 @@ class NormalViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                             navHome()
                         } else {
                             setUpGame()
@@ -281,7 +292,7 @@ class NormalViewModel @Inject constructor(
 
             } else {
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {
                     setUpGame()
@@ -329,12 +340,12 @@ class NormalViewModel @Inject constructor(
             intento3 = TryInfo(),
             intento4 = TryInfo(),
             intento5 = TryInfo(),
+            intento6 = TryInfo(),
             isGameWon = null,
             secretWord = "",
             keyboard = keyboardCreator(),
             wordsTried = emptyList()
         )
     }
-
 
 }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.carlostorres.wordsgame.game.ui.EasyScreen
+import com.carlostorres.wordsgame.game.ui.HardScreen
 import com.carlostorres.wordsgame.game.ui.NormalScreen
 import com.carlostorres.wordsgame.menu.ui.MenuScreen
 import com.carlostorres.wordsgame.onboarding.ui.OnboardingScreen
@@ -57,6 +58,30 @@ fun NavManager() {
         }
 
         composable(
+            route = NavRoutes.Menu.route,
+        ) {
+            MenuScreen(
+                onDifficultySelected = { difficult ->
+                    when (difficult) {
+                        GameDifficult.Easy -> {
+                            navController.navigate(NavRoutes.EasyGame.route)
+                        }
+                        GameDifficult.Medium -> {
+                            navController.navigate(NavRoutes.NormalGame.route)
+                        }
+                        GameDifficult.Hard -> {
+                            navController.navigate(NavRoutes.HardGame.route)
+
+                        }
+                    }
+                },
+                onHowToPlayClick = {
+                    navController.navigate(NavRoutes.Onboarding.createRoute(true))
+                }
+            )
+        }
+
+        composable(
             route = NavRoutes.NormalGame.route,
         ) {
             NormalScreen(
@@ -77,25 +102,11 @@ fun NavManager() {
         }
 
         composable(
-            route = NavRoutes.Menu.route,
-        ) {
-            MenuScreen(
-                onDifficultySelected = { difficult ->
-                    when (difficult) {
-                        GameDifficult.Easy -> {
-                            navController.navigate(NavRoutes.EasyGame.route)
-                        }
-                        GameDifficult.Medium -> {
-                            navController.navigate(NavRoutes.NormalGame.route)
-                        }
-                        GameDifficult.Hard -> {
-                            Toast.makeText(context, "Dificil", Toast.LENGTH_SHORT).show()
-
-                        }
-                    }
-                },
-                onHowToPlayClick = {
-                    navController.navigate(NavRoutes.Onboarding.createRoute(true))
+            route = NavRoutes.HardGame.route,
+        ){
+            HardScreen(
+                onHomeClick = {
+                    navController.popBackStack()
                 }
             )
         }

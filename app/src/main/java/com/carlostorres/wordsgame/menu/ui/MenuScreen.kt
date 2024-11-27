@@ -160,7 +160,7 @@ fun MenuScreen(
                 text = "4 x 4"
             ) {
                 if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras 4x4", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Ya jugaste todas las palabras 4x4 de hoy", Toast.LENGTH_SHORT)
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Easy)
@@ -175,7 +175,7 @@ fun MenuScreen(
                 text = "5 x 5"
             ) {
                 if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras 5x5", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Ya jugaste todas las palabras 5x5 de hoy", Toast.LENGTH_SHORT)
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Medium)
@@ -189,7 +189,12 @@ fun MenuScreen(
                 difficult = GameDifficult.Hard,
                 text = "6 x 6"
             ) {
-                onDifficultySelected(GameDifficult.Hard)
+                if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                    Toast.makeText(context, "Ya jugaste todas las palabras 6x6 de hoy", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    onDifficultySelected(GameDifficult.Hard)
+                }
             }
 
             MyButton(
