@@ -19,5 +19,9 @@ sealed class InstructionsPages(
         image = R.drawable.example2,
         title = "Consejos para ganar!!"
     )
+    object Fourth : InstructionsPages(
+        image = R.drawable.example2,
+        title = "Palabras Diarias"
+    )
 
 }

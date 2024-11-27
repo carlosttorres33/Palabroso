@@ -2,11 +2,8 @@ package com.carlostorres.wordsgame.game.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.icu.util.Calendar
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,8 +17,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -35,37 +30,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.carlostorres.wordsgame.R
-import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
-import com.carlostorres.wordsgame.game.presentation.easy.EasyEvents
-import com.carlostorres.wordsgame.game.presentation.easy.EasyViewModel
-import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
-import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.game.presentation.hard.HardViewModel
+import com.carlostorres.wordsgame.game.presentation.hard.HardEvents
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
-import com.carlostorres.wordsgame.ui.components.HowToPlayButton
-import com.carlostorres.wordsgame.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.ui.components.word_line.WordChar
@@ -78,12 +61,11 @@ import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
-import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EasyScreen(
-    viewModel: EasyViewModel = hiltViewModel(),
+fun HardScreen(
+    viewModel: HardViewModel = hiltViewModel(),
     onHomeClick: () -> Unit
 ) {
 
@@ -92,18 +74,11 @@ fun EasyScreen(
 
     val state = viewModel.state
 
-    val userDailyStats = viewModel.dailyStats.collectAsState(
-        initial = UserDailyStats(
-            easyGamesPlayed = 0,
-            normalGamesPlayed = 0,
-            hardGamesPlayed = 0,
-            lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
-        )
-    )
-
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
     }
+
+    val userDailyStats by viewModel.userDailyStats.collectAsState()
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
@@ -113,7 +88,7 @@ fun EasyScreen(
 
     LaunchedEffect(Unit) {
         if (state.secretWord.isEmpty()) {
-            viewModel.setUpGame(userDailyStats.value.easyGamesPlayed)
+            viewModel.setUpGame()
         }
     }
 
@@ -169,6 +144,11 @@ fun EasyScreen(
             ) = createRefs()
 
             //region Game Situations Dialogs
+
+            if (showWordAlreadyTried) {
+                WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
+            }
+
             AnimatedContent(state.gameSituation, label = "") { situation ->
                 when (situation) {
                     GameSituations.GameLoading -> {
@@ -176,54 +156,38 @@ fun EasyScreen(
                     }
 
                     GameSituations.GameInProgress -> {
-                        if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        if (userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                             GameLimitDialog {
-                                onHomeClick()
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = { onHomeClick() }
+                                )
                             }
                         }
                     }
+
                     GameSituations.GameLost -> {
                         GameLoseDialog(
                             secretWord = state.secretWord,
                             onRetryClick = {
-                                viewModel.showInterstitial(activity, userDailyStats.value.easyGamesPlayed)
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
-                                )
+                                viewModel.showInterstitial(activity, navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
-                                )
-                                onHomeClick()
+                                viewModel.showInterstitial(activity, navHome = {onHomeClick()})
                             },
-                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+                            isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
                     GameSituations.GameWon -> {
                         GameWinDialog(
                             onRematchClick = {
-                                viewModel.showInterstitial(activity, userDailyStats.value.easyGamesPlayed)
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
-                                )
+                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
-                                )
-                                onHomeClick()
+                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
                             },
-                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+                            isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
@@ -231,7 +195,7 @@ fun EasyScreen(
                         GameErrorDialog(
                             textError = situation.errorMessage,
                             onRetryClick = {
-                                viewModel.setUpGame(userDailyStats.value.easyGamesPlayed)
+                                viewModel.setUpGame()
                             },
                             onHomeClick = {
                                 onHomeClick()
@@ -240,11 +204,6 @@ fun EasyScreen(
                     }
                 }
             }
-
-            if (showWordAlreadyTried) {
-                WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
-            }
-
             //endregion
 
             CountBox(
@@ -282,8 +241,8 @@ fun EasyScreen(
                 val maxWidth = this.maxWidth
                 val maxHeight = this.maxHeight
 
-                val boxWidth = maxWidth / 4
-                val boxHeight = maxHeight / 4
+                val boxWidth = maxWidth / 6
+                val boxHeight = maxHeight / 6
 
                 Column(
                     modifier = Modifier
@@ -298,13 +257,13 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ) {
+                    ){
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
-                            repeat(4) { index ->
+                            repeat(6) { index ->
 
                                 val char = when {
                                     index >= state.inputText.length -> ""
@@ -348,13 +307,13 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ) {
+                    ){
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
-                            repeat(4) { index ->
+                            repeat(6) { index ->
 
                                 val char = when {
                                     index >= state.inputText.length -> ""
@@ -406,13 +365,13 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ) {
+                    ){
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
-                            repeat(4) { index ->
+                            repeat(6) { index ->
 
                                 val char = when {
                                     index >= state.inputText.length -> ""
@@ -464,13 +423,13 @@ fun EasyScreen(
                         onValueChange = {},
                         enabled = false,
                         singleLine = true
-                    ) {
+                    ){
 
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
-                            repeat(4) { index ->
+                            repeat(6) { index ->
 
                                 val char = when {
                                     index >= state.inputText.length -> ""
@@ -516,6 +475,122 @@ fun EasyScreen(
                     }
                     //endregion
 
+                    //region fifth try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(6) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento5.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
+                    //region six try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ){
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(6) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 5) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 5) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento6.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                        char = state.intento6.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
                     Spacer(modifier = Modifier.weight(0.4f))
 
                 }
@@ -523,7 +598,7 @@ fun EasyScreen(
 
             BannerAd(
                 modifier = Modifier
-                    .constrainAs(bannerAd) {
+                    .constrainAs(bannerAd){
                         bottom.linkTo(gameKeyboard.top, margin = 18.dp)
                         end.linkTo(parent.end)
                         start.linkTo(parent.start)
@@ -539,8 +614,8 @@ fun EasyScreen(
                         start.linkTo(parent.start)
                     },
                 onButtonClick = { charClicked ->
-                    if (state.inputText.length < 4) {
-                        viewModel.onEvent(EasyEvents.OnInputTextChange(charClicked))
+                    if (state.inputText.length < 6) {
+                        viewModel.onEvent(HardEvents.OnInputTextChange(charClicked))
                     }
                 },
                 keyboard = state.keyboard,
@@ -548,15 +623,17 @@ fun EasyScreen(
                     if (state.wordsTried.contains(state.inputText)) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(EasyEvents.OnAcceptClick)
+                        viewModel.onEvent(HardEvents.OnAcceptClick)
                     }
                 },
-                onAcceptState = if (state.inputText.length == 4) ButtonType.Unclicked else ButtonType.IsNotInWord,
+                onAcceptState = if (state.inputText.length == 6) ButtonType.Unclicked else ButtonType.IsNotInWord,
                 onBackspaceClick = {
-                    viewModel.onEvent(EasyEvents.OnDeleteClick)
+                    viewModel.onEvent(HardEvents.OnDeleteClick)
                 }
             )
 
         }
+
     }
+
 }

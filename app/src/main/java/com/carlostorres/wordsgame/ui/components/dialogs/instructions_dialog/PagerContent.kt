@@ -188,6 +188,19 @@ fun PagerContent(
                 )
             }
 
+            3 -> {
+                Text(
+                    text = "Selecciona el modo que desees jugar en el manú principal (4x4, 5x5, 6x6)",
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
+                )
+                Text(
+                    text = "Cada día tendras la posibilidad de adivinar 5 palabras diferentes de cada modo",
+                    modifier = Modifier.fillMaxWidth(),
+                    color = textColor
+                )
+            }
+
             else -> {}
         }
 
