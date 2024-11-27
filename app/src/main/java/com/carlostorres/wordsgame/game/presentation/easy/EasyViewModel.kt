@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.model.TryInfo
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -24,6 +25,9 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,7 +40,15 @@ class EasyViewModel @Inject constructor(
     var state by mutableStateOf(EasyState())
         private set
 
-    fun setUpGame(){
+    val dailyStats: Flow<UserDailyStats> = useCases.readDailyStatsUseCase()
+
+    fun updateDailyStats(stats: UserDailyStats){
+        viewModelScope.launch(Dispatchers.IO) {
+            useCases.updateDailyStatsUseCase(stats)
+        }
+    }
+
+    fun setUpGame(trie : Int){
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -45,9 +57,12 @@ class EasyViewModel @Inject constructor(
 
             try {
 
+                Log.d("EasyViewModel", "Try number: $trie")
+
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
-                    wordLength = EASY_WORD_LENGTH
+                    wordLength = EASY_WORD_LENGTH,
+                    dayTries = trie
                 )
 
                 if (word.isNotEmpty()){
@@ -59,7 +74,7 @@ class EasyViewModel @Inject constructor(
                 }
 
             }catch (e : Exception){
-                Log.d("Error", e.message.toString())
+                Log.e("EasyViewModel", "Error" + e.message.toString())
                 //Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
                 state = state.copy(
                     gameSituation = GameSituations.GameError(e.message ?: "Error desconocido")
@@ -86,10 +101,9 @@ class EasyViewModel @Inject constructor(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
-            return
         }
 
-        Log.d("secretWord", "${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")
+        Log.d("EasyViewModel", "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")
 
         when(state.tryNumber){
             0 -> {
@@ -177,7 +191,7 @@ class EasyViewModel @Inject constructor(
             }
         }
 
-        Log.d("secretWord", "$result")
+        Log.d("EasyViewModel", "SecretWord: $result")
 
         when(state.tryNumber){
             0 -> {
@@ -214,7 +228,7 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    fun showInterstitial(activity: Activity){
+    fun showInterstitial(activity: Activity, trie: Int){
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
@@ -227,14 +241,14 @@ class EasyViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        setUpGame()
+                        setUpGame(trie)
                     }
                 }
 
             }else{
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                setUpGame()
-                Log.d("Ad Error", "Ad is null")
+                setUpGame(trie)
+                Log.e("EasyViewModel", "Ad is null")
 
             }
         }
@@ -253,7 +267,7 @@ class EasyViewModel @Inject constructor(
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     super.onAdFailedToLoad(error)
-                    Log.d("Ad Error", "Error: ${error.message}")
+                    Log.e("EasyViewModel", "Error loading ad: ${error.message}")
                     callback(null)
                 }
 

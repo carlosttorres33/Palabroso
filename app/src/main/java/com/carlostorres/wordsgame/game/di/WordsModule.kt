@@ -9,15 +9,16 @@ import com.carlostorres.wordsgame.game.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.game.data.remote.WordApi
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl
 import com.carlostorres.wordsgame.game.data.repository.WordsRepositoryImplementation
-import com.carlostorres.wordsgame.game.domain.repository.CanAccessToAppUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
-import com.carlostorres.wordsgame.game.domain.usecases.GetAllWordsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.GetRandomWordUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.OnboardingUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.ReadDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.ReadInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.SaveInstructionsUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.UpsertAllWordsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.UpdateDailyStatsUseCase
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -74,16 +75,23 @@ object WordsModule {
 
     @Provides
     @Singleton
+    fun provideOnboardingUseCases(
+        dataStoreOperations: DataStoreOperations
+    ) : OnboardingUseCases = OnboardingUseCases(
+        saveInstructionsUseCase = SaveInstructionsUseCase(dataStoreOperations),
+        readInstructionsUseCase = ReadInstructionsUseCase(dataStoreOperations)
+    )
+
+    @Provides
+    @Singleton
     fun provideHomeUseCases(
         wordsRepository: WordsRepository,
         dataStoreOperations: DataStoreOperations
     ) : GameUseCases = GameUseCases(
-        getAllWordsUseCase = GetAllWordsUseCase(wordsRepository),
-        upsertAllWordsUseCase = UpsertAllWordsUseCase(wordsRepository),
         getRandomWordUseCase = GetRandomWordUseCase(wordsRepository),
-        saveInstructionsUseCase = SaveInstructionsUseCase(dataStoreOperations),
-        readInstructionsUseCase = ReadInstructionsUseCase(dataStoreOperations),
-        canAccessToAppUseCase = CanAccessToAppUseCase(wordsRepository)
+        canAccessToAppUseCase = CanAccessToAppUseCase(wordsRepository),
+        updateDailyStatsUseCase = UpdateDailyStatsUseCase(dataStoreOperations),
+        readDailyStatsUseCase = ReadDailyStatsUseCase(dataStoreOperations)
     )
 
     @Singleton

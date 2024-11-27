@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.presentation.normal
 
 import android.app.Activity
 import android.content.Context
+import android.icu.util.Calendar
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
@@ -11,12 +12,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.model.TryInfo
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
-import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.Constants.NORMAL_WORD_LENGTH
+import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
@@ -26,8 +29,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,32 +43,24 @@ class NormalViewModel @Inject constructor(
     var state by mutableStateOf(NormalState())
         private set
 
-    private val _seenInstructions = MutableStateFlow(true)
-    val seenInstructions : StateFlow<Boolean> = _seenInstructions
+    val dailyStats = useCases.readDailyStatsUseCase()
+
+    private val _userDailyStats = MutableStateFlow<UserDailyStats>(
+        UserDailyStats(
+            easyGamesPlayed = 0,
+            normalGamesPlayed = 0,
+            hardGamesPlayed = 0,
+            lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+        )
+    )
+    val userDailyStats: StateFlow<UserDailyStats> = _userDailyStats.asStateFlow()
 
     init {
-        readInstructions()
-    }
-
-    private fun readInstructions(){
-        viewModelScope.launch(Dispatchers.IO) {
-            _seenInstructions.value = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
-            state = state.copy(
-                seenInstructions = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
-            )
+        viewModelScope.launch {
+            useCases.readDailyStatsUseCase().collect { stats ->
+                _userDailyStats.value = stats
+            }
         }
-    }
-
-    fun saveSeenInstructionsState(seen : Boolean){
-        viewModelScope.launch(Dispatchers.IO) {
-            useCases.saveInstructionsUseCase(seen)
-        }
-    }
-
-    fun seeInstructions(seen: Boolean){
-        state = state.copy(
-            seenInstructions = seen
-        )
     }
 
     fun setUpGame() {
@@ -80,15 +76,16 @@ class NormalViewModel @Inject constructor(
             try {
 
                 val word = useCases.getRandomWordUseCase(
-                    wordsTried = state.wordsList,
-                    wordLength = NORMAL_WORD_LENGTH
+                    wordsTried = state.secretWordsList,
+                    wordLength = NORMAL_WORD_LENGTH,
+                    dayTries = userDailyStats.value.normalGamesPlayed
                 )
 
                 if (word.isNotEmpty()) {
                     state = state.copy(
-                        actualSecretWord = word,
+                        secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
-                        wordsList = state.wordsList.plus(word)
+                        secretWordsList = state.secretWordsList.plus(word)
                     )
                 }
 
@@ -107,65 +104,37 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
-
-        val resultado = mutableListOf<Pair<String, WordCharState>>()
-
-        for (i in state.actualSecretWord.indices) {
-            if (state.actualSecretWord[i].uppercase() == state.inputText[i].uppercase()) {
-                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnPosition))
-                state = state.copy(
-                    keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnPosition) else it
-                    }
-                )
-            } else if (state.actualSecretWord.uppercase()
-                    .contains(state.inputText[i].uppercase())
-            ) {
-                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
-                state = state.copy(
-                    keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnWord) else it
-                    }
-                )
-            } else {
-                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsNotInWord))
-                state = state.copy(
-                    keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsNotInWord) else it
-                    }
-                )
-            }
-        }
-
-        Log.d("secretWord", "$resultado")
-
-        return resultado
-
+    private suspend fun increaseNormalGamesPlayed() {
+        useCases.updateDailyStatsUseCase(
+            _userDailyStats.value.copy(
+                normalGamesPlayed = _userDailyStats.value.normalGamesPlayed + 1
+            )
+        )
     }
 
-    private fun onAcceptClick() {
+    private fun onAcceptClick() = viewModelScope.launch {
 
         state = state.copy(wordsTried = state.wordsTried.plus(state.inputText))
 
         val resultado = validateIfWordContainsLetter()
 
-        if (state.inputText.uppercase() == state.actualSecretWord.uppercase()) {
+        if (state.inputText.uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
                 gameWinsCount = state.gameWinsCount + 1
             )
+            increaseNormalGamesPlayed()
         } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
-            return
+            increaseNormalGamesPlayed()
         }
 
         Log.d(
             "secretWord",
-            "${state.inputText.uppercase()} == ${state.actualSecretWord.uppercase()}"
+            "${state.inputText.uppercase()} == ${state.secretWord.uppercase()}"
         )
 
         when (state.tryNumber) {
@@ -231,6 +200,44 @@ class NormalViewModel @Inject constructor(
 
     }
 
+
+    private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
+
+        val resultado = mutableListOf<Pair<String, WordCharState>>()
+
+        for (i in state.secretWord.indices) {
+            if (state.secretWord[i].uppercase() == state.inputText[i].uppercase()) {
+                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnPosition))
+                state = state.copy(
+                    keyboard = state.keyboard.map {
+                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnPosition) else it
+                    }
+                )
+            } else if (state.secretWord.uppercase()
+                    .contains(state.inputText[i].uppercase())
+            ) {
+                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
+                state = state.copy(
+                    keyboard = state.keyboard.map {
+                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnWord) else it
+                    }
+                )
+            } else {
+                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsNotInWord))
+                state = state.copy(
+                    keyboard = state.keyboard.map {
+                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsNotInWord) else it
+                    }
+                )
+            }
+        }
+
+        Log.d("secretWord", "$resultado")
+
+        return resultado
+
+    }
+
     fun onEvent(event: NormalEvents) {
 
         when (event) {
@@ -239,9 +246,11 @@ class NormalViewModel @Inject constructor(
                     inputText = state.inputText + event.inputText
                 )
             }
+
             is NormalEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
+
             is NormalEvents.OnDeleteClick -> {
                 state = state.copy(
                     inputText = state.inputText.dropLast(1)
@@ -251,26 +260,34 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    fun showInterstitial(activity: Activity){
+    fun showInterstitial(activity: Activity, navHome : () -> Unit) {
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
         )
 
-        loadInterstitial(activity){ interstitialAd ->
-            if(interstitialAd != null){
+        loadInterstitial(activity) { interstitialAd ->
+            if (interstitialAd != null) {
 
                 interstitialAd.show(activity)
-                interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+                interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        setUpGame()
+                        if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                            navHome()
+                        } else {
+                            setUpGame()
+                        }
                     }
                 }
 
-            }else{
+            } else {
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                setUpGame()
+                if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                    navHome()
+                } else {
+                    setUpGame()
+                }
                 Log.d("Ad Error", "Ad is null")
 
             }
@@ -278,7 +295,7 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    private fun loadInterstitial(activity: Activity, callback : (InterstitialAd?) -> Unit ){
+    private fun loadInterstitial(activity: Activity, callback: (InterstitialAd?) -> Unit) {
 
         val adRequest = com.google.android.gms.ads.AdRequest.Builder().build()
 
@@ -286,7 +303,7 @@ class NormalViewModel @Inject constructor(
             activity,
             context.getString(R.string.ad_unit_id),
             adRequest,
-            object : InterstitialAdLoadCallback(){
+            object : InterstitialAdLoadCallback() {
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     super.onAdFailedToLoad(error)
@@ -314,38 +331,9 @@ class NormalViewModel @Inject constructor(
             intento3 = TryInfo(),
             intento4 = TryInfo(),
             intento5 = TryInfo(),
-            isGameWon = false,
-            isGameLost = false,
-            keyboard = listOf(
-                KeyboardChar("Q"),
-                KeyboardChar("W"),
-                KeyboardChar("E"),
-                KeyboardChar("R"),
-                KeyboardChar("T"),
-                KeyboardChar("Y"),
-                KeyboardChar("U"),
-                KeyboardChar("I"),
-                KeyboardChar("O"),
-                KeyboardChar("P"),
-                KeyboardChar("A"),
-                KeyboardChar("S"),
-                KeyboardChar("D"),
-                KeyboardChar("F"),
-                KeyboardChar("G"),
-                KeyboardChar("H"),
-                KeyboardChar("J"),
-                KeyboardChar("K"),
-                KeyboardChar("L"),
-                KeyboardChar("Ñ"),
-                KeyboardChar("Z"),
-                KeyboardChar("X"),
-                KeyboardChar("C"),
-                KeyboardChar("V"),
-                KeyboardChar("B"),
-                KeyboardChar("N"),
-                KeyboardChar("M")
-            ),
-            actualSecretWord = "",
+            isGameWon = null,
+            secretWord = "",
+            keyboard = keyboardCreator(),
             wordsTried = emptyList()
         )
     }

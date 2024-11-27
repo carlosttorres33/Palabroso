@@ -6,5 +6,11 @@ sealed class NavRoutes (val route: String) {
     object EasyGame : NavRoutes(route = "EasyGame")
     object HardGame : NavRoutes(route = "HardGame")
     object Menu : NavRoutes(route = "Menu")
+    object Onboarding : NavRoutes(route = "Onboarding/{isFromMenu}"){
+        fun createRoute(isFromMenu : Boolean) : String {
+            return "Onboarding/$isFromMenu"
+        }
+    }
+    object Splash : NavRoutes(route = "Splash")
 
 }

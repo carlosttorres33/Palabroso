@@ -15,10 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.components.GameDifficult
+import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -58,40 +61,29 @@ fun GameErrorDialog(
                 )
                 Text(
                     text = textError,
-                    color = if (isSystemInDarkTheme()) DarkRed else LightRed
+                    color = if (isSystemInDarkTheme()) DarkRed else LightRed,
+                    textAlign = TextAlign.Center
                 )
 
-                Button(
+                MyButton(
                     modifier = Modifier
                         .bounceClick(),
                     onClick = {
                         onRetryClick()
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkGreen
-                    )
-                ) {
-                    Text(
-                        text = "Reintentar",
-                        color = DarkTextGray
-                    )
-                }
+                    difficult = GameDifficult.Easy,
+                    text = "Reintentar"
+                )
 
-                Button(
+                MyButton(
                     modifier = Modifier
                         .bounceClick(),
                     onClick = {
                         onHomeClick()
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DarkRed
-                    )
-                ) {
-                    Text(
-                        text = "Volver al inicio",
-                        color = DarkTextGray
-                    )
-                }
+                    difficult = GameDifficult.Hard,
+                    text = "Volver al inicio"
+                )
 
             }
         }

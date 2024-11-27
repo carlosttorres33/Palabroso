@@ -2,6 +2,10 @@ package com.carlostorres.wordsgame.menu.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.icu.util.Calendar
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,6 +28,7 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.menu.presentation.MenuViewModel
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.BannerAd
@@ -34,12 +39,16 @@ import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.Inst
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
     viewModel: MenuViewModel = hiltViewModel(),
-    onDifficultySelected: (GameDifficult) -> Unit
+    onDifficultySelected: (GameDifficult) -> Unit,
+    onHowToPlayClick: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -47,12 +56,35 @@ fun MenuScreen(
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     val state = viewModel.state
-    val readInstructions = viewModel.readInstructions.collectAsState(initial = false)
+
+    val userDailyStats = viewModel.dailyStats.collectAsState(
+        initial = UserDailyStats(
+            easyGamesPlayed = 0,
+            normalGamesPlayed = 0,
+            hardGamesPlayed = 0,
+            lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+        )
+    )
 
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
+    val currentDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+
     LaunchedEffect(key1 = requestedOrientation) {
         activity?.requestedOrientation = requestedOrientation
+    }
+
+    LaunchedEffect(Unit) {
+        if (userDailyStats.value.lastPlayedDate != currentDate) {
+            viewModel.updateDailyStats(
+                UserDailyStats(
+                    easyGamesPlayed = 0,
+                    normalGamesPlayed = 0,
+                    hardGamesPlayed = 0,
+                    lastPlayedDate = currentDate
+                )
+            )
+        }
     }
 
     Scaffold(
@@ -100,7 +132,7 @@ fun MenuScreen(
                 chainStyle = ChainStyle.Packed
             )
 
-            constrain(chain){
+            constrain(chain) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
             }
@@ -127,7 +159,12 @@ fun MenuScreen(
                 difficult = GameDifficult.Easy,
                 text = "4 x 4"
             ) {
-                onDifficultySelected(GameDifficult.Easy)
+                if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                    Toast.makeText(context, "Ya jugaste todas las palabras 4x4", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    onDifficultySelected(GameDifficult.Easy)
+                }
             }
 
             MyButton(
@@ -137,7 +174,12 @@ fun MenuScreen(
                 difficult = GameDifficult.Medium,
                 text = "5 x 5"
             ) {
-                onDifficultySelected(GameDifficult.Medium)
+                if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                    Toast.makeText(context, "Ya jugaste todas las palabras 5x5", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    onDifficultySelected(GameDifficult.Medium)
+                }
             }
 
             MyButton(
@@ -160,29 +202,23 @@ fun MenuScreen(
 
             HowToPlayButton(
                 modifier = Modifier
-                    .constrainAs(howToPlayButton){
+                    .constrainAs(howToPlayButton) {
                         bottom.linkTo(bannerAd.top, margin = 12.dp)
                         end.linkTo(parent.end, margin = 18.dp)
                     }
             ) {
-                viewModel.updateInstructionsState(false)
+                onHowToPlayClick()
             }
 
             BannerAd(
                 modifier = Modifier
-                    .constrainAs(bannerAd){
+                    .constrainAs(bannerAd) {
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         width = Dimension.fillToConstraints
                     }
             )
-
-            if (!readInstructions.value){
-                InstructionsDialog {
-                    viewModel.updateInstructionsState(true)
-                }
-            }
 
             if (state.blockVersion) {
                 UpdateDialog()

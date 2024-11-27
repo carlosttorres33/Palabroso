@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -25,11 +24,8 @@ import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 
 @Composable
-fun GameLoseDialog(
-    secretWord: String,
-    onRetryClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    isGameLimitReached: Boolean
+fun GameLimitDialog(
+    onHomeClick: () -> Unit
 ) {
 
     Dialog(onDismissRequest = {}) {
@@ -50,38 +46,11 @@ fun GameLoseDialog(
             ) {
 
                 Text(
-                    text = "Perdiste :c",
+                    text = "Alcanzaste el limite de partidas del día en este modo",
                     color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = "La palabra era: ${secretWord.uppercase()}",
-                    color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
-                )
-
-                if (isGameLimitReached) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        text = "Ya jugaste todas las palabras de hoy",
-                        color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                } else {
-
-                    MyButton(
-                        modifier = Modifier
-                            .bounceClick(),
-                        onClick = {
-                            onRetryClick()
-                        },
-                        difficult = GameDifficult.Easy,
-                        text = "Reintentar"
-                    )
-
-                }
 
                 MyButton(
                     modifier = Modifier,

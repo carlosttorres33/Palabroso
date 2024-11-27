@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -17,11 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.components.GameDifficult
+import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
-import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import nl.dionsegijn.konfetti.compose.KonfettiView
@@ -31,7 +30,9 @@ import java.util.concurrent.TimeUnit
 
 @Composable
 fun GameWinDialog(
-    onClick: () -> Unit
+    onRematchClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    isGameLimitReached: Boolean
 ) {
     Dialog(onDismissRequest = {}) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -58,21 +59,36 @@ fun GameWinDialog(
                         fontWeight = FontWeight.Bold
                     )
 
-                    Button(
-                        modifier = Modifier
-                            .bounceClick(),
-                        onClick = {
-                            onClick()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DarkGreen
-                        )
-                    ) {
+                    if (isGameLimitReached) {
                         Text(
-                            text = "Jugar de nuevo",
-                            color = DarkTextGray
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            text = "Ya jugaste todas las palabras de hoy",
+                            color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
+                    } else {
+
+                        MyButton(
+                            modifier = Modifier,
+                            onClick = {
+                                onRematchClick()
+                            },
+                            difficult = GameDifficult.Easy,
+                            text = "Jugar de nuevo"
+                        )
+
                     }
+
+                    MyButton(
+                        modifier = Modifier,
+                        onClick = {
+                            onHomeClick()
+                        },
+                        difficult = GameDifficult.Medium,
+                        text = "Volver al inicio"
+                    )
 
                 }
             }

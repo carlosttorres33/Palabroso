@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,34 +20,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MenuViewModel @Inject constructor(
-    private val useCases: GameUseCases,
-    private val preferencesRepo: DataStoreOperations
+    private val useCases: GameUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(MenuState())
         private set
 
-    val readInstructions : Flow<Boolean> = preferencesRepo.readInstructionsState()
-
-    private val _seenInstructions = MutableStateFlow(true)
-    val seenInstructions : StateFlow<Boolean> = _seenInstructions
+    val dailyStats: Flow<UserDailyStats> = useCases.readDailyStatsUseCase()
 
     init {
         checkUserVersion()
     }
 
-    private fun readInstructions(){
+    fun updateDailyStats(stats: UserDailyStats){
         viewModelScope.launch(Dispatchers.IO) {
-            //_seenInstructions.value = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
-            state = state.copy(
-                seenInstructions = useCases.readInstructionsUseCase().stateIn(viewModelScope).value
-            )
-        }
-    }
-
-    fun updateInstructionsState(seen : Boolean){
-        viewModelScope.launch(Dispatchers.IO) {
-            preferencesRepo.saveInstructionsState(seen)
+            useCases.updateDailyStatsUseCase(stats)
         }
     }
 
