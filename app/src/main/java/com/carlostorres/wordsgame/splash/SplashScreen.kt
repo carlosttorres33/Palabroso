@@ -1,5 +1,6 @@
 package com.carlostorres.wordsgame.splash
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -48,7 +49,7 @@ fun SplashScreen(
 
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun Splash() {
 
@@ -69,7 +70,7 @@ fun Splash() {
             val height = maxHeight
 
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_dark_theme else R.drawable.logo),
                 contentDescription = "",
                 modifier = Modifier
                     .height(height/2)

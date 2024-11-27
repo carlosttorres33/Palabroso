@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.carlostorres.wordsgame.ui.components.GameDifficult
@@ -30,7 +31,8 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun GameWinDialog(
     onRematchClick: () -> Unit,
-    onHomeClick: () -> Unit
+    onHomeClick: () -> Unit,
+    isGameLimitReached: Boolean
 ) {
     Dialog(onDismissRequest = {}) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -57,14 +59,27 @@ fun GameWinDialog(
                         fontWeight = FontWeight.Bold
                     )
 
-                    MyButton(
-                        modifier = Modifier,
-                        onClick = {
-                            onRematchClick()
-                        },
-                        difficult = GameDifficult.Easy,
-                        text = "Jugar de nuevo"
-                    )
+                    if (isGameLimitReached) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            text = "Ya jugaste todas las palabras de hoy",
+                            color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+
+                        MyButton(
+                            modifier = Modifier,
+                            onClick = {
+                                onRematchClick()
+                            },
+                            difficult = GameDifficult.Easy,
+                            text = "Jugar de nuevo"
+                        )
+
+                    }
 
                     MyButton(
                         modifier = Modifier,

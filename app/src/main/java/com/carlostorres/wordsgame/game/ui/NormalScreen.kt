@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,8 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,41 +23,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
 import com.carlostorres.wordsgame.game.presentation.normal.NormalViewModel
 import com.carlostorres.wordsgame.ui.components.CountBox
-import com.carlostorres.wordsgame.ui.components.HowToPlayButton
-import com.carlostorres.wordsgame.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.ui.components.word_line.WordChar
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
-import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
+import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 
 @Composable
@@ -78,6 +70,8 @@ fun NormalScreen(
         mutableStateOf(false)
     }
 
+    val userDailyStats by viewModel.userDailyStats.collectAsState()
+
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     LaunchedEffect(key1 = requestedOrientation) {
@@ -85,8 +79,8 @@ fun NormalScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (state.actualSecretWord.isEmpty()) {
-            viewModel.setUpGame(0)
+        if (state.secretWord.isEmpty()) {
+            viewModel.setUpGame()
         }
     }
 
@@ -110,37 +104,55 @@ fun NormalScreen(
                 winsCounter,
                 loseCounter,
                 gameTitle,
-                bannerAd
+                bannerAd,
+                dailyGamesCount
             ) = createRefs()
 
             //region Game Situations Dialogs
+
+            if (showWordAlreadyTried) {
+                WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
+            }
+
             AnimatedContent(state.gameSituation, label = "") { situation ->
                 when (situation) {
                     GameSituations.GameLoading -> {
                         LoadingDialog()
                     }
 
-                    GameSituations.GameInProgress -> {}
+                    GameSituations.GameInProgress -> {
+                        if (userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                            GameLimitDialog {
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = { onHomeClick() }
+                                )
+                            }
+                        }
+                    }
+
                     GameSituations.GameLost -> {
                         GameLoseDialog(
-                            secretWord = state.actualSecretWord,
+                            secretWord = state.secretWord,
                             onRetryClick = {
-                                viewModel.showInterstitial(activity,0)
+                                viewModel.showInterstitial(activity, navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                onHomeClick()
-                            }
+                                viewModel.showInterstitial(activity, navHome = {onHomeClick()})
+                            },
+                            isGameLimitReached = userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
                     GameSituations.GameWon -> {
                         GameWinDialog(
                             onRematchClick = {
-                                viewModel.showInterstitial(activity,0)
+                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                onHomeClick()
-                            }
+                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
+                            },
+                            isGameLimitReached = userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
@@ -148,44 +160,12 @@ fun NormalScreen(
                         GameErrorDialog(
                             textError = situation.errorMessage,
                             onRetryClick = {
-                                viewModel.setUpGame(0)
+                                viewModel.setUpGame()
                             },
                             onHomeClick = {
                                 onHomeClick()
                             }
                         )
-                    }
-                }
-            }
-
-            if (showWordAlreadyTried) {
-                Dialog(onDismissRequest = { showWordAlreadyTried = false }) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            Text(text = "Esa palabra ya la has intentado, intenta con otra")
-
-                            Button(
-                                modifier = Modifier
-                                    .bounceClick(),
-                                onClick = {
-                                    showWordAlreadyTried = false
-                                }
-                            ) {
-                                Text(text = "OK")
-                            }
-
-                        }
                     }
                 }
             }
@@ -199,6 +179,15 @@ fun NormalScreen(
                 char = 'W',
                 count = state.gameWinsCount,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
+            )
+
+            Text(
+                text = "Hoy: ${userDailyStats.normalGamesPlayed}",
+                modifier = Modifier.constrainAs(dailyGamesCount) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
             )
 
             Text(
@@ -544,6 +533,7 @@ fun NormalScreen(
                         bottom.linkTo(gameKeyboard.top, margin = 18.dp)
                         end.linkTo(parent.end)
                         start.linkTo(parent.start)
+                        height = Dimension.value(50.dp)
                     }
             )
 

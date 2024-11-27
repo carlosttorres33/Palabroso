@@ -17,4 +17,6 @@ object Constants {
     const val NORMAL_WORD_LENGTH = 5
     const val HARD_WORD_LENGTH = 6
 
+    const val NUMBER_OF_GAMES_ALLOWED = 7
+
 }

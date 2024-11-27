@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -63,6 +64,7 @@ import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
@@ -74,6 +76,7 @@ import com.carlostorres.wordsgame.ui.theme.DarkRed
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
+import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import java.text.SimpleDateFormat
 
@@ -141,7 +144,11 @@ fun EasyScreen(
                             tint = if (isSystemInDarkTheme()) LightBackgroundGray else DarkBackgroundGray
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
+                    else LightBackgroundGray
+                )
             )
         }
     ) { paddingValues ->
@@ -169,7 +176,13 @@ fun EasyScreen(
                         LoadingDialog()
                     }
 
-                    GameSituations.GameInProgress -> {}
+                    GameSituations.GameInProgress -> {
+                        if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                            GameLimitDialog {
+                                onHomeClick()
+                            }
+                        }
+                    }
                     GameSituations.GameLost -> {
                         GameLoseDialog(
                             secretWord = state.secretWord,
@@ -188,7 +201,8 @@ fun EasyScreen(
                                     )
                                 )
                                 onHomeClick()
-                            }
+                            },
+                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
@@ -209,7 +223,8 @@ fun EasyScreen(
                                     )
                                 )
                                 onHomeClick()
-                            }
+                            },
+                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
@@ -228,41 +243,7 @@ fun EasyScreen(
             }
 
             if (showWordAlreadyTried) {
-                Dialog(onDismissRequest = { showWordAlreadyTried = false }) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            Text(text = "Esa palabra ya la has intentado, intenta con otra")
-
-                            Button(
-                                modifier = Modifier
-                                    .bounceClick(),
-                                onClick = {
-                                    showWordAlreadyTried = false
-                                }
-                            ) {
-                                Text(text = "OK")
-                            }
-
-                        }
-                    }
-                }
-            }
-
-            if (userDailyStats.value.easyGamesPlayed >= 5) {
-                GameLimitDialog {
-                    onHomeClick()
-                }
+                WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
             }
 
             //endregion
@@ -556,6 +537,7 @@ fun EasyScreen(
                         bottom.linkTo(gameKeyboard.top, margin = 18.dp)
                         end.linkTo(parent.end)
                         start.linkTo(parent.start)
+                        height = Dimension.value(50.dp)
                     }
             )
 

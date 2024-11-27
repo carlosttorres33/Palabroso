@@ -7,6 +7,7 @@ import com.carlostorres.wordsgame.game.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.game.data.local.model.WordEntity
 import com.carlostorres.wordsgame.game.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
+import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.REMOTE_CONFIG_MIN_VERSION_KEY
 import com.carlostorres.wordsgame.utils.InternetCheck
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -28,18 +29,18 @@ class WordsRepositoryImplementation @Inject constructor(
 
         return if (InternetCheck.isNetworkAvailable()) {
 
-            var word = if (dayTries < 4) {
-                Log.d("Repo", "Internet is available and first 4 tries")
+            var word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
+                Log.d("Repo", "Internet is available and first $NUMBER_OF_GAMES_ALLOWED tries")
                 remoteDataSource.getRandomWord(length = wordLength)
             }else{
-                Log.d("Repo", "Internet is available but 4 try so we get offline word")
+                Log.d("Repo", "Internet is available but $NUMBER_OF_GAMES_ALLOWED try so we get offline word")
                 getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
             }
 
             println(word)
 
             while (wordsTried.contains(word) || word.length != wordLength) {
-                word = if (dayTries < 4) {
+                word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
                     getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
                 } else {
                     remoteDataSource.getRandomWord(length = wordLength)

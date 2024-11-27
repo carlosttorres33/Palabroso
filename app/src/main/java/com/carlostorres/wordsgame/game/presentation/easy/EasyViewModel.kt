@@ -101,7 +101,6 @@ class EasyViewModel @Inject constructor(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
-            return
         }
 
         Log.d("EasyViewModel", "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")

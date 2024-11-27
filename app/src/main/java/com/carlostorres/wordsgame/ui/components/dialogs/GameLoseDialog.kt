@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -27,7 +28,8 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 fun GameLoseDialog(
     secretWord: String,
     onRetryClick: () -> Unit,
-    onHomeClick: () -> Unit
+    onHomeClick: () -> Unit,
+    isGameLimitReached: Boolean
 ) {
 
     Dialog(onDismissRequest = {}) {
@@ -58,15 +60,28 @@ fun GameLoseDialog(
                     color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
                 )
 
-                MyButton(
-                    modifier = Modifier
-                        .bounceClick(),
-                    onClick = {
-                       onRetryClick()
-                    },
-                    difficult = GameDifficult.Easy,
-                    text = "Reintentar"
-                )
+                if (isGameLimitReached) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        text = "Ya jugaste todas las palabras de hoy",
+                        color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+
+                    MyButton(
+                        modifier = Modifier
+                            .bounceClick(),
+                        onClick = {
+                            onRetryClick()
+                        },
+                        difficult = GameDifficult.Easy,
+                        text = "Reintentar"
+                    )
+
+                }
 
                 MyButton(
                     modifier = Modifier,
