@@ -26,7 +26,8 @@ fun OnboardingScreen(
     val pages = listOf(
         InstructionsPages.First,
         InstructionsPages.Second,
-        InstructionsPages.Third
+        InstructionsPages.Third,
+        InstructionsPages.Fourth
     )
 
     OnboardingPager(

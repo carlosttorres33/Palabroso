@@ -166,7 +166,6 @@ fun EasyScreen(
                 winsCounter,
                 loseCounter,
                 bannerAd,
-                dailyGamesCount
             ) = createRefs()
 
             //region Game Situations Dialogs
@@ -256,15 +255,6 @@ fun EasyScreen(
                 char = 'W',
                 count = state.gameWinsCount,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
-            )
-
-            Text(
-                text = "Hoy: ${userDailyStats.value.easyGamesPlayed}",
-                modifier = Modifier.constrainAs(dailyGamesCount) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
             )
 
             CountBox(
