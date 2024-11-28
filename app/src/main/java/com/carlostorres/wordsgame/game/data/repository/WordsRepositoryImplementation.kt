@@ -10,6 +10,7 @@ import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.REMOTE_CONFIG_MIN_VERSION_KEY
 import com.carlostorres.wordsgame.utils.InternetCheck
+import com.carlostorres.wordsgame.utils.removeAccents
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -41,21 +42,21 @@ class WordsRepositoryImplementation @Inject constructor(
 
             while (wordsTried.contains(word) || word.length != wordLength) {
                 word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
-                    getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
-                } else {
                     remoteDataSource.getRandomWord(length = wordLength)
+                } else {
+                    getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
                 }
             }
 
             Log.d("SecretWord", word)
-            word.trim().take(wordLength)
+            removeAccents(word.trim().take(wordLength))
 
         } else {
 
             val word = getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
 
             Log.d("SecretWord", word)
-            word
+            removeAccents(word.trim().take(wordLength))
         }
 
     }
@@ -68,7 +69,7 @@ class WordsRepositoryImplementation @Inject constructor(
             word = localDataSource.getRandomWord(length = length)
         }
 
-        return word.uppercase()
+        return removeAccents(word).uppercase()
 
     }
 

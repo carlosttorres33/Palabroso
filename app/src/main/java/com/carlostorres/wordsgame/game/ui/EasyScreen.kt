@@ -198,7 +198,8 @@ fun EasyScreen(
                                     activity,
                                     navHome = {
                                         onHomeClick()
-                                    }
+                                    },
+                                    ifBack = true
                                 )
                             },
                             isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
@@ -220,7 +221,8 @@ fun EasyScreen(
                                     activity,
                                     navHome = {
                                         onHomeClick()
-                                    }
+                                    },
+                                    ifBack = true
                                 )
                             },
                             isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
@@ -283,7 +285,7 @@ fun EasyScreen(
                 val maxHeight = this.maxHeight
 
                 val boxWidth = maxWidth / 4
-                val boxHeight = maxHeight / 4
+                val boxHeight = maxHeight / 5
 
                 Column(
                     modifier = Modifier
@@ -497,6 +499,64 @@ fun EasyScreen(
                                             .width(boxWidth),
                                         charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
                                         char = state.intento4.resultado[index].first, //state.intento1.word[index].toString()
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
+                    //region Fifth try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(4) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento5.resultado[index].second,
+                                        char = state.intento5.resultado[index].first,
                                     )
                                 } else {
                                     WordChar(

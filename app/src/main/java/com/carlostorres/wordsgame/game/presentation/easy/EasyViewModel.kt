@@ -119,7 +119,7 @@ class EasyViewModel @Inject constructor(
                 gameWinsCount = state.gameWinsCount + 1
             )
             increaseEasyGamesPlayed()
-        }else if (state.tryNumber >= 3){
+        }else if (state.tryNumber >= 4){
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
@@ -169,6 +169,17 @@ class EasyViewModel @Inject constructor(
                     tryNumber = state.tryNumber + 1,
                     inputText = "",
                     intento4 = state.intento4.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    )
+                )
+            }
+
+            4 -> {
+                state = state.copy(
+                    tryNumber = state.tryNumber + 1,
+                    inputText = "",
+                    intento5 = state.intento5.copy(
                         word = state.inputText,
                         resultado = resultado
                     )
@@ -253,7 +264,7 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    fun showInterstitial(activity: Activity, navHome : () -> Unit){
+    fun showInterstitial(activity: Activity, navHome : () -> Unit, ifBack : Boolean = true){
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
@@ -266,20 +277,28 @@ class EasyViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        if (ifBack) {
                             navHome()
                         } else {
-                            setUpGame()
+                            if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                                navHome()
+                            } else {
+                                setUpGame()
+                            }
                         }
                     }
                 }
 
             }else{
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                if (ifBack) {
                     navHome()
                 } else {
-                    setUpGame()
+                    if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        navHome()
+                    } else {
+                        setUpGame()
+                    }
                 }
                 Log.e("EasyViewModel", "Ad is null")
 
