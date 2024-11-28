@@ -20,7 +20,7 @@ fun Modifier.bounceClick(enabled: Boolean = true) = composed {
     var buttonState by remember { mutableStateOf(ButtonState.Idle) }
     val scale by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0.70f else 1f)
 
-    if (!enabled){
+    if (!enabled) {
         return@composed this
     }
     this
@@ -31,7 +31,36 @@ fun Modifier.bounceClick(enabled: Boolean = true) = composed {
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            onClick = {  }
+            onClick = { }
+        )
+        .pointerInput(buttonState) {
+            awaitPointerEventScope {
+                buttonState = if (buttonState == ButtonState.Pressed) {
+                    waitForUpOrCancellation()
+                    ButtonState.Idle
+                } else {
+                    awaitFirstDown(false)
+                    ButtonState.Pressed
+                }
+            }
+        }
+}
+
+fun Modifier.pressClickEffect(enabled: Boolean = true) = composed {
+    var buttonState by remember { mutableStateOf(ButtonState.Idle) }
+    val ty by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0f else -15f)
+
+    if (!enabled) {
+        return@composed this
+    }
+    this
+        .graphicsLayer {
+            translationY = ty
+        }
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { }
         )
         .pointerInput(buttonState) {
             awaitPointerEventScope {

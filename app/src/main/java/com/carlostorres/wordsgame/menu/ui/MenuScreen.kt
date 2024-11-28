@@ -157,10 +157,10 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnEasy) {},
                 difficult = GameDifficult.Easy,
-                text = "4 x 4"
+                text = "4 Letras"
             ) {
                 if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras 4x4 de hoy", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Ya jugaste todas las palabras de 4 letras de hoy", Toast.LENGTH_SHORT)
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Easy)
@@ -172,10 +172,10 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnMedium) {},
                 difficult = GameDifficult.Medium,
-                text = "5 x 5"
+                text = "5 Letras"
             ) {
                 if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras 5x5 de hoy", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Ya jugaste todas las palabras de 5 letras de hoy", Toast.LENGTH_SHORT)
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Medium)
@@ -187,10 +187,10 @@ fun MenuScreen(
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnHard) {},
                 difficult = GameDifficult.Hard,
-                text = "6 x 6"
+                text = "6 Letras"
             ) {
                 if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras 6x6 de hoy", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Ya jugaste todas las palabras de 6 letras de hoy", Toast.LENGTH_SHORT)
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Hard)
@@ -218,10 +218,11 @@ fun MenuScreen(
             BannerAd(
                 modifier = Modifier
                     .constrainAs(bannerAd) {
-                        bottom.linkTo(parent.bottom)
+                        bottom.linkTo(parent.bottom, margin = 12.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         width = Dimension.fillToConstraints
+                        height = Dimension.value(50.dp)
                     }
             )
 
