@@ -19,7 +19,6 @@ data class HardState(
     val intento3 : TryInfo = TryInfo(),
     val intento4 : TryInfo = TryInfo(),
     val intento5 : TryInfo = TryInfo(),
-    val intento6 : TryInfo = TryInfo(),
     //endregion
 
     //true = win, false = lost, null = in progress

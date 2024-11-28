@@ -576,7 +576,7 @@ fun EasyScreen(
                     }
                     //endregion
 
-                    Spacer(modifier = Modifier.weight(0.4f))
+                    Spacer(modifier = Modifier.weight(1f))
 
                 }
             }

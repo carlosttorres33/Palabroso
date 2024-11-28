@@ -123,7 +123,7 @@ class HardViewModel @Inject constructor(
                 gameWinsCount = state.gameWinsCount + 1
             )
             increaseHardGamesPlayed()
-        } else if (state.tryNumber >= 5) {
+        } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
@@ -185,17 +185,6 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento5 = state.intento5.copy(
-                        word = state.inputText,
-                        resultado = resultado
-                    ),
-                    inputText = "",
-                )
-            }
-
-            5 -> {
-                state = state.copy(
-                    tryNumber = state.tryNumber + 1,
-                    intento6 = state.intento6.copy(
                         word = state.inputText,
                         resultado = resultado
                     ),
@@ -269,7 +258,7 @@ class HardViewModel @Inject constructor(
 
     }
 
-    fun showInterstitial(activity: Activity, navHome : () -> Unit) {
+    fun showInterstitial(activity: Activity, navHome : () -> Unit, ifBack : Boolean = false) {
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
@@ -282,17 +271,19 @@ class HardViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        if (ifBack || userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                             navHome()
                         } else {
                             setUpGame()
                         }
+
                     }
                 }
 
             } else {
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+
+                if (ifBack || userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {
                     setUpGame()
@@ -340,7 +331,6 @@ class HardViewModel @Inject constructor(
             intento3 = TryInfo(),
             intento4 = TryInfo(),
             intento5 = TryInfo(),
-            intento6 = TryInfo(),
             isGameWon = null,
             secretWord = "",
             keyboard = keyboardCreator(),

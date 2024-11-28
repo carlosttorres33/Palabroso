@@ -173,7 +173,7 @@ fun NormalScreen(
                                 viewModel.showInterstitial(activity, navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                viewModel.showInterstitial(activity, navHome = {onHomeClick()})
+                                viewModel.showInterstitial(activity, navHome = {onHomeClick()}, ifBack = true)
                             },
                             isGameLimitReached = userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -185,7 +185,7 @@ fun NormalScreen(
                                 viewModel.showInterstitial(activity,navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
+                                viewModel.showInterstitial(activity,navHome = {onHomeClick()}, ifBack = true)
                             },
                             isGameLimitReached = userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -533,7 +533,7 @@ fun NormalScreen(
                     }
                     //endregion
 
-                    Spacer(modifier = Modifier.weight(0.4f))
+                    Spacer(modifier = Modifier.weight(1f))
 
                 }
             }
