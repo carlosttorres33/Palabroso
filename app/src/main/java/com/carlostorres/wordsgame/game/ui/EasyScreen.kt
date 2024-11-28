@@ -113,7 +113,7 @@ fun EasyScreen(
 
     LaunchedEffect(Unit) {
         if (state.secretWord.isEmpty()) {
-            viewModel.setUpGame(userDailyStats.value.easyGamesPlayed)
+            viewModel.setUpGame()
         }
     }
 
@@ -186,20 +186,20 @@ fun EasyScreen(
                         GameLoseDialog(
                             secretWord = state.secretWord,
                             onRetryClick = {
-                                viewModel.showInterstitial(activity, userDailyStats.value.easyGamesPlayed)
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = {
+                                        onHomeClick()
+                                    }
                                 )
                             },
                             onHomeClick = {
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = {
+                                        onHomeClick()
+                                    }
                                 )
-                                onHomeClick()
                             },
                             isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -208,20 +208,20 @@ fun EasyScreen(
                     GameSituations.GameWon -> {
                         GameWinDialog(
                             onRematchClick = {
-                                viewModel.showInterstitial(activity, userDailyStats.value.easyGamesPlayed)
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = {
+                                        onHomeClick()
+                                    }
                                 )
                             },
                             onHomeClick = {
-                                viewModel.updateDailyStats(
-                                    userDailyStats.value.copy(
-                                        easyGamesPlayed = userDailyStats.value.easyGamesPlayed + 1
-                                    )
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = {
+                                        onHomeClick()
+                                    }
                                 )
-                                onHomeClick()
                             },
                             isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -231,7 +231,7 @@ fun EasyScreen(
                         GameErrorDialog(
                             textError = situation.errorMessage,
                             onRetryClick = {
-                                viewModel.setUpGame(userDailyStats.value.easyGamesPlayed)
+                                viewModel.setUpGame()
                             },
                             onHomeClick = {
                                 onHomeClick()

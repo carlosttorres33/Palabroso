@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.presentation.easy
 
 import android.app.Activity
 import android.content.Context
+import android.icu.util.Calendar
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
@@ -16,6 +17,7 @@ import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
+import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -28,7 +30,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,15 +44,25 @@ class EasyViewModel @Inject constructor(
     var state by mutableStateOf(EasyState())
         private set
 
-    val dailyStats: Flow<UserDailyStats> = useCases.readDailyStatsUseCase()
+    private val _dailyStats = MutableStateFlow(
+        UserDailyStats(
+            easyGamesPlayed = 0,
+            normalGamesPlayed = 0,
+            hardGamesPlayed = 0,
+            lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+        )
+    )
+    val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
-    fun updateDailyStats(stats: UserDailyStats){
-        viewModelScope.launch(Dispatchers.IO) {
-            useCases.updateDailyStatsUseCase(stats)
+    init {
+        viewModelScope.launch {
+            useCases.readDailyStatsUseCase().collect { stats ->
+                _dailyStats.value = stats
+            }
         }
     }
 
-    fun setUpGame(trie : Int){
+    fun setUpGame(){
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -57,12 +71,12 @@ class EasyViewModel @Inject constructor(
 
             try {
 
-                Log.d("EasyViewModel", "Try number: $trie")
+                Log.d("EasyViewModel", "Try number: ${dailyStats.value.easyGamesPlayed}")
 
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
                     wordLength = EASY_WORD_LENGTH,
-                    dayTries = trie
+                    dayTries = dailyStats.value.easyGamesPlayed
                 )
 
                 if (word.isNotEmpty()){
@@ -85,22 +99,32 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    private fun onAcceptClick(){
+    private suspend fun increaseEasyGamesPlayed(){
+        useCases.updateDailyStatsUseCase(
+            dailyStats.value.copy(
+                easyGamesPlayed = dailyStats.value.easyGamesPlayed + 1
+            )
+        )
+    }
+
+    private fun onAcceptClick() = viewModelScope.launch {
 
         state = state.copy(secretWordsList = state.wordsTried.plus(state.inputText))
 
-        validateIfWordContainsLetter()
+        val resultado = validateIfWordContainsLetter()
 
         if (state.inputText.uppercase() == state.secretWord.uppercase()){
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
                 gameWinsCount = state.gameWinsCount + 1
             )
+            increaseEasyGamesPlayed()
         }else if (state.tryNumber >= 3){
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
+            increaseEasyGamesPlayed()
         }
 
         Log.d("EasyViewModel", "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")
@@ -109,28 +133,45 @@ class EasyViewModel @Inject constructor(
             0 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = ""
+                    inputText = "",
+                    intento1 = state.intento1.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    )
                 )
             }
 
             1 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = ""
+                    inputText = "",
+                    intento2 = state.intento2.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    )
+
                 )
             }
 
             2 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = ""
+                    inputText = "",
+                    intento3 = state.intento3.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    )
                 )
             }
 
             3 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = ""
+                    inputText = "",
+                    intento4 = state.intento4.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    )
                 )
             }
 
@@ -160,7 +201,7 @@ class EasyViewModel @Inject constructor(
         }
     }
 
-    private fun validateIfWordContainsLetter(){
+    private fun validateIfWordContainsLetter() : List<Pair<String, WordCharState>> {
 
         val result = mutableListOf<Pair<String, WordCharState>>()
 
@@ -193,23 +234,7 @@ class EasyViewModel @Inject constructor(
 
         Log.d("EasyViewModel", "SecretWord: $result")
 
-        when(state.tryNumber){
-            0 -> {
-                state = state.copy(intento1 = TryInfo(state.inputText, result))
-            }
-            1 -> {
-                state = state.copy(intento2= TryInfo(state.inputText, result))
-            }
-            2 -> {
-                state = state.copy(intento3 = TryInfo(state.inputText, result))
-            }
-            3 -> {
-                state = state.copy(intento4 = TryInfo(state.inputText, result))
-            }
-            else ->{
-
-            }
-        }
+        return result
 
     }
 
@@ -228,7 +253,7 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    fun showInterstitial(activity: Activity, trie: Int){
+    fun showInterstitial(activity: Activity, navHome : () -> Unit){
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
@@ -241,13 +266,21 @@ class EasyViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        setUpGame(trie)
+                        if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                            navHome()
+                        } else {
+                            setUpGame()
+                        }
                     }
                 }
 
             }else{
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                setUpGame(trie)
+                if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                    navHome()
+                } else {
+                    setUpGame()
+                }
                 Log.e("EasyViewModel", "Ad is null")
 
             }

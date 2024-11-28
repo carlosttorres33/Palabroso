@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.pressClickEffect
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
