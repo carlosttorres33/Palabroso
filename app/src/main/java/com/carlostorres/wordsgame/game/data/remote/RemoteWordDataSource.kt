@@ -6,8 +6,8 @@ class RemoteWordDataSource @Inject constructor(
     private val wordApi: WordApi
 ) {
 
-    suspend fun getRandomWord(count: Int = 1, length: Int): String {
-        return wordApi.getRandomWord(count, length)[0]
+    suspend fun getRandomWord(language: String = "es",count: Int = 1, length: Int): String {
+        return wordApi.getRandomWord(language = language, numberOfWords = count, wordLength = length)[0]
     }
 
 }
