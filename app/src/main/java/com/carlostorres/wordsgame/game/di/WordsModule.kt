@@ -27,6 +27,8 @@ import com.carlostorres.wordsgame.game.domain.usecases.ReadInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.SaveInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.UpdateDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.UpsertStatsUseCase
+import com.carlostorres.wordsgame.utils.ConnectivityObserver
+import com.carlostorres.wordsgame.utils.ConnectivityObserverImpl
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -176,5 +178,11 @@ object WordsModule {
         setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 30 })
         fetchAndActivate()
     }
+
+    @Provides
+    @Singleton
+    fun provideConnectivityObserver(
+        @ApplicationContext context: Context
+    ) : ConnectivityObserver = ConnectivityObserverImpl(context)
 
 }

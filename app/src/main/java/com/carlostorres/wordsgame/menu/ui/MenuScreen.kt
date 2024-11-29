@@ -4,14 +4,22 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -51,6 +59,7 @@ import com.carlostorres.wordsgame.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import java.text.SimpleDateFormat
 
@@ -66,6 +75,10 @@ fun MenuScreen(
     val activity = context as Activity
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+    val snackBarHostState = remember {
+        SnackbarHostState()
+    }
+
     val state = viewModel.state
 
     val userDailyStats = viewModel.dailyStats.collectAsState()
@@ -73,6 +86,8 @@ fun MenuScreen(
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
     val currentDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+
+    val isConnected by viewModel.isConnected.collectAsState()
 
     val showNoWords by remember {
         derivedStateOf {
@@ -103,6 +118,15 @@ fun MenuScreen(
         }
     }
 
+    LaunchedEffect(isConnected) {
+        if (isConnected == ConnectionStatus.Lost){
+            snackBarHostState.showSnackbar(
+                message = "No hay conexión a internet\nRecuerda que offline hay palabras limitadas",
+                withDismissAction = true
+            )
+        }
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -124,6 +148,9 @@ fun MenuScreen(
                     )
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackBarHostState)
         }
     ) { paddingValues ->
 
@@ -141,7 +168,8 @@ fun MenuScreen(
                 btnSoon,
                 instructionsText,
                 howToPlayButton,
-                animationContainer
+                animationContainer,
+                connectionIcon
             ) = createRefs()
 
             val chain = createVerticalChain(
@@ -165,11 +193,8 @@ fun MenuScreen(
                         width = Dimension.fillToConstraints
                     }
             ){
-                if (
+                AnimatedVisibility (
                     showNoWords
-//                    userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED &&
-//                    userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED &&
-//                    userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                 ){
                     LottieAnimation(
                         modifier = Modifier
@@ -256,6 +281,25 @@ fun MenuScreen(
                 enabled = false,
                 text = "... proximamente ..."
             ) {}
+
+            Icon(
+                modifier = Modifier
+                    .constrainAs(connectionIcon) {
+                        start.linkTo(parent.start, margin = 12.dp)
+                        bottom.linkTo(howToPlayButton.bottom)
+                        top.linkTo(howToPlayButton.top)
+                        height = Dimension.fillToConstraints
+                        width = Dimension.value(30.dp)
+                    },
+                imageVector = when(isConnected){
+                    ConnectionStatus.Available -> Icons.Default.Wifi
+                    ConnectionStatus.Losing -> Icons.Default.SignalWifiStatusbarConnectedNoInternet4
+                    ConnectionStatus.Lost -> Icons.Default.SignalWifiStatusbarConnectedNoInternet4
+                    ConnectionStatus.Unavailable -> Icons.Default.WifiOff
+                },
+                contentDescription = "",
+                tint = colorText.copy(alpha = 0.7f)
+            )
 
             HowToPlayButton(
                 modifier = Modifier

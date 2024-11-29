@@ -10,10 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.utils.ConnectionStatus
+import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,11 +26,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MenuViewModel @Inject constructor(
-    private val useCases: GameUseCases
+    private val useCases: GameUseCases,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
     var state by mutableStateOf(MenuState())
         private set
+
+    val isConnected = connectivityObserver.isConnected.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        ConnectionStatus.Available
+    )
 
     private val _dailyStats = MutableStateFlow(
         UserDailyStats(
