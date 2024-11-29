@@ -222,7 +222,7 @@ fun MenuScreen(
                         end.linkTo(parent.end, margin = 18.dp)
                         width = Dimension.fillToConstraints
                     },
-                text = "Selecciona el modo de juego",
+                text = if (showNoWords) "Ya jugaste todas las palabras de hoy" else "Selecciona el modo de juego",
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
