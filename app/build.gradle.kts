@@ -108,4 +108,11 @@ dependencies {
     //Constraints
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
+    //Lotties
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
+
+    //extended icons
+    implementation("androidx.compose.material:material-icons-extended:1.5.3")
+
+
 }
