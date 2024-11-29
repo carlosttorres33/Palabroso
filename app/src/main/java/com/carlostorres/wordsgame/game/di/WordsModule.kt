@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.di
 
 import android.content.Context
+import androidx.room.PrimaryKey
 import androidx.room.Room
 import com.carlostorres.wordsgame.game.data.local.WordGameDao
 import com.carlostorres.wordsgame.game.data.local.WordGameDatabase
@@ -8,17 +9,22 @@ import com.carlostorres.wordsgame.game.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.game.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.game.data.remote.WordApi
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl
+import com.carlostorres.wordsgame.game.data.repository.StatsRepoImpl
 import com.carlostorres.wordsgame.game.data.repository.WordsRepositoryImplementation
 import com.carlostorres.wordsgame.game.domain.usecases.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
+import com.carlostorres.wordsgame.game.domain.repository.StatsRepo
 import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
+import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GetRandomWordUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.GetGameModeStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.OnboardingUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.ReadDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.ReadInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.SaveInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.UpdateDailyStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.UpsertStatsUseCase
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -72,6 +78,21 @@ object WordsModule {
     fun provideLocalWordsDataSource(
         wordGameDao: WordGameDao
     ) : LocalWordsDataSource = LocalWordsDataSource(wordGameDao = wordGameDao)
+
+    @Provides
+    @Singleton
+    fun provideStatsRepo(
+        localDataSource: LocalWordsDataSource
+    ) : StatsRepo = StatsRepoImpl(localDataSource)
+
+    @Singleton
+    @Provides
+    fun provideGameStatsUseCases(
+        statsRepo: StatsRepo
+    ) : GameStatsUseCases = GameStatsUseCases(
+        upsertStatsUseCase = UpsertStatsUseCase(statsRepo),
+        getGameModeStatsUseCase = GetGameModeStatsUseCase(statsRepo)
+    )
 
     @Provides
     @Singleton

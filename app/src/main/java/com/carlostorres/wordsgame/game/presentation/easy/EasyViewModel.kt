@@ -11,14 +11,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
+import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -31,6 +35,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -38,7 +46,8 @@ import javax.inject.Inject
 @HiltViewModel
 class EasyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val useCases: GameUseCases
+    private val useCases: GameUseCases,
+    private val gameStatsUseCases: GameStatsUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(EasyState())
@@ -54,12 +63,50 @@ class EasyViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
+    val gameWinsCount: Flow<List<StatsEntity>> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = GameDifficult.Normal.toString(),
+        win = true
+    )
+
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             useCases.readDailyStatsUseCase().collect { stats ->
                 _dailyStats.value = stats
             }
         }
+    }
+
+    fun updateDailyStats(win: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            gameStatsUseCases.upsertStatsUseCase(
+                StatsEntity(
+                    wordGuessed = state.secretWord,
+                    gameDifficult = difficultToString(GameDifficult.Easy),
+                    win = win,
+                    attempts = state.tryNumber
+                )
+            )
+        }
+    }
+
+    private fun getDailyStats() = viewModelScope.launch {
+        gameStatsUseCases.getGameModeStatsUseCase(
+            difficult = GameDifficult.Easy.toString(),
+            win = true
+        ).collectLatest {
+            state = state.copy(
+                gameWinsCount = it.size
+            )
+        }
+        gameStatsUseCases.getGameModeStatsUseCase(
+            difficult = difficultToString(GameDifficult.Easy),
+            win = false
+        ).collectLatest {
+            state = state.copy(
+                gameLostCount = it.size
+            )
+        }
+
     }
 
     fun setUpGame() {
@@ -116,15 +163,15 @@ class EasyViewModel @Inject constructor(
         if (state.inputText.uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
-                gameWinsCount = state.gameWinsCount + 1
             )
             increaseEasyGamesPlayed()
+            updateDailyStats(true)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
-                gameLostCount = state.gameLostCount + 1
             )
             increaseEasyGamesPlayed()
+            updateDailyStats(false)
         }
 
         Log.d(

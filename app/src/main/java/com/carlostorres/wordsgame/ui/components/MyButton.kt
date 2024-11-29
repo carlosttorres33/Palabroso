@@ -3,7 +3,6 @@ package com.carlostorres.wordsgame.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -37,7 +36,7 @@ fun MyButton(
             if (isSystemInDarkTheme()) LightGreen
             else DarkGreen
         }
-        GameDifficult.Medium -> {
+        GameDifficult.Normal -> {
             if (isSystemInDarkTheme()) LightYellow
             else DarkYellow
         }
@@ -78,9 +77,9 @@ fun MyButton(
 
 }
 
-sealed class GameDifficult(){
+sealed class GameDifficult{
     object Easy : GameDifficult()
-    object Medium : GameDifficult()
+    object Normal : GameDifficult()
     object Hard : GameDifficult()
 }
 
