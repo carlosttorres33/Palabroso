@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetGameModeStatsUseCase @Inject constructor(
     private val statsRepo: StatsRepo
 ) {
-    operator fun invoke(difficult: String, win : Boolean) : Flow<List<StatsEntity>> {
+    operator fun invoke(difficult: String, win : Boolean) : Flow<Int> {
         return statsRepo.getGameModeStats(difficult, win)
     }
 }

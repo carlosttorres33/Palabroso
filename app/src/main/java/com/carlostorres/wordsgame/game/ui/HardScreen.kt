@@ -82,6 +82,9 @@ fun HardScreen(
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+    val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
+    val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
+
     LaunchedEffect(key1 = requestedOrientation) {
         activity?.requestedOrientation = requestedOrientation
     }
@@ -213,7 +216,7 @@ fun HardScreen(
                     start.linkTo(parent.start)
                 },
                 char = 'W',
-                count = state.gameWinsCount,
+                count = winsCont.value,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
             )
 
@@ -223,7 +226,7 @@ fun HardScreen(
                     end.linkTo(parent.end)
                 },
                 char = 'L',
-                count = state.gameLostCount,
+                count = losesCont.value,
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
 

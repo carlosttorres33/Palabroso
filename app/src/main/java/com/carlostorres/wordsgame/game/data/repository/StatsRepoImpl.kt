@@ -15,10 +15,8 @@ class StatsRepoImpl @Inject constructor(
         localWordDataSource.upsertStats(stat)
     }
 
-    override fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<List<StatsEntity>> {
-        val stats = localWordDataSource.getGameModeStats(gameDifficult, win)
-        println(stats)
-        return return stats
+    override fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int> {
+        return localWordDataSource.getGameModeStats(gameDifficult, win)
     }
 
 }

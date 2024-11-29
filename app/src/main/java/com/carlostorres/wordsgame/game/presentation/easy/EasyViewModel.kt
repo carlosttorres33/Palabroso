@@ -63,9 +63,14 @@ class EasyViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
-    val gameWinsCount: Flow<List<StatsEntity>> = gameStatsUseCases.getGameModeStatsUseCase(
-        difficult = GameDifficult.Normal.toString(),
+    val gameWinsCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = difficultToString(GameDifficult.Easy),
         win = true
+    )
+
+    val gameLostCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = difficultToString(GameDifficult.Easy),
+        win = false
     )
 
     init {
@@ -76,7 +81,7 @@ class EasyViewModel @Inject constructor(
         }
     }
 
-    fun updateDailyStats(win: Boolean) {
+    private fun updateDailyStats(win: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             gameStatsUseCases.upsertStatsUseCase(
                 StatsEntity(
@@ -87,26 +92,6 @@ class EasyViewModel @Inject constructor(
                 )
             )
         }
-    }
-
-    private fun getDailyStats() = viewModelScope.launch {
-        gameStatsUseCases.getGameModeStatsUseCase(
-            difficult = GameDifficult.Easy.toString(),
-            win = true
-        ).collectLatest {
-            state = state.copy(
-                gameWinsCount = it.size
-            )
-        }
-        gameStatsUseCases.getGameModeStatsUseCase(
-            difficult = difficultToString(GameDifficult.Easy),
-            win = false
-        ).collectLatest {
-            state = state.copy(
-                gameLostCount = it.size
-            )
-        }
-
     }
 
     fun setUpGame() {
@@ -154,7 +139,7 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    private fun onAcceptClick() = viewModelScope.launch {
+    private fun onAcceptClick() = viewModelScope.launch(Dispatchers.IO) {
 
         state = state.copy(secretWordsList = state.wordsTried.plus(state.inputText))
 

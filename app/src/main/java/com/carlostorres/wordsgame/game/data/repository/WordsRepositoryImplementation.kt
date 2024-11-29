@@ -49,14 +49,14 @@ class WordsRepositoryImplementation @Inject constructor(
             }
 
             Log.d("SecretWord", word)
-            removeAccents(word.trim().take(wordLength))
+            removeAccents(word.trim().take(wordLength)).uppercase()
 
         } else {
 
             val word = getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
 
             Log.d("SecretWord", word)
-            removeAccents(word.trim().take(wordLength))
+            removeAccents(word.trim().take(wordLength)).uppercase()
         }
 
     }

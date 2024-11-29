@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.icu.util.Calendar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
 import com.carlostorres.wordsgame.game.presentation.normal.NormalViewModel
 import com.carlostorres.wordsgame.ui.components.CountBox
@@ -61,6 +63,7 @@ import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,9 +81,19 @@ fun NormalScreen(
         mutableStateOf(false)
     }
 
-    val userDailyStats by viewModel.userDailyStats.collectAsState()
+    val userDailyStats by viewModel.userDailyStats.collectAsState(
+        initial = UserDailyStats(
+            easyGamesPlayed = 0,
+            normalGamesPlayed = 0,
+            hardGamesPlayed = 0,
+            lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
+        )
+    )
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+    val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
+    val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
 
     LaunchedEffect(key1 = requestedOrientation) {
         activity?.requestedOrientation = requestedOrientation
@@ -212,7 +225,7 @@ fun NormalScreen(
                     start.linkTo(parent.start)
                 },
                 char = 'W',
-                count = state.gameWinsCount,
+                count = winsCont.value,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
             )
 
@@ -222,7 +235,7 @@ fun NormalScreen(
                     end.linkTo(parent.end)
                 },
                 char = 'L',
-                count = state.gameLostCount,
+                count = losesCont.value,
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
 

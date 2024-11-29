@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Provider
 
-@Database(entities = [WordEntity::class, StatsEntity::class], version = 3, exportSchema = false)
+@Database(entities = [WordEntity::class], version = 4, exportSchema = false)
 abstract class WordGameDatabase : RoomDatabase() {
 
     abstract fun wordGameDao(): WordGameDao

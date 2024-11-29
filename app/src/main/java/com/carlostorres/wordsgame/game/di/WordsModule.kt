@@ -6,6 +6,8 @@ import androidx.room.Room
 import com.carlostorres.wordsgame.game.data.local.WordGameDao
 import com.carlostorres.wordsgame.game.data.local.WordGameDatabase
 import com.carlostorres.wordsgame.game.data.local.LocalWordsDataSource
+import com.carlostorres.wordsgame.game.data.local.StatsGameDao
+import com.carlostorres.wordsgame.game.data.local.StatsGameDatabase
 import com.carlostorres.wordsgame.game.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.game.data.remote.WordApi
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl
@@ -75,9 +77,27 @@ object WordsModule {
 
     @Provides
     @Singleton
+    fun provideStatsGameDatabase(
+        @ApplicationContext context: Context
+    ) : StatsGameDatabase = Room.databaseBuilder(
+        context = context,
+        klass = StatsGameDatabase::class.java,
+        name = "stats.db"
+    ).fallbackToDestructiveMigration()
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideStatsGameDao(
+        database: StatsGameDatabase
+    ) = database.statsGameDao()
+
+    @Provides
+    @Singleton
     fun provideLocalWordsDataSource(
-        wordGameDao: WordGameDao
-    ) : LocalWordsDataSource = LocalWordsDataSource(wordGameDao = wordGameDao)
+        wordGameDao: WordGameDao,
+        statsGameDao: StatsGameDao
+    ) : LocalWordsDataSource = LocalWordsDataSource(wordGameDao = wordGameDao, statsGameDao = statsGameDao)
 
     @Provides
     @Singleton

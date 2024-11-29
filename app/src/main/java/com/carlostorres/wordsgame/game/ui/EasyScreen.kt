@@ -85,7 +85,9 @@ fun EasyScreen(
             lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
         )
     )
-    val winsCont = viewModel.gameWinsCount.collectAsState(initial = emptyList())
+
+    val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
+    val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
 
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
@@ -241,7 +243,7 @@ fun EasyScreen(
                     start.linkTo(parent.start)
                 },
                 char = 'W',
-                count = winsCont.value.size,
+                count = winsCont.value,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
             )
 
@@ -251,7 +253,7 @@ fun EasyScreen(
                     end.linkTo(parent.end)
                 },
                 char = 'L',
-                count = state.gameLostCount,
+                count = losesCont.value,
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
 

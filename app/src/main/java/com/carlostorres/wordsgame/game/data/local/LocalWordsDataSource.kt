@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalWordsDataSource @Inject constructor(
-    private val wordGameDao: WordGameDao
+    private val wordGameDao: WordGameDao,
+    private val statsGameDao: StatsGameDao
 ) {
 
     suspend fun getRandomWord(length: Int): String {
@@ -13,11 +14,11 @@ class LocalWordsDataSource @Inject constructor(
     }
 
     fun upsertStats(stat: StatsEntity) {
-        wordGameDao.upsertStats(stat)
+        statsGameDao.upsertStats(stat)
     }
 
-    fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<List<StatsEntity>> {
-        return wordGameDao.getGameModeStats(gameDifficult, win)
+    fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int> {
+        return statsGameDao.getGameModeStats(gameDifficult, win)
     }
 
 }

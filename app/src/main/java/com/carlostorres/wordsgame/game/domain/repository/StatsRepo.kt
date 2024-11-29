@@ -7,6 +7,6 @@ interface StatsRepo {
 
     fun upsertStats(stat: StatsEntity)
 
-    fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<List<StatsEntity>>
+    fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int>
 
 }
