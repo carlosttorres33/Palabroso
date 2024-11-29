@@ -11,14 +11,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
+import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -31,6 +35,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -38,7 +46,8 @@ import javax.inject.Inject
 @HiltViewModel
 class EasyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val useCases: GameUseCases
+    private val useCases: GameUseCases,
+    private val gameStatsUseCases: GameStatsUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(EasyState())
@@ -54,15 +63,38 @@ class EasyViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
+    val gameWinsCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = difficultToString(GameDifficult.Easy),
+        win = true
+    )
+
+    val gameLostCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = difficultToString(GameDifficult.Easy),
+        win = false
+    )
+
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             useCases.readDailyStatsUseCase().collect { stats ->
                 _dailyStats.value = stats
             }
         }
     }
 
-    fun setUpGame(){
+    private fun updateDailyStats(win: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            gameStatsUseCases.upsertStatsUseCase(
+                StatsEntity(
+                    wordGuessed = state.secretWord,
+                    gameDifficult = difficultToString(GameDifficult.Easy),
+                    win = win,
+                    attempts = state.tryNumber
+                )
+            )
+        }
+    }
+
+    fun setUpGame() {
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -79,7 +111,7 @@ class EasyViewModel @Inject constructor(
                     dayTries = dailyStats.value.easyGamesPlayed
                 )
 
-                if (word.isNotEmpty()){
+                if (word.isNotEmpty()) {
                     state = state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
@@ -87,7 +119,7 @@ class EasyViewModel @Inject constructor(
                     )
                 }
 
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 Log.e("EasyViewModel", "Error" + e.message.toString())
                 //Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
                 state = state.copy(
@@ -99,7 +131,7 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    private suspend fun increaseEasyGamesPlayed(){
+    private suspend fun increaseEasyGamesPlayed() {
         useCases.updateDailyStatsUseCase(
             dailyStats.value.copy(
                 easyGamesPlayed = dailyStats.value.easyGamesPlayed + 1
@@ -107,29 +139,32 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    private fun onAcceptClick() = viewModelScope.launch {
+    private fun onAcceptClick() = viewModelScope.launch(Dispatchers.IO) {
 
         state = state.copy(secretWordsList = state.wordsTried.plus(state.inputText))
 
         val resultado = validateIfWordContainsLetter()
 
-        if (state.inputText.uppercase() == state.secretWord.uppercase()){
+        if (state.inputText.uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
-                gameWinsCount = state.gameWinsCount + 1
             )
             increaseEasyGamesPlayed()
-        }else if (state.tryNumber >= 3){
+            updateDailyStats(true)
+        } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
-                gameLostCount = state.gameLostCount + 1
             )
             increaseEasyGamesPlayed()
+            updateDailyStats(false)
         }
 
-        Log.d("EasyViewModel", "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}")
+        Log.d(
+            "EasyViewModel",
+            "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}"
+        )
 
-        when(state.tryNumber){
+        when (state.tryNumber) {
             0 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
@@ -175,6 +210,17 @@ class EasyViewModel @Inject constructor(
                 )
             }
 
+            4 -> {
+                state = state.copy(
+                    tryNumber = state.tryNumber + 1,
+                    inputText = "",
+                    intento5 = state.intento5.copy(
+                        word = state.inputText,
+                        resultado = resultado
+                    )
+                )
+            }
+
             else -> {
                 resetGame()
             }
@@ -183,16 +229,18 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    fun onEvent(event: EasyEvents){
-        when(event){
+    fun onEvent(event: EasyEvents) {
+        when (event) {
             EasyEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
+
             EasyEvents.OnDeleteClick -> {
                 state = state.copy(
                     inputText = state.inputText.dropLast(1)
                 )
             }
+
             is EasyEvents.OnInputTextChange -> {
                 state = state.copy(
                     inputText = state.inputText + event.inputText
@@ -201,7 +249,7 @@ class EasyViewModel @Inject constructor(
         }
     }
 
-    private fun validateIfWordContainsLetter() : List<Pair<String, WordCharState>> {
+    private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
 
         val result = mutableListOf<Pair<String, WordCharState>>()
 
@@ -238,12 +286,12 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    private fun resetGame(){
+    private fun resetGame() {
         state = state.copy(
             inputText = "",
             tryNumber = 0,
             intento1 = TryInfo(),
-            intento2= TryInfo(),
+            intento2 = TryInfo(),
             intento3 = TryInfo(),
             intento4 = TryInfo(),
             isGameWon = null,
@@ -253,20 +301,20 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    fun showInterstitial(activity: Activity, navHome : () -> Unit){
+    fun showInterstitial(activity: Activity, navHome: () -> Unit, ifBack: Boolean = false) {
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
         )
 
-        loadInterstitial(activity){ interstitialAd ->
-            if(interstitialAd != null){
+        loadInterstitial(activity) { interstitialAd ->
+            if (interstitialAd != null) {
 
                 interstitialAd.show(activity)
-                interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+                interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        if (ifBack || dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                             navHome()
                         } else {
                             setUpGame()
@@ -274,13 +322,14 @@ class EasyViewModel @Inject constructor(
                     }
                 }
 
-            }else{
+            } else {
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                if (dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                if (ifBack || dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {
                     setUpGame()
                 }
+
                 Log.e("EasyViewModel", "Ad is null")
 
             }
@@ -288,7 +337,7 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    private fun loadInterstitial(activity: Activity, callback : (InterstitialAd?) -> Unit ){
+    private fun loadInterstitial(activity: Activity, callback: (InterstitialAd?) -> Unit) {
 
         val adRequest = com.google.android.gms.ads.AdRequest.Builder().build()
 
@@ -296,7 +345,7 @@ class EasyViewModel @Inject constructor(
             activity,
             context.getString(R.string.ad_unit_id),
             adRequest,
-            object : InterstitialAdLoadCallback(){
+            object : InterstitialAdLoadCallback() {
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     super.onAdFailedToLoad(error)

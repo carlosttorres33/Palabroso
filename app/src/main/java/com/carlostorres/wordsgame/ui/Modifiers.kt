@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 
 enum class ButtonState { Pressed, Idle }
@@ -23,6 +24,7 @@ fun Modifier.bounceClick(enabled: Boolean = true) = composed {
     if (!enabled) {
         return@composed this
     }
+
     this
         .graphicsLayer {
             scaleX = scale
@@ -33,43 +35,15 @@ fun Modifier.bounceClick(enabled: Boolean = true) = composed {
             indication = null,
             onClick = { }
         )
-        .pointerInput(buttonState) {
+        .pointerInput(Unit) {
             awaitPointerEventScope {
-                buttonState = if (buttonState == ButtonState.Pressed) {
-                    waitForUpOrCancellation()
-                    ButtonState.Idle
-                } else {
-                    awaitFirstDown(false)
-                    ButtonState.Pressed
-                }
-            }
-        }
-}
-
-fun Modifier.pressClickEffect(enabled: Boolean = true) = composed {
-    var buttonState by remember { mutableStateOf(ButtonState.Idle) }
-    val ty by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0f else -15f)
-
-    if (!enabled) {
-        return@composed this
-    }
-    this
-        .graphicsLayer {
-            translationY = ty
-        }
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = { }
-        )
-        .pointerInput(buttonState) {
-            awaitPointerEventScope {
-                buttonState = if (buttonState == ButtonState.Pressed) {
-                    waitForUpOrCancellation()
-                    ButtonState.Idle
-                } else {
-                    awaitFirstDown(false)
-                    ButtonState.Pressed
+                while (true) {
+                    val event = awaitPointerEvent()
+                    if (event.type == PointerEventType.Press) {
+                        buttonState = ButtonState.Pressed
+                    } else if (event.type == PointerEventType.Release) {
+                        buttonState = ButtonState.Idle
+                    }
                 }
             }
         }

@@ -11,15 +11,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
+import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
+import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -28,6 +32,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HardViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val useCases: GameUseCases
+    private val useCases: GameUseCases,
+    private val gameStatsUseCases: GameStatsUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(HardState())
@@ -54,11 +60,34 @@ class HardViewModel @Inject constructor(
     )
     val userDailyStats: StateFlow<UserDailyStats> = _userDailyStats.asStateFlow()
 
+    val gameWinsCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = difficultToString(GameDifficult.Hard),
+        win = true
+    )
+
+    val gameLostCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
+        difficult = difficultToString(GameDifficult.Hard),
+        win = false
+    )
+
     init {
         viewModelScope.launch {
             useCases.readDailyStatsUseCase().collect { stats ->
                 _userDailyStats.value = stats
             }
+        }
+    }
+
+    private fun updateDailyStats(win: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            gameStatsUseCases.upsertStatsUseCase(
+                StatsEntity(
+                    wordGuessed = state.secretWord,
+                    gameDifficult = difficultToString(GameDifficult.Hard),
+                    win = win,
+                    attempts = state.tryNumber
+                )
+            )
         }
     }
 
@@ -123,12 +152,14 @@ class HardViewModel @Inject constructor(
                 gameWinsCount = state.gameWinsCount + 1
             )
             increaseHardGamesPlayed()
-        } else if (state.tryNumber >= 5) {
+            updateDailyStats(true)
+        } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
             increaseHardGamesPlayed()
+            updateDailyStats(false)
         }
 
         Log.d(
@@ -185,17 +216,6 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento5 = state.intento5.copy(
-                        word = state.inputText,
-                        resultado = resultado
-                    ),
-                    inputText = "",
-                )
-            }
-
-            5 -> {
-                state = state.copy(
-                    tryNumber = state.tryNumber + 1,
-                    intento6 = state.intento6.copy(
                         word = state.inputText,
                         resultado = resultado
                     ),
@@ -269,7 +289,7 @@ class HardViewModel @Inject constructor(
 
     }
 
-    fun showInterstitial(activity: Activity, navHome : () -> Unit) {
+    fun showInterstitial(activity: Activity, navHome : () -> Unit, ifBack : Boolean = false) {
 
         state = state.copy(
             gameSituation = GameSituations.GameLoading
@@ -282,17 +302,19 @@ class HardViewModel @Inject constructor(
                 interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+                        if (ifBack || userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                             navHome()
                         } else {
                             setUpGame()
                         }
+
                     }
                 }
 
             } else {
                 Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-                if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
+
+                if (ifBack || userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {
                     setUpGame()
@@ -340,7 +362,6 @@ class HardViewModel @Inject constructor(
             intento3 = TryInfo(),
             intento4 = TryInfo(),
             intento5 = TryInfo(),
-            intento6 = TryInfo(),
             isGameWon = null,
             secretWord = "",
             keyboard = keyboardCreator(),

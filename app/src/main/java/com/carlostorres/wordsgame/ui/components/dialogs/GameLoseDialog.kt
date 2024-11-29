@@ -88,7 +88,7 @@ fun GameLoseDialog(
                     onClick = {
                         onHomeClick()
                     },
-                    difficult = GameDifficult.Medium,
+                    difficult = GameDifficult.Normal,
                     text = "Volver al inicio"
                 )
 

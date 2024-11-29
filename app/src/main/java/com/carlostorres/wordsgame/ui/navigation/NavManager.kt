@@ -1,6 +1,5 @@
 package com.carlostorres.wordsgame.ui.navigation
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
@@ -66,7 +65,7 @@ fun NavManager() {
                         GameDifficult.Easy -> {
                             navController.navigate(NavRoutes.EasyGame.route)
                         }
-                        GameDifficult.Medium -> {
+                        GameDifficult.Normal -> {
                             navController.navigate(NavRoutes.NormalGame.route)
                         }
                         GameDifficult.Hard -> {

@@ -4,9 +4,7 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,8 +18,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -35,37 +31,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.presentation.easy.EasyEvents
 import com.carlostorres.wordsgame.game.presentation.easy.EasyViewModel
-import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
-import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
-import com.carlostorres.wordsgame.ui.components.HowToPlayButton
-import com.carlostorres.wordsgame.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.ui.components.word_line.WordChar
@@ -100,6 +85,9 @@ fun EasyScreen(
             lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
         )
     )
+
+    val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
+    val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
 
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
@@ -198,7 +186,8 @@ fun EasyScreen(
                                     activity,
                                     navHome = {
                                         onHomeClick()
-                                    }
+                                    },
+                                    ifBack = true
                                 )
                             },
                             isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
@@ -220,7 +209,8 @@ fun EasyScreen(
                                     activity,
                                     navHome = {
                                         onHomeClick()
-                                    }
+                                    },
+                                    ifBack = true
                                 )
                             },
                             isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
@@ -253,7 +243,7 @@ fun EasyScreen(
                     start.linkTo(parent.start)
                 },
                 char = 'W',
-                count = state.gameWinsCount,
+                count = winsCont.value,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
             )
 
@@ -263,7 +253,7 @@ fun EasyScreen(
                     end.linkTo(parent.end)
                 },
                 char = 'L',
-                count = state.gameLostCount,
+                count = losesCont.value,
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
 
@@ -283,7 +273,7 @@ fun EasyScreen(
                 val maxHeight = this.maxHeight
 
                 val boxWidth = maxWidth / 4
-                val boxHeight = maxHeight / 4
+                val boxHeight = maxHeight / 5
 
                 Column(
                     modifier = Modifier
@@ -516,7 +506,65 @@ fun EasyScreen(
                     }
                     //endregion
 
-                    Spacer(modifier = Modifier.weight(0.4f))
+                    //region Fifth try
+                    BasicTextField(
+                        value = state.inputText,
+                        onValueChange = {},
+                        enabled = false,
+                        singleLine = true
+                    ) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+
+                            repeat(4) { index ->
+
+                                val char = when {
+                                    index >= state.inputText.length -> ""
+                                    else -> state.inputText[index].toString()
+                                }
+
+                                if (state.tryNumber == 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = WordCharState.Empty,
+                                        char = char,
+                                        isTurn = true
+                                    )
+                                } else if (state.tryNumber > 4) {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        charState = state.intento5.resultado[index].second,
+                                        char = state.intento5.resultado[index].first,
+                                    )
+                                } else {
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
+                                    )
+                                }
+
+                            }
+
+                        }
+
+                    }
+                    //endregion
+
+                    Spacer(modifier = Modifier.weight(1f))
 
                 }
             }

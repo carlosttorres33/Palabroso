@@ -82,6 +82,9 @@ fun HardScreen(
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+    val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
+    val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
+
     LaunchedEffect(key1 = requestedOrientation) {
         activity?.requestedOrientation = requestedOrientation
     }
@@ -160,7 +163,8 @@ fun HardScreen(
                             GameLimitDialog {
                                 viewModel.showInterstitial(
                                     activity,
-                                    navHome = { onHomeClick() }
+                                    navHome = { onHomeClick() },
+                                    ifBack = true
                                 )
                             }
                         }
@@ -173,7 +177,7 @@ fun HardScreen(
                                 viewModel.showInterstitial(activity, navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                viewModel.showInterstitial(activity, navHome = {onHomeClick()})
+                                viewModel.showInterstitial(activity, navHome = {onHomeClick()}, ifBack = true)
                             },
                             isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -185,7 +189,7 @@ fun HardScreen(
                                 viewModel.showInterstitial(activity,navHome = {onHomeClick()})
                             },
                             onHomeClick = {
-                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
+                                viewModel.showInterstitial(activity,navHome = {onHomeClick()}, ifBack = true)
                             },
                             isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -212,7 +216,7 @@ fun HardScreen(
                     start.linkTo(parent.start)
                 },
                 char = 'W',
-                count = state.gameWinsCount,
+                count = winsCont.value,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
             )
 
@@ -222,7 +226,7 @@ fun HardScreen(
                     end.linkTo(parent.end)
                 },
                 char = 'L',
-                count = state.gameLostCount,
+                count = losesCont.value,
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
 
@@ -242,7 +246,7 @@ fun HardScreen(
                 val maxHeight = this.maxHeight
 
                 val boxWidth = maxWidth / 6
-                val boxHeight = maxHeight / 6
+                val boxHeight = maxHeight / 5
 
                 Column(
                     modifier = Modifier
@@ -533,65 +537,7 @@ fun HardScreen(
                     }
                     //endregion
 
-                    //region six try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
-                            repeat(6) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
-
-                                if (state.tryNumber == 5) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
-                                    )
-                                } else if (state.tryNumber > 5) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = state.intento6.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento6.resultado[index].first, //state.intento1.word[index].toString()
-                                    )
-                                } else {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        char = ""
-                                    )
-                                }
-
-                            }
-
-                        }
-
-                    }
-                    //endregion
-
-                    Spacer(modifier = Modifier.weight(0.4f))
+                    Spacer(modifier = Modifier.weight(1f))
 
                 }
             }

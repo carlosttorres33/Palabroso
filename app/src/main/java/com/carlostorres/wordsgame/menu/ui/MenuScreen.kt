@@ -3,9 +3,7 @@ package com.carlostorres.wordsgame.menu.ui
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,13 +33,11 @@ import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.InstructionsDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -171,14 +167,14 @@ fun MenuScreen(
                 modifier = Modifier
                     .padding(horizontal = 18.dp)
                     .constrainAs(btnMedium) {},
-                difficult = GameDifficult.Medium,
+                difficult = GameDifficult.Normal,
                 text = "5 Letras"
             ) {
                 if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     Toast.makeText(context, "Ya jugaste todas las palabras de 5 letras de hoy", Toast.LENGTH_SHORT)
                         .show()
                 } else {
-                    onDifficultySelected(GameDifficult.Medium)
+                    onDifficultySelected(GameDifficult.Normal)
                 }
             }
 

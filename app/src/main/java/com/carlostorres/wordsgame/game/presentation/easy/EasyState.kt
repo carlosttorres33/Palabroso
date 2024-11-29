@@ -18,6 +18,7 @@ data class EasyState(
     val intento2 : TryInfo = TryInfo(),
     val intento3 : TryInfo = TryInfo(),
     val intento4 : TryInfo = TryInfo(),
+    val intento5 : TryInfo = TryInfo(),
     //endregion
 
     //true = win, false = lost, null = in progress
