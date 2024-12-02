@@ -45,7 +45,7 @@ fun String.toWordEntity() : WordEntity = WordEntity(
 
 fun removeAccents(input: String): String {
     val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
-    val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+    val pattern = Pattern.compile("[^\\p{L}\\p{N}\\sñÑ]")
     return pattern.matcher(normalized).replaceAll("")
 }
 
