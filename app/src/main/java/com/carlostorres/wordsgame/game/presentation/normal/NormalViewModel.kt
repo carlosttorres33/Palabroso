@@ -77,14 +77,14 @@ class NormalViewModel @Inject constructor(
         }
     }
 
-    private fun updateDailyStats(win: Boolean) {
+    private fun updateDailyStats(win: Boolean, tryNumber : Int) {
         viewModelScope.launch(Dispatchers.IO) {
             gameStatsUseCases.upsertStatsUseCase(
                 StatsEntity(
                     wordGuessed = state.secretWord,
                     gameDifficult = difficultToString(GameDifficult.Normal),
                     win = win,
-                    attempts = state.tryNumber
+                    attempts = tryNumber
                 )
             )
         }
@@ -141,24 +141,24 @@ class NormalViewModel @Inject constructor(
 
     private fun onAcceptClick() = viewModelScope.launch {
 
-        state = state.copy(wordsTried = state.wordsTried.plus(state.inputText))
+        state = state.copy(
+            wordsTried = state.wordsTried.plus(state.inputText)
+        )
 
         val resultado = validateIfWordContainsLetter()
 
         if (state.inputText.uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
-                gameWinsCount = state.gameWinsCount + 1
             )
             increaseNormalGamesPlayed()
-            updateDailyStats(true)
+            updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
-                gameLostCount = state.gameLostCount + 1
             )
             increaseNormalGamesPlayed()
-            updateDailyStats(false)
+            updateDailyStats(false, state.tryNumber)
         }
 
         Log.d(

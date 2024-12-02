@@ -16,7 +16,6 @@ import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
-import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -78,14 +77,15 @@ class HardViewModel @Inject constructor(
         }
     }
 
-    private fun updateDailyStats(win: Boolean) {
+    private fun updateDailyStats(win: Boolean, tryNumber: Int) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d("Trackeo", "${state.tryNumber} en update")
             gameStatsUseCases.upsertStatsUseCase(
                 StatsEntity(
                     wordGuessed = state.secretWord,
                     gameDifficult = difficultToString(GameDifficult.Hard),
                     win = win,
-                    attempts = state.tryNumber
+                    attempts = tryNumber
                 )
             )
         }
@@ -142,7 +142,9 @@ class HardViewModel @Inject constructor(
 
     private fun onAcceptClick() = viewModelScope.launch {
 
-        state = state.copy(wordsTried = state.wordsTried.plus(state.inputText))
+        state = state.copy(
+            wordsTried = state.wordsTried.plus(state.inputText)
+        )
 
         val resultado = validateIfWordContainsLetter()
 
@@ -152,14 +154,14 @@ class HardViewModel @Inject constructor(
                 gameWinsCount = state.gameWinsCount + 1
             )
             increaseHardGamesPlayed()
-            updateDailyStats(true)
+            updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
                 gameLostCount = state.gameLostCount + 1
             )
             increaseHardGamesPlayed()
-            updateDailyStats(false)
+            updateDailyStats(false, state.tryNumber)
         }
 
         Log.d(
@@ -169,6 +171,7 @@ class HardViewModel @Inject constructor(
 
         when (state.tryNumber) {
             0 -> {
+                Log.d("Trackeo", "${state.tryNumber} en WHEN")
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento1 = state.intento1.copy(
@@ -180,6 +183,7 @@ class HardViewModel @Inject constructor(
             }
 
             1 -> {
+                Log.d("Trackeo", "${state.tryNumber} en WHEN")
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento2 = state.intento2.copy(
@@ -191,6 +195,7 @@ class HardViewModel @Inject constructor(
             }
 
             2 -> {
+                Log.d("Trackeo", "${state.tryNumber} en WHEN")
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento3 = state.intento3.copy(
@@ -202,6 +207,7 @@ class HardViewModel @Inject constructor(
             }
 
             3 -> {
+                Log.d("Trackeo", "${state.tryNumber} en WHEN")
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento4 = state.intento4.copy(
@@ -213,6 +219,7 @@ class HardViewModel @Inject constructor(
             }
 
             4 -> {
+                Log.d("Trackeo", "${state.tryNumber} en WHEN")
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento5 = state.intento5.copy(

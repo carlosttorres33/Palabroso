@@ -13,12 +13,16 @@ class LocalWordsDataSource @Inject constructor(
         return wordGameDao.getRandomWord(length).word
     }
 
-    fun upsertStats(stat: StatsEntity) {
+    suspend fun upsertStats(stat: StatsEntity) {
         statsGameDao.upsertStats(stat)
     }
 
     fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int> {
         return statsGameDao.getGameModeStats(gameDifficult, win)
+    }
+
+    fun getAllStats(): List<StatsEntity> {
+        return statsGameDao.getAllStats()
     }
 
 }

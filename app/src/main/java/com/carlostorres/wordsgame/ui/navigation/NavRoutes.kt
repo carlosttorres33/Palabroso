@@ -12,5 +12,6 @@ sealed class NavRoutes (val route: String) {
         }
     }
     object Splash : NavRoutes(route = "Splash")
+    object Stats : NavRoutes(route = "Stats")
 
 }

@@ -5,8 +5,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface StatsRepo {
 
-    fun upsertStats(stat: StatsEntity)
+    suspend fun upsertStats(stat: StatsEntity)
 
     fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int>
+
+    fun getAllStats(): List<StatsEntity>
 
 }

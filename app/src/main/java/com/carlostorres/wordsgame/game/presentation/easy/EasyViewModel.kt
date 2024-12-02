@@ -35,10 +35,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -81,14 +77,14 @@ class EasyViewModel @Inject constructor(
         }
     }
 
-    private fun updateDailyStats(win: Boolean) {
+    private fun updateDailyStats(win: Boolean, tryNumber: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             gameStatsUseCases.upsertStatsUseCase(
                 StatsEntity(
                     wordGuessed = state.secretWord,
                     gameDifficult = difficultToString(GameDifficult.Easy),
                     win = win,
-                    attempts = state.tryNumber
+                    attempts = tryNumber
                 )
             )
         }
@@ -141,7 +137,9 @@ class EasyViewModel @Inject constructor(
 
     private fun onAcceptClick() = viewModelScope.launch(Dispatchers.IO) {
 
-        state = state.copy(secretWordsList = state.wordsTried.plus(state.inputText))
+        state = state.copy(
+            secretWordsList = state.wordsTried.plus(state.inputText)
+        )
 
         val resultado = validateIfWordContainsLetter()
 
@@ -150,13 +148,13 @@ class EasyViewModel @Inject constructor(
                 gameSituation = GameSituations.GameWon,
             )
             increaseEasyGamesPlayed()
-            updateDailyStats(true)
+            updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
             )
             increaseEasyGamesPlayed()
-            updateDailyStats(false)
+            updateDailyStats(false, state.tryNumber)
         }
 
         Log.d(
