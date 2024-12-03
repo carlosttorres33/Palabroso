@@ -13,4 +13,8 @@ interface DataStoreOperations {
 
     fun readInstructionsState(): Flow<Boolean>
 
+    suspend fun saveCanAccessToApp(canAccess: Boolean)
+
+    fun readCanAccessToApp(): Flow<Boolean>
+
 }

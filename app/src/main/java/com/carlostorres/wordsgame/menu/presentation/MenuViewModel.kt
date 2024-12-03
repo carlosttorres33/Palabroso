@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.MenuUseCases
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MenuViewModel @Inject constructor(
     private val useCases: GameUseCases,
+    private val menuUseCases: MenuUseCases,
     private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
@@ -47,12 +49,18 @@ class MenuViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
+    private val _canAccessToApp = MutableStateFlow(true)
+    val canAccessToApp: StateFlow<Boolean> = _canAccessToApp.asStateFlow()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            checkUserVersion()
             useCases.readDailyStatsUseCase().collect { stats ->
                 _dailyStats.value = stats
             }
-            checkUserVersion()
+            menuUseCases.readAccessToAppUseCase().collect {
+                _canAccessToApp.value = it
+            }
         }
     }
 
@@ -64,11 +72,14 @@ class MenuViewModel @Inject constructor(
 
     private fun checkUserVersion() {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = useCases.canAccessToAppUseCase()
+            val result = menuUseCases.canAccessToAppUseCase()
             Log.d("Version", result.toString())
             state = state.copy(
                 blockVersion = !result
             )
+            if (result != null) {
+                menuUseCases.saveAccessToAppUseCase(!result)
+            }
         }
     }
 

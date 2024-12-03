@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.canAccessToAppKey
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.instructionsKey
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.utils.Constants.EASY_GAMES_PLAYED_KEY
@@ -45,6 +46,8 @@ class DataStoreOperationsImpl @Inject constructor(
         val normalGamesPlayedKey = intPreferencesKey(name = NORMAL_GAMES_PLAYED_KEY)
         val hardGamesPlayedKey = intPreferencesKey(name = HARD_GAMES_PLAYED_KEY)
         val lastPlayedDateKey = stringPreferencesKey(name = LAST_PLAYED_DATE_KEY)
+
+        val canAccessToAppKey = booleanPreferencesKey(name = "can_access_to_app")
     }
 
     private val dataStore = context.dataStore
@@ -97,8 +100,30 @@ class DataStoreOperationsImpl @Inject constructor(
             }
             .map { preferences->
                 val onBoardingState = preferences[instructionsKey] ?: false
-                Log.d("Instructions", onBoardingState.toString())
+                Log.d("Datastore", "Instructions: $onBoardingState")
                 onBoardingState
+            }
+    }
+
+    override suspend fun saveCanAccessToApp(canAccess: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[canAccessToAppKey] = canAccess
+        }
+    }
+
+    override fun readCanAccessToApp(): Flow<Boolean> {
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                }else{
+                    throw exception
+                }
+            }
+            .map { preferences ->
+                val canAccess = preferences[canAccessToAppKey] ?: true
+                Log.d("Datastore", "CanAccess: $canAccess")
+                canAccess
             }
     }
 

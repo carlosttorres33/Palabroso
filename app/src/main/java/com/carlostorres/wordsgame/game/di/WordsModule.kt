@@ -19,11 +19,14 @@ import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.words.GetRandomWordUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.MenuUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.stats.GetGameModeStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.OnboardingUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.StatsUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadAccessToAppDataStore
 import com.carlostorres.wordsgame.game.domain.usecases.stats.ReadDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadInstructionsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveAccessToAppDataStore
 import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.GetAllStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpdateDailyStatsUseCase
@@ -133,7 +136,6 @@ object WordsModule {
         dataStoreOperations: DataStoreOperations
     ) : GameUseCases = GameUseCases(
         getRandomWordUseCase = GetRandomWordUseCase(wordsRepository),
-        canAccessToAppUseCase = CanAccessToAppUseCase(wordsRepository),
         updateDailyStatsUseCase = UpdateDailyStatsUseCase(dataStoreOperations),
         readDailyStatsUseCase = ReadDailyStatsUseCase(dataStoreOperations)
     )
@@ -193,5 +195,16 @@ object WordsModule {
     fun provideConnectivityObserver(
         @ApplicationContext context: Context
     ) : ConnectivityObserver = ConnectivityObserverImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideMenuUseCases(
+        dataStoreOperations: DataStoreOperations,
+        repo: WordsRepository
+    ) : MenuUseCases = MenuUseCases(
+        canAccessToAppUseCase = CanAccessToAppUseCase(repo),
+        saveAccessToAppUseCase = SaveAccessToAppDataStore(dataStoreOperations),
+        readAccessToAppUseCase = ReadAccessToAppDataStore(dataStoreOperations)
+    )
 
 }
