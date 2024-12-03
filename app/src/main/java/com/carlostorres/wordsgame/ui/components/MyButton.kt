@@ -58,6 +58,7 @@ fun MyButton(
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
             else LightBackgroundGray,
+            disabledContainerColor = if (enabled) Color.Transparent else buttonColors.copy(0.4f)
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 10.dp

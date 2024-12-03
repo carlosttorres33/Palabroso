@@ -1,15 +1,14 @@
-package com.carlostorres.wordsgame.game.domain.usecases
+package com.carlostorres.wordsgame.game.domain.usecases.stats
 
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class UpdateDailyStatsUseCase @Inject constructor(
+class ReadDailyStatsUseCase @Inject constructor(
     private val dataStoreOperations: DataStoreOperations
 ) {
 
-    suspend operator fun invoke(userDailyStats: UserDailyStats) {
-        dataStoreOperations.saveDailyStats(userDailyStats)
-    }
+    operator fun invoke(): Flow<UserDailyStats> = dataStoreOperations.readDailyStats()
 
 }

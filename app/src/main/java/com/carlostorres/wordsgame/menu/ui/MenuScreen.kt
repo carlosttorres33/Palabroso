@@ -8,15 +8,19 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -68,7 +72,8 @@ import java.text.SimpleDateFormat
 fun MenuScreen(
     viewModel: MenuViewModel = hiltViewModel(),
     onDifficultySelected: (GameDifficult) -> Unit,
-    onHowToPlayClick: () -> Unit
+    onHowToPlayClick: () -> Unit,
+    onStatsClick: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -119,7 +124,7 @@ fun MenuScreen(
     }
 
     LaunchedEffect(isConnected) {
-        if (isConnected == ConnectionStatus.Lost){
+        if (isConnected == ConnectionStatus.Lost) {
             snackBarHostState.showSnackbar(
                 message = "No hay conexión a internet\nRecuerda que offline hay palabras limitadas",
                 withDismissAction = true
@@ -169,7 +174,7 @@ fun MenuScreen(
                 instructionsText,
                 howToPlayButton,
                 animationContainer,
-                connectionIcon
+                statsButton
             ) = createRefs()
 
             val chain = createVerticalChain(
@@ -184,7 +189,7 @@ fun MenuScreen(
 
             Box(
                 modifier = Modifier
-                    .constrainAs(animationContainer){
+                    .constrainAs(animationContainer) {
                         top.linkTo(parent.top, margin = 12.dp)
                         bottom.linkTo(instructionsText.top, margin = 12.dp)
                         start.linkTo(parent.start, margin = 12.dp)
@@ -192,10 +197,10 @@ fun MenuScreen(
                         height = Dimension.fillToConstraints
                         width = Dimension.fillToConstraints
                     }
-            ){
-                AnimatedVisibility (
+            ) {
+                AnimatedVisibility(
                     showNoWords
-                ){
+                ) {
                     LottieAnimation(
                         modifier = Modifier
                             .fillMaxSize(),
@@ -237,7 +242,11 @@ fun MenuScreen(
                 text = "4 Letras"
             ) {
                 if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras de 4 letras de hoy", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Ya jugaste todas las palabras de 4 letras de hoy",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Easy)
@@ -252,7 +261,11 @@ fun MenuScreen(
                 text = "5 Letras"
             ) {
                 if (userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras de 5 letras de hoy", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Ya jugaste todas las palabras de 5 letras de hoy",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Normal)
@@ -267,7 +280,11 @@ fun MenuScreen(
                 text = "6 Letras"
             ) {
                 if (userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                    Toast.makeText(context, "Ya jugaste todas las palabras de 6 letras de hoy", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        "Ya jugaste todas las palabras de 6 letras de hoy",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     onDifficultySelected(GameDifficult.Hard)
@@ -282,24 +299,24 @@ fun MenuScreen(
                 text = "... proximamente ..."
             ) {}
 
-            Icon(
+            IconButton(
                 modifier = Modifier
-                    .constrainAs(connectionIcon) {
+                    .constrainAs(statsButton) {
                         start.linkTo(parent.start, margin = 12.dp)
                         bottom.linkTo(howToPlayButton.bottom)
                         top.linkTo(howToPlayButton.top)
                         height = Dimension.fillToConstraints
                         width = Dimension.value(30.dp)
                     },
-                imageVector = when(isConnected){
-                    ConnectionStatus.Available -> Icons.Default.Wifi
-                    ConnectionStatus.Losing -> Icons.Default.SignalWifiStatusbarConnectedNoInternet4
-                    ConnectionStatus.Lost -> Icons.Default.SignalWifiStatusbarConnectedNoInternet4
-                    ConnectionStatus.Unavailable -> Icons.Default.WifiOff
-                },
-                contentDescription = "",
-                tint = colorText.copy(alpha = 0.7f)
-            )
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = colorText.copy(alpha = 0.7f)
+                ),
+                onClick = {
+                    onStatsClick()
+                }
+            ) {
+                Icon(imageVector = Icons.Default.BarChart, contentDescription = "")
+            }
 
             HowToPlayButton(
                 modifier = Modifier

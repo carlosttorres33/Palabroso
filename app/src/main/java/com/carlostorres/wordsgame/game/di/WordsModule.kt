@@ -1,7 +1,6 @@
 package com.carlostorres.wordsgame.game.di
 
 import android.content.Context
-import androidx.room.PrimaryKey
 import androidx.room.Room
 import com.carlostorres.wordsgame.game.data.local.WordGameDao
 import com.carlostorres.wordsgame.game.data.local.WordGameDatabase
@@ -13,20 +12,22 @@ import com.carlostorres.wordsgame.game.data.remote.WordApi
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl
 import com.carlostorres.wordsgame.game.data.repository.StatsRepoImpl
 import com.carlostorres.wordsgame.game.data.repository.WordsRepositoryImplementation
-import com.carlostorres.wordsgame.game.domain.usecases.CanAccessToAppUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.settings.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.domain.repository.StatsRepo
 import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
-import com.carlostorres.wordsgame.game.domain.usecases.GetRandomWordUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.words.GetRandomWordUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
-import com.carlostorres.wordsgame.game.domain.usecases.GetGameModeStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.stats.GetGameModeStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.OnboardingUseCases
-import com.carlostorres.wordsgame.game.domain.usecases.ReadDailyStatsUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.ReadInstructionsUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.SaveInstructionsUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.UpdateDailyStatsUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.UpsertStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.StatsUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.stats.ReadDailyStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadInstructionsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveInstructionsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.stats.GetAllStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.stats.UpdateDailyStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.stats.UpsertStatsUseCase
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.ConnectivityObserverImpl
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
@@ -170,6 +171,14 @@ object WordsModule {
         localDataSource = localDataSource,
         remoteDataSource = remoteDataSource,
         remoteConfig = remoteConfig
+    )
+
+    @Singleton
+    @Provides
+    fun provideStatsUseCases(
+        statsRepo: StatsRepo
+    ) : StatsUseCases = StatsUseCases(
+        getAllStatsUseCase = GetAllStatsUseCase(statsRepo)
     )
 
     @Singleton

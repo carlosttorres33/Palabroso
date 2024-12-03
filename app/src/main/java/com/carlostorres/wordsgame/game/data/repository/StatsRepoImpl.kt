@@ -11,12 +11,16 @@ class StatsRepoImpl @Inject constructor(
     private val localWordDataSource: LocalWordsDataSource
 ) : StatsRepo {
 
-    override fun upsertStats(stat: StatsEntity) {
+    override suspend fun upsertStats(stat: StatsEntity) {
         localWordDataSource.upsertStats(stat)
     }
 
     override fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int> {
         return localWordDataSource.getGameModeStats(gameDifficult, win)
+    }
+
+    override fun getAllStats(): List<StatsEntity> {
+        return localWordDataSource.getAllStats()
     }
 
 }

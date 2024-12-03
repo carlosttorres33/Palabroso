@@ -13,6 +13,7 @@ import com.carlostorres.wordsgame.game.ui.NormalScreen
 import com.carlostorres.wordsgame.menu.ui.MenuScreen
 import com.carlostorres.wordsgame.onboarding.ui.OnboardingScreen
 import com.carlostorres.wordsgame.splash.SplashScreen
+import com.carlostorres.wordsgame.stats.ui.StatsScreen
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 
 @Composable
@@ -76,6 +77,9 @@ fun NavManager() {
                 },
                 onHowToPlayClick = {
                     navController.navigate(NavRoutes.Onboarding.createRoute(true))
+                },
+                onStatsClick = {
+                    navController.navigate(NavRoutes.Stats.route)
                 }
             )
         }
@@ -104,6 +108,16 @@ fun NavManager() {
             route = NavRoutes.HardGame.route,
         ){
             HardScreen(
+                onHomeClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = NavRoutes.Stats.route
+        ){
+            StatsScreen (
                 onHomeClick = {
                     navController.popBackStack()
                 }

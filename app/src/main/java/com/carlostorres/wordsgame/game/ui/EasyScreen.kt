@@ -312,7 +312,7 @@ fun EasyScreen(
                                         char = char,
                                         isTurn = true
                                     )
-                                } else {
+                                } else if (state.tryNumber > 0) {
                                     WordChar(
                                         modifier = Modifier
                                             .height(
@@ -322,6 +322,15 @@ fun EasyScreen(
                                         charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
                                         char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
                                         isTurn = false
+                                    )
+                                }else{
+                                    WordChar(
+                                        modifier = Modifier
+                                            .height(
+                                                if (boxHeight > boxWidth) boxWidth else boxHeight
+                                            )
+                                            .width(boxWidth),
+                                        char = ""
                                     )
                                 }
 

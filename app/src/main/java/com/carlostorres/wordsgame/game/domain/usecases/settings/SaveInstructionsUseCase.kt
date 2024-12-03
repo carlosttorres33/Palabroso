@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.game.domain.usecases
+package com.carlostorres.wordsgame.game.domain.usecases.settings
 
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import javax.inject.Inject
