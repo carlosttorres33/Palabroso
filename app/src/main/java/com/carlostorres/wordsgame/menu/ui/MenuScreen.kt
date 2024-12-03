@@ -87,6 +87,7 @@ fun MenuScreen(
     val state = viewModel.state
 
     val userDailyStats = viewModel.dailyStats.collectAsState()
+    val canAccessToApp = viewModel.canAccessToApp.collectAsState()
 
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
@@ -339,7 +340,7 @@ fun MenuScreen(
                     }
             )
 
-            if (state.blockVersion) {
+            if (state.blockVersion || !canAccessToApp.value) {
                 UpdateDialog()
             }
 
