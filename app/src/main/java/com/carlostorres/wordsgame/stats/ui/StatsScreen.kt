@@ -1,12 +1,11 @@
 package com.carlostorres.wordsgame.stats.ui
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -29,9 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -39,21 +34,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.stats.presentation.OnStatsEvents
 import com.carlostorres.wordsgame.stats.presentation.StatsViewModel
-import com.carlostorres.wordsgame.stats.ui.components.BarGraph
-import com.carlostorres.wordsgame.stats.ui.components.BarType
 import com.carlostorres.wordsgame.stats.ui.components.CustomChart
 import com.carlostorres.wordsgame.stats.ui.components.WordItem
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
-import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
-import com.carlostorres.wordsgame.ui.theme.LightRed
-import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
-import com.carlostorres.wordsgame.utils.difficultToString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,7 +106,7 @@ fun StatsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 15.dp, vertical = 10.dp),
+                            .padding(vertical = 10.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -128,7 +116,7 @@ fun StatsScreen(
                                 .fillMaxWidth()
                                 .height(40.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            contentPadding = PaddingValues(start = 10.dp, end = 10.dp)
+                            contentPadding = PaddingValues(start = 15.dp, end = 15.dp)
                         ) {
                             item {
                                 MyButton(
@@ -165,6 +153,7 @@ fun StatsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         CustomChart(
+                            modifier = Modifier.padding(16.dp),
                             barValue = when (state.statsShowed) {
                                 GameDifficult.Easy -> {
                                     listOf(
@@ -236,26 +225,31 @@ fun StatsScreen(
                             },
                         )
 
-                        LazyColumn(
+                        AnimatedContent(
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(1f),
+                            targetState = state.statsShowed,
+                            label = ""
                         ) {
-                            when (state.statsShowed) {
-                                GameDifficult.Easy -> {
-                                    items(state.easyStats) {
-                                        WordItem(word = it.wordGuessed, isGuessed = it.win)
-                                    }
-                                }
 
-                                GameDifficult.Hard -> {
-                                    items(state.hardStats) {
-                                        WordItem(word = it.wordGuessed, isGuessed = it.win)
+                            LazyColumn() {
+                                when (it) {
+                                    GameDifficult.Easy -> {
+                                        items(state.easyStats) {
+                                            WordItem(word = it.wordGuessed, isGuessed = it.win)
+                                        }
                                     }
-                                }
 
-                                GameDifficult.Normal -> {
-                                    items(state.normalStats) {
-                                        WordItem(word = it.wordGuessed, isGuessed = it.win)
+                                    GameDifficult.Hard -> {
+                                        items(state.hardStats) {
+                                            WordItem(word = it.wordGuessed, isGuessed = it.win)
+                                        }
+                                    }
+
+                                    GameDifficult.Normal -> {
+                                        items(state.normalStats) {
+                                            WordItem(word = it.wordGuessed, isGuessed = it.win)
+                                        }
                                     }
                                 }
                             }
