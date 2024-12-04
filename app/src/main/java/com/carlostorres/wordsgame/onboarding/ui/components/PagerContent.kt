@@ -1,24 +1,34 @@
-package com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog
+package com.carlostorres.wordsgame.onboarding.ui.components
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.model.InstructionsPages
+import com.carlostorres.wordsgame.ui.components.keyboard.ActionKeyboardButton
+import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardButton
+import com.carlostorres.wordsgame.ui.components.word_line.WordChar
+import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkYellow
@@ -190,7 +200,7 @@ fun PagerContent(
 
             3 -> {
                 Text(
-                    text = "Selecciona el modo que desees jugar en el manú principal (4x4, 5x5, 6x6)",
+                    text = "Selecciona el modo que desees jugar en el manú principal (4, 5 o 6 Letras)",
                     modifier = Modifier.fillMaxWidth(),
                     color = textColor
                 )
@@ -204,16 +214,31 @@ fun PagerContent(
             else -> {}
         }
 
-//        if (page.image != null) {
-//            Image(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .aspectRatio(1f),
-//                painter = painterResource(id = page.image),
-//                contentDescription = "",
-//                contentScale = ContentScale.Inside
-//            )
-//        }
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            horizontalArrangement = Arrangement.Absolute.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            when (index) {
+                0 -> {
+                    ActionKeyboardButton(
+                        icon = R.drawable.baseline_send_24,
+                        onClick = { },
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                1 -> {
+                    WordChar(char = "A", charState =WordCharState.IsOnWord, modifier = Modifier.size(60.dp))
+                    WordChar(char = "B", charState =WordCharState.IsNotInWord, modifier = Modifier.size(60.dp))
+                    WordChar(char = "C", charState =WordCharState.IsOnPosition, modifier = Modifier.size(60.dp))
+                }
+                else -> {}
+            }
+        }
 
     }
 

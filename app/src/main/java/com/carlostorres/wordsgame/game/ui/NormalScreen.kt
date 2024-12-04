@@ -168,16 +168,7 @@ fun NormalScreen(
                         LoadingDialog()
                     }
 
-                    GameSituations.GameInProgress -> {
-                        if (userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                            GameLimitDialog {
-                                viewModel.showInterstitial(
-                                    activity,
-                                    navHome = { onHomeClick() }
-                                )
-                            }
-                        }
-                    }
+                    GameSituations.GameInProgress -> {}
 
                     GameSituations.GameLost -> {
                         GameLoseDialog(

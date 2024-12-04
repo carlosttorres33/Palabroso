@@ -28,7 +28,7 @@ data class EasyState(
     val gameSituation : GameSituations = GameSituations.GameInProgress,
 
     //Palabra secreta a adivinar
-    val secretWord : String = "",
+    val secretWord : String = "PEDO",
 
     //Lista de palabras secretas jugadas
     val secretWordsList : List<String> = emptyList(),

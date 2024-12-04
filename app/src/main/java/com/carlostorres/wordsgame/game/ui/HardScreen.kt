@@ -158,17 +158,7 @@ fun HardScreen(
                         LoadingDialog()
                     }
 
-                    GameSituations.GameInProgress -> {
-                        if (userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                            GameLimitDialog {
-                                viewModel.showInterstitial(
-                                    activity,
-                                    navHome = { onHomeClick() },
-                                    ifBack = true
-                                )
-                            }
-                        }
-                    }
+                    GameSituations.GameInProgress -> {}
 
                     GameSituations.GameLost -> {
                         GameLoseDialog(

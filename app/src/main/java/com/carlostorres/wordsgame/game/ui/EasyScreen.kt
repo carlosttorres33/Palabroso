@@ -163,13 +163,8 @@ fun EasyScreen(
                         LoadingDialog()
                     }
 
-                    GameSituations.GameInProgress -> {
-                        if (userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
-                            GameLimitDialog {
-                                onHomeClick()
-                            }
-                        }
-                    }
+                    GameSituations.GameInProgress -> {}
+
                     GameSituations.GameLost -> {
                         GameLoseDialog(
                             secretWord = state.secretWord,

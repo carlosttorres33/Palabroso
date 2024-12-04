@@ -5,8 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "stats_table")
 data class StatsEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id : Int = 0,
+    @PrimaryKey(autoGenerate = false)
     val wordGuessed : String,
     val gameDifficult : String,
     val win : Boolean,

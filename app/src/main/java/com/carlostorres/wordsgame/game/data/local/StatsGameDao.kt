@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface StatsGameDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert()
     suspend fun upsertStats(stat: StatsEntity)
 
     @Query("SELECT COUNT(*) FROM stats_table WHERE gameDifficult = :gameDifficult AND win = :win")
