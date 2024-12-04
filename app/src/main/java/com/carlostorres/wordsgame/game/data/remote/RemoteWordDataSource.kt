@@ -1,13 +1,19 @@
 package com.carlostorres.wordsgame.game.data.remote
 
+import retrofit2.Response
 import javax.inject.Inject
 
 class RemoteWordDataSource @Inject constructor(
     private val wordApi: WordApi
 ) {
 
-    suspend fun getRandomWord(language: String = "es",count: Int = 1, length: Int): String {
-        return wordApi.getRandomWord(language = language, numberOfWords = count, wordLength = length)[0]
+    suspend fun getRandomWord(group: String, id: String): String? {
+        val response = wordApi.getWord(group, id)
+        return if (response.isSuccessful) {
+            response.body()
+        }else{
+            null
+        }
     }
 
 }

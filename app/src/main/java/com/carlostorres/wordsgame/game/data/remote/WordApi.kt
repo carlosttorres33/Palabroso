@@ -1,6 +1,8 @@
 package com.carlostorres.wordsgame.game.data.remote
 
+import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface WordApi {
@@ -12,11 +14,10 @@ interface WordApi {
 //        @Query("l") length : Int
 //    ): Array<String>
 
-    @GET("word")
-    suspend fun getRandomWord(
-        @Query("lang") language : String,
-        @Query("number") numberOfWords : Int,
-        @Query("length") wordLength : Int,
-    ): Array<String>
+    @GET("palabras/{grupo}/{id}.json")
+    suspend fun getWord(
+        @Path("grupo") grupo: String,
+        @Path("id") id: String
+    ): Response<String?>
 
 }

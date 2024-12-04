@@ -9,21 +9,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.ui.navigation.NavRoutes
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.utils.Constants
 import kotlinx.coroutines.delay
 
 @Composable
@@ -59,27 +65,58 @@ fun Splash() {
         containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
     ) { paddingValues ->
 
-        BoxWithConstraints(
+        ConstraintLayout(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
         ) {
 
-            val width = maxWidth
-            val height = maxHeight
+            val (
+                topContainer,
+                authorText
+            ) = createRefs()
 
-            Image(
-                painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_dark_theme else R.drawable.logo),
-                contentDescription = "",
+            val middleGuideline = createGuidelineFromTop(0.5f)
+
+            BoxWithConstraints(
                 modifier = Modifier
-                    .height(height/2)
-                    .width(width/2),
-                contentScale = ContentScale.FillWidth,
+                    .constrainAs(topContainer){
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+
+                val width = maxWidth
+                val height = maxHeight
+
+                Image(
+                    painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_dark_theme else R.drawable.logo),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .height(height / 2)
+                        .width(width / 2),
+                    contentScale = ContentScale.FillWidth,
+                )
+
+            }
+
+            Text(
+                modifier = Modifier
+                    .constrainAs(authorText) {
+                        top.linkTo(middleGuideline)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    },
+                text = "Desarrollado por Carlos Torres",
+                color = if (isSystemInDarkTheme()) LightBackgroundGray else DarkTextGray,
+                fontWeight = FontWeight.Bold
             )
 
         }
-
 
     }
 

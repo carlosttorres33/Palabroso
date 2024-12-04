@@ -24,15 +24,18 @@ class WordsRepositoryImplementation @Inject constructor(
 
     override suspend fun getRandomWord(
         wordsTried: List<String>,
-        wordLength: Int,
-        dayTries: Int
-    ): String {
+        group: String,
+        dayTries: Int,
+        wordLength: Int
+    ): String? {
+
+        var id = (0..250).random()
 
         return if (InternetCheck.isNetworkAvailable()) {
 
             var word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
                 Log.d("Repo", "Internet is available and first $NUMBER_OF_GAMES_ALLOWED tries")
-                remoteDataSource.getRandomWord(length = wordLength)
+                remoteDataSource.getRandomWord(group = group, id = id.toString())
             }else{
                 Log.d("Repo", "Internet is available but $NUMBER_OF_GAMES_ALLOWED try so we get offline word")
                 getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
@@ -40,16 +43,19 @@ class WordsRepositoryImplementation @Inject constructor(
 
             println(word)
 
-            while (wordsTried.contains(word) || word.length != wordLength) {
-                word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
-                    remoteDataSource.getRandomWord(length = wordLength)
-                } else {
-                    getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
+            if (word != null) {
+                while (wordsTried.contains(word) || word!!.length != wordLength) {
+                    id = (0..250).random()
+                    word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
+                        remoteDataSource.getRandomWord(group = group, id = id.toString())
+                    } else {
+                        getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
+                    }
                 }
             }
 
-            Log.d("SecretWord", word)
-            removeAccents(word.trim().take(wordLength)).uppercase()
+            Log.d("SecretWord", word.toString())
+            word?.trim()?.take(wordLength)?.uppercase() ?: ""
 
         } else {
 
@@ -58,7 +64,6 @@ class WordsRepositoryImplementation @Inject constructor(
             Log.d("SecretWord", word)
             removeAccents(word.trim().take(wordLength)).uppercase()
         }
-
     }
 
     override suspend fun getOfflineRandomWord(wordsTried: List<String>, length: Int): String {

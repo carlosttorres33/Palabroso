@@ -34,6 +34,7 @@ import com.carlostorres.wordsgame.game.domain.usecases.stats.UpsertStatsUseCase
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.ConnectivityObserverImpl
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL
+import com.carlostorres.wordsgame.utils.Constants.BASE_URL_FIREBASE
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -144,7 +145,7 @@ object WordsModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BASE_URL_FIREBASE)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
     }
