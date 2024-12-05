@@ -20,6 +20,7 @@ import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
+import com.carlostorres.wordsgame.utils.Constants.EP_4_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.difficultToString
@@ -104,14 +105,19 @@ class EasyViewModel @Inject constructor(
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
                     wordLength = EASY_WORD_LENGTH,
-                    dayTries = dailyStats.value.easyGamesPlayed
+                    dayTries = dailyStats.value.easyGamesPlayed,
+                    group = EP_4_LETTERS,
                 )
 
-                if (word.isNotEmpty()) {
+                if (!word.isNullOrEmpty()) {
                     state = state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
                         secretWordsList = state.secretWordsList.plus(word)
+                    )
+                }else{
+                    state = state.copy(
+                        gameSituation = GameSituations.GameError("Error desconocido")
                     )
                 }
 

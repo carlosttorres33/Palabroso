@@ -19,6 +19,8 @@ import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.utils.Constants.EP_5_LETTERS
+import com.carlostorres.wordsgame.utils.Constants.EP_6_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.NORMAL_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
@@ -105,14 +107,19 @@ class NormalViewModel @Inject constructor(
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
                     wordLength = NORMAL_WORD_LENGTH,
-                    dayTries = userDailyStats.value.normalGamesPlayed
+                    dayTries = userDailyStats.value.normalGamesPlayed,
+                    group = EP_5_LETTERS
                 )
 
-                if (word.isNotEmpty()) {
-                    state = state.copy(
+                state = if (!word.isNullOrEmpty()) {
+                    state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
                         secretWordsList = state.secretWordsList.plus(word)
+                    )
+                } else {
+                    state.copy(
+                        gameSituation = GameSituations.GameError("Error Desconocido")
                     )
                 }
 

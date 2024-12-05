@@ -109,7 +109,13 @@ fun CustomChart(
                 }
 
                 val graphBarHeight by animateFloatAsState(
-                    targetValue = if (animationTriggered) value.toFloat() / total_amount.toFloat() else 0f,
+                    targetValue = if (animationTriggered) {
+                        if (value.toFloat() != 0.0f) {
+                            value.toFloat() / total_amount.toFloat()
+                        } else {
+                            0f
+                        }
+                    } else 0f,
                     animationSpec = tween(
                         durationMillis = 1000,
                         delayMillis = 0
@@ -155,7 +161,7 @@ fun CustomChart(
                 .fillMaxWidth(),
         ) {
             Text(text = "Intentos")
-            
+
             Row(
                 modifier = Modifier
                     .padding(start = scaleYAxisWidth + barGraphWidth + scaleLineWidth)

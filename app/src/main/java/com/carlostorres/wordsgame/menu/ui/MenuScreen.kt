@@ -8,8 +8,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -197,7 +200,8 @@ fun MenuScreen(
                         end.linkTo(parent.end, margin = 12.dp)
                         height = Dimension.fillToConstraints
                         width = Dimension.fillToConstraints
-                    }
+                    },
+                contentAlignment = Alignment.BottomEnd
             ) {
                 AnimatedVisibility(
                     showNoWords
@@ -210,13 +214,16 @@ fun MenuScreen(
                         composition = composition,
                         iterations = LottieConstants.IterateForever
                     )
-                    Text(
-                        text = "Animation by: naiandersonbruno",
-                        color = colorText.copy(alpha = 0.7f),
-                        modifier = Modifier.align(
-                            Alignment.BottomEnd
+                    Column {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = "Animation by: naiandersonbruno",
+                            color = colorText.copy(alpha = 0.7f),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End,
+                            fontSize = 10.sp
                         )
-                    )
+                    }
                 }
             }
 

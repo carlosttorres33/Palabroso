@@ -19,6 +19,8 @@ import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.utils.Constants.EP_5_LETTERS
+import com.carlostorres.wordsgame.utils.Constants.EP_6_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
@@ -106,14 +108,19 @@ class HardViewModel @Inject constructor(
                 val word = useCases.getRandomWordUseCase(
                     wordsTried = state.secretWordsList,
                     wordLength = HARD_WORD_LENGTH,
-                    dayTries = userDailyStats.value.hardGamesPlayed
+                    dayTries = userDailyStats.value.hardGamesPlayed,
+                    group = EP_6_LETTERS
                 )
 
-                if (word.isNotEmpty()) {
+                if (!word.isNullOrEmpty()) {
                     state = state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
                         secretWordsList = state.secretWordsList.plus(word)
+                    )
+                } else {
+                    state = state.copy(
+                        gameSituation = GameSituations.GameError("Error Desconocido")
                     )
                 }
 

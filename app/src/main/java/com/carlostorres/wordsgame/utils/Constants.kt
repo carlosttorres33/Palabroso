@@ -5,6 +5,10 @@ object Constants {
     //1st API
     //const val BASE_URL = "https://clientes.api.greenborn.com.ar/"
     const val BASE_URL = "https://random-word-api.herokuapp.com/"
+    const val BASE_URL_FIREBASE = "https://palabrama-default-rtdb.firebaseio.com/"
+    const val EP_4_LETTERS = "4letras"
+    const val EP_5_LETTERS = "5letras"
+    const val EP_6_LETTERS = "6letras"
 
     //region Datastore
     const val PREFERENCES_NAME = "wordsGame_preferences"

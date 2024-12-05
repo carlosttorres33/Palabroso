@@ -1,9 +1,10 @@
-package com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog
+package com.carlostorres.wordsgame.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkTextGray
+import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 
@@ -26,7 +29,7 @@ import com.google.accompanist.pager.PagerState
 @Composable
 fun FinishButton(
     modifier: Modifier = Modifier,
-    pagerState: PagerState,
+    lastPage: Boolean,
     onClick: () -> Unit,
     ) {
 
@@ -47,7 +50,7 @@ fun FinishButton(
                 targetOffsetX = { it },
                 animationSpec = tween(durationMillis = 200)
             ),
-            visible = pagerState.currentPage == 2
+            visible = lastPage
         ) {
 
             Button(
@@ -55,7 +58,7 @@ fun FinishButton(
                     .fillMaxSize(),
                 onClick = { onClick() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = DarkGreen,
+                    containerColor = if (isSystemInDarkTheme()) DarkGreen else LightGreen,
                 )
             ) {
 

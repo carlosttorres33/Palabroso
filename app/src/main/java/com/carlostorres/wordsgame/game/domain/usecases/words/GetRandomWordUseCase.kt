@@ -7,7 +7,9 @@ class GetRandomWordUseCase @Inject constructor(
     private val wordsRepository: WordsRepository
 ) {
     //Production
-    suspend operator fun invoke(wordsTried : List<String>, wordLength : Int, dayTries : Int) : String = wordsRepository.getRandomWord(wordsTried, wordLength, dayTries)
+    suspend operator fun invoke(wordsTried : List<String>, group : String, wordLength : Int, dayTries : Int) : String? {
+      return wordsRepository.getRandomWord(wordsTried, group, dayTries, wordLength)
+    }
 
     //Offline Tests
 //    suspend operator fun invoke(wordsTried : List<String>, wordLength : Int) : String = wordsRepository.getOfflineRandomWord(wordsTried, wordLength)

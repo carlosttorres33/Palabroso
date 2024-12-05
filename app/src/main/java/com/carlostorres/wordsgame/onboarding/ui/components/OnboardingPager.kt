@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,8 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.carlostorres.wordsgame.game.data.model.InstructionsPages
 import com.carlostorres.wordsgame.ui.bounceClick
+import com.carlostorres.wordsgame.ui.components.FinishButton
 import com.carlostorres.wordsgame.ui.components.MyButton
-import com.carlostorres.wordsgame.ui.components.dialogs.instructions_dialog.PagerContent
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -101,9 +100,12 @@ fun OnboardingPager(
                     ) {
 
                         if (isLastPage){
-                            MyButton(text = "Entendido") {
+                            FinishButton(lastPage = isLastPage) {
                                 onFinish()
                             }
+//                            MyButton(text = "Entendido") {
+//                                onFinish()
+//                            }
                         } else {
                             TextButton(
                                 modifier = Modifier
