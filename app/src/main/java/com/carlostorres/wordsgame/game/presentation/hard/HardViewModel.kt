@@ -16,10 +16,10 @@ import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
-import com.carlostorres.wordsgame.utils.Constants.EP_5_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.EP_6_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
@@ -150,12 +150,12 @@ class HardViewModel @Inject constructor(
     private fun onAcceptClick() = viewModelScope.launch {
 
         state = state.copy(
-            wordsTried = state.wordsTried.plus(state.inputText)
+            wordsTried = state.wordsTried.plus(state.inputList.joinToString(""))
         )
 
         val resultado = validateIfWordContainsLetter()
 
-        if (state.inputText.uppercase() == state.secretWord.uppercase()) {
+        if (state.inputList.joinToString("").uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
                 gameWinsCount = state.gameWinsCount + 1
@@ -173,7 +173,7 @@ class HardViewModel @Inject constructor(
 
         Log.d(
             "secretWord",
-            "${state.inputText.uppercase()} == ${state.secretWord.uppercase()}"
+            "${state.inputList.joinToString("").uppercase()} == ${state.secretWord.uppercase()}"
         )
 
         when (state.tryNumber) {
@@ -182,10 +182,11 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento1 = state.intento1.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
                     ),
-                    inputText = "",
+                    indexFocused = 0,
+                    inputList = (1..6).map { null }
                 )
             }
 
@@ -194,10 +195,11 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento2 = state.intento2.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
                     ),
-                    inputText = "",
+                    inputList = (1..6).map { null },
+                    indexFocused = 0
                 )
             }
 
@@ -206,10 +208,11 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento3 = state.intento3.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
                     ),
-                    inputText = "",
+                    inputList = (1..6).map { null },
+                    indexFocused = 0
                 )
             }
 
@@ -218,10 +221,11 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento4 = state.intento4.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
                     ),
-                    inputText = "",
+                    inputList = (1..6).map { null },
+                    indexFocused = 0
                 )
             }
 
@@ -230,10 +234,11 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
                     intento5 = state.intento5.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
                     ),
-                    inputText = "",
+                    inputList = (1..6).map { null },
+                    indexFocused = 0
                 )
             }
 
@@ -249,27 +254,27 @@ class HardViewModel @Inject constructor(
         val resultado = mutableListOf<Pair<String, WordCharState>>()
 
         for (i in state.secretWord.indices) {
-            if (state.secretWord[i].uppercase() == state.inputText[i].uppercase()) {
-                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnPosition))
+            if (state.secretWord[i].uppercase() == state.inputList[i]?.uppercase().orEmpty()) {
+                resultado.add(Pair(state.inputList[i].toString(), WordCharState.IsOnPosition))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnPosition) else it
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnPosition) else it
                     }
                 )
             } else if (state.secretWord.uppercase()
-                    .contains(state.inputText[i].uppercase())
+                    .contains(state.inputList[i]?.uppercase().orEmpty())
             ) {
-                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
+                resultado.add(Pair(state.inputList[i].toString(), WordCharState.IsOnWord))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnWord) else it
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnWord) else it
                     }
                 )
             } else {
-                resultado.add(Pair(state.inputText[i].toString(), WordCharState.IsNotInWord))
+                resultado.add(Pair(state.inputList[i].toString(), WordCharState.IsNotInWord))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsNotInWord) else it
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsNotInWord) else it
                     }
                 )
             }
@@ -281,26 +286,79 @@ class HardViewModel @Inject constructor(
 
     }
 
-    fun onEvent(event: HardEvents) {
+    fun onEvent(event: GameEvents) {
 
         when (event) {
-            is HardEvents.OnInputTextChange -> {
-                state = state.copy(
-                    inputText = state.inputText + event.inputText
-                )
-            }
 
-            is HardEvents.OnAcceptClick -> {
+            is GameEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
 
-            is HardEvents.OnDeleteClick -> {
+            is GameEvents.OnFocusChange -> {
                 state = state.copy(
-                    inputText = state.inputText.dropLast(1)
+                    indexFocused = event.index
+                )
+            }
+
+            is GameEvents.OnKeyboardClick -> {
+                state = state.copy(
+                    inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
+                        if (currentIndex == event.index){
+                            event.char
+                        }else{
+                            currentChar
+                        }
+                    }
+                )
+                Log.d("EasyViewModel", "InputList: ${state.inputList}")
+                state = state.copy(
+                    indexFocused = getNextFocusedIndex()
+                )
+            }
+
+            GameEvents.OnKeyboardDeleteClick -> {
+                val prevIndex = if (state.inputList[state.indexFocused] == null) state.indexFocused-1 else state.indexFocused
+                state = state.copy(
+                    indexFocused = if (state.inputList[state.indexFocused] == null){
+                        getPreviousFocusedIndex()
+                    } else {
+                        state.indexFocused
+                    },
+                    inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
+                        if (currentIndex == prevIndex){
+                            null
+                        }else{
+                            currentChar
+                        }
+                    }
                 )
             }
         }
 
+    }
+
+    private fun getNextFocusedIndex() : Int {
+
+        if (state.inputList.all { it == null }) return 0
+
+        state.inputList.forEachIndexed { index, char ->
+
+            if (index >= state.indexFocused){
+                if (char == null) return index
+            }
+
+        }
+
+        state.inputList.forEachIndexed { index, char ->
+            if (char == null) return index
+        }
+
+        return state.indexFocused
+
+    }
+
+    private fun getPreviousFocusedIndex(): Int {
+        return state.indexFocused.minus(1).coerceAtLeast(0) ?: 0
     }
 
     fun showInterstitial(activity: Activity, navHome : () -> Unit, ifBack : Boolean = false) {
@@ -369,7 +427,6 @@ class HardViewModel @Inject constructor(
     private fun resetGame() {
 
         state = state.copy(
-            inputText = "",
             tryNumber = 0,
             intento1 = TryInfo(),
             intento2 = TryInfo(),
@@ -379,7 +436,9 @@ class HardViewModel @Inject constructor(
             isGameWon = null,
             secretWord = "",
             keyboard = keyboardCreator(),
-            wordsTried = emptyList()
+            wordsTried = emptyList(),
+            inputList = (1..6).map { null },
+            indexFocused = 0
         )
     }
 

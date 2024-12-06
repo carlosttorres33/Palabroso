@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -32,10 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,12 +40,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
-import com.carlostorres.wordsgame.game.presentation.easy.EasyEvents
+import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.easy.EasyViewModel
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
@@ -299,7 +294,7 @@ fun EasyScreen(
                                     char = state.inputList[index],
                                     isTurn = true,
                                     onFocusClick = {
-                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                        viewModel.onEvent(GameEvents.OnFocusChange(index))
                                     },
                                     isFocused = state.indexFocused == index
                                 )
@@ -348,7 +343,7 @@ fun EasyScreen(
                                     char = state.inputList[index],
                                     isTurn = true,
                                     onFocusClick = {
-                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                        viewModel.onEvent(GameEvents.OnFocusChange(index))
                                     },
                                     isFocused = state.indexFocused == index
                                 )
@@ -396,7 +391,7 @@ fun EasyScreen(
                                     char = state.inputList[index],
                                     isTurn = true,
                                     onFocusClick = {
-                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                        viewModel.onEvent(GameEvents.OnFocusChange(index))
                                     },
                                     isFocused = state.indexFocused == index
                                 )
@@ -444,7 +439,7 @@ fun EasyScreen(
                                     char = state.inputList[index],
                                     isTurn = true,
                                     onFocusClick = {
-                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                        viewModel.onEvent(GameEvents.OnFocusChange(index))
                                     },
                                     isFocused = state.indexFocused == index
                                 )
@@ -492,7 +487,7 @@ fun EasyScreen(
                                     char = state.inputList[index],
                                     isTurn = true,
                                     onFocusClick = {
-                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                        viewModel.onEvent(GameEvents.OnFocusChange(index))
                                     },
                                     isFocused = state.indexFocused == index
                                 )
@@ -546,9 +541,9 @@ fun EasyScreen(
                     },
                 onButtonClick = { charClicked ->
                     viewModel.onEvent(
-                        EasyEvents.OnKeyboardClick(
+                        GameEvents.OnKeyboardClick(
                             charClicked[0],
-                            state.indexFocused!!
+                            state.indexFocused
                         )
                     )
                 },
@@ -557,13 +552,12 @@ fun EasyScreen(
                     if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(EasyEvents.OnAcceptClick)
+                        viewModel.onEvent(GameEvents.OnAcceptClick)
                     }
                 },
                 onAcceptState = if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,
                 onBackspaceClick = {
-                    viewModel.onEvent(EasyEvents.OnKeyboardDeleteClick)
-                    viewModel.onEvent(EasyEvents.OnDeleteClick)
+                    viewModel.onEvent(GameEvents.OnKeyboardDeleteClick)
                 }
             )
 

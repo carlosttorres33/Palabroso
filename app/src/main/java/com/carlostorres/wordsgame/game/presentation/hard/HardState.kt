@@ -7,8 +7,9 @@ import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
 
 data class HardState(
-    //Variable que almacena el texto ingresado por el usuario
-    val inputText: String = "",
+
+    val inputList : List<Char?> = (1..6).map { null },
+    val indexFocused : Int = 0,
 
     //Variable que almacena el numero de intento en el que va el usuario
     val tryNumber : Int = 0,

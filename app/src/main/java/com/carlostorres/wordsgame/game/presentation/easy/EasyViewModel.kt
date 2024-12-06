@@ -16,6 +16,7 @@ import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -219,6 +220,7 @@ class EasyViewModel @Inject constructor(
 
             4 -> {
                 state = state.copy(
+                    tryNumber = state.tryNumber + 1,
                     intento5 = state.intento5.copy(
                         word = state.inputList.joinToString(""),
                         resultado = resultado
@@ -236,20 +238,20 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    fun onEvent(event: EasyEvents) {
+    fun onEvent(event: GameEvents) {
         when (event) {
 
-            EasyEvents.OnAcceptClick -> {
+            GameEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
 
-            is EasyEvents.OnFocusChange -> {
+            is GameEvents.OnFocusChange -> {
                 state = state.copy(
                     indexFocused = event.index
                 )
             }
 
-            is EasyEvents.OnKeyboardClick -> {
+            is GameEvents.OnKeyboardClick -> {
                 state = state.copy(
                     inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
                         if (currentIndex == event.index){
@@ -265,7 +267,7 @@ class EasyViewModel @Inject constructor(
                 )
             }
 
-            is EasyEvents.OnKeyboardDeleteClick -> {
+            is GameEvents.OnKeyboardDeleteClick -> {
                 val prevIndex = if (state.inputList[state.indexFocused] == null) state.indexFocused-1 else state.indexFocused
                 state = state.copy(
                     indexFocused = if (state.inputList[state.indexFocused] == null){
