@@ -6,7 +6,10 @@ import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
 
 data class NormalState(
-    val inputText: String = "",
+
+    val inputList : List<Char?> = (1..5).map { null },
+    val indexFocused : Int = 0,
+
     val tryNumber: Int = 0,
     val intento1 : TryInfo = TryInfo(),
     val intento2 : TryInfo = TryInfo(),

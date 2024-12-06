@@ -157,15 +157,13 @@ class HardViewModel @Inject constructor(
 
         if (state.inputList.joinToString("").uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
-                gameSituation = GameSituations.GameWon,
-                gameWinsCount = state.gameWinsCount + 1
+                gameSituation = GameSituations.GameWon
             )
             increaseHardGamesPlayed()
             updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
-                gameSituation = GameSituations.GameLost,
-                gameLostCount = state.gameLostCount + 1
+                gameSituation = GameSituations.GameLost
             )
             increaseHardGamesPlayed()
             updateDailyStats(false, state.tryNumber)

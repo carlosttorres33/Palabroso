@@ -36,9 +36,6 @@ data class HardState(
 
     val keyboard : List<KeyboardChar> = keyboardCreator(),
 
-    val gameWinsCount : Int = 0,
-    val gameLostCount : Int = 0,
-
     val wordsTried : List<String> = emptyList()
 
 )
