@@ -11,6 +11,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,26 +34,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkRed
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.DarkYellow
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightCustomGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.LightYellow
 
 @Composable
 fun WordChar(
     modifier: Modifier = Modifier,
     charState: WordCharState = WordCharState.Empty,
-    char: String,
-    isTurn: Boolean = false
+    char: Char?,
+    isTurn: Boolean = false,
+    isFocused: Boolean = false,
+    onFocusClick: () -> Unit = {},
 ) {
 
     var isJumping by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
-        targetValue = if (isJumping)1.05f else 1f,
+        targetValue = if (isJumping) 1.05f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -85,7 +91,11 @@ fun WordChar(
                 scaleX = scale
                 scaleY = scale
             }
-            .padding(vertical = 6.dp, horizontal = 3.dp),
+            .padding(vertical = 6.dp, horizontal = 3.dp)
+            .bounceClick(enabled = isTurn)
+            .clickable(isTurn) {
+                onFocusClick()
+            },
         colors = CardDefaults.cardColors(
             containerColor = when (charState) {
                 WordCharState.Empty -> if (isSystemInDarkTheme()) Color.Black else LightBackgroundGray
@@ -101,7 +111,19 @@ fun WordChar(
         border = BorderStroke(
             width = 1.dp,
             color = if (isTurn) {
-                if (isSystemInDarkTheme()) DarkGreen.copy(alpha = alphaAnim) else LightGreen.copy(alpha = alphaAnim)
+                if (isSystemInDarkTheme()) {
+                    if (isFocused) {
+                        DarkRed.copy(alpha = alphaAnim)
+                    } else {
+                        DarkGreen.copy(alpha = alphaAnim)
+                    }
+                } else {
+                    if (isFocused) {
+                        LightRed.copy(alpha = alphaAnim)
+                    } else {
+                        LightGreen.copy(alpha = alphaAnim)
+                    }
+                }
             } else Color.Black
         )
     ) {
@@ -113,7 +135,11 @@ fun WordChar(
         ) {
 
             Text(
-                text = char,
+                text = if (isFocused && char == null) {
+                    ""
+                } else {
+                    char?.toString() ?: ""
+                },
                 fontSize = 30.sp,
                 color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
                 fontWeight = FontWeight.Black
@@ -131,7 +157,9 @@ private fun WordCharPreview() {
     WordChar(
         modifier = Modifier,
         charState = WordCharState.IsOnWord,
-        char = "A"
+        char = 'A',
+        onFocusClick = {},
+        isFocused = true
     )
 }
 

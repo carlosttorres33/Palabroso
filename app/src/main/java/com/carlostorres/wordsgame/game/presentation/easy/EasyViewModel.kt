@@ -144,12 +144,12 @@ class EasyViewModel @Inject constructor(
     private fun onAcceptClick() = viewModelScope.launch(Dispatchers.IO) {
 
         state = state.copy(
-            secretWordsList = state.wordsTried.plus(state.inputText)
+            secretWordsList = state.wordsTried.plus(state.inputList.joinToString(""))
         )
 
         val resultado = validateIfWordContainsLetter()
 
-        if (state.inputText.uppercase() == state.secretWord.uppercase()) {
+        if (state.inputList.joinToString("").uppercase() == state.secretWord.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
             )
@@ -165,63 +165,66 @@ class EasyViewModel @Inject constructor(
 
         Log.d(
             "EasyViewModel",
-            "Result: ${state.inputText.uppercase()} == ${state.secretWord.uppercase()}"
+            "Result: ${state.inputList.joinToString("").uppercase()} == ${state.secretWord.uppercase()}"
         )
 
         when (state.tryNumber) {
             0 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = "",
                     intento1 = state.intento1.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
-                    )
+                    ),
+                    inputList = (1..4).map { null },
+                    indexFocused = 0,
                 )
             }
 
             1 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = "",
                     intento2 = state.intento2.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
-                    )
-
+                    ),
+                    inputList = (1..4).map { null },
+                    indexFocused = 0,
                 )
             }
 
             2 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = "",
                     intento3 = state.intento3.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
-                    )
+                    ),
+                    inputList = (1..4).map { null },
+                    indexFocused = 0,
                 )
             }
 
             3 -> {
                 state = state.copy(
                     tryNumber = state.tryNumber + 1,
-                    inputText = "",
                     intento4 = state.intento4.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
-                    )
+                    ),
+                    inputList = (1..4).map { null },
+                    indexFocused = 0,
                 )
             }
 
             4 -> {
                 state = state.copy(
-                    tryNumber = state.tryNumber + 1,
-                    inputText = "",
                     intento5 = state.intento5.copy(
-                        word = state.inputText,
+                        word = state.inputList.joinToString(""),
                         resultado = resultado
-                    )
+                    ),
+                    inputList = (1..4).map { null },
+                    indexFocused = 0,
                 )
             }
 
@@ -235,22 +238,75 @@ class EasyViewModel @Inject constructor(
 
     fun onEvent(event: EasyEvents) {
         when (event) {
+
             EasyEvents.OnAcceptClick -> {
                 onAcceptClick()
             }
 
-            EasyEvents.OnDeleteClick -> {
+            is EasyEvents.OnFocusChange -> {
                 state = state.copy(
-                    inputText = state.inputText.dropLast(1)
+                    indexFocused = event.index
                 )
             }
 
-            is EasyEvents.OnInputTextChange -> {
+            is EasyEvents.OnKeyboardClick -> {
                 state = state.copy(
-                    inputText = state.inputText + event.inputText
+                    inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
+                        if (currentIndex == event.index){
+                            event.char
+                        }else{
+                            currentChar
+                        }
+                    }
+                )
+                Log.d("EasyViewModel", "InputList: ${state.inputList}")
+                state = state.copy(
+                    indexFocused = getNextFocusedIndex()
+                )
+            }
+
+            is EasyEvents.OnKeyboardDeleteClick -> {
+                val prevIndex = if (state.inputList[state.indexFocused] == null) state.indexFocused-1 else state.indexFocused
+                state = state.copy(
+                    indexFocused = if (state.inputList[state.indexFocused] == null){
+                        getPreviousFocusedIndex()
+                    } else {
+                        state.indexFocused
+                    },
+                    inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
+                        if (currentIndex == prevIndex){
+                            null
+                        }else{
+                            currentChar
+                        }
+                    }
                 )
             }
         }
+    }
+
+    private fun getNextFocusedIndex() : Int {
+
+        if (state.inputList.all { it == null }) return 0
+
+        state.inputList.forEachIndexed { index, char ->
+
+            if (index >= state.indexFocused){
+                if (char == null) return index
+            }
+
+        }
+
+        state.inputList.forEachIndexed { index, char ->
+            if (char == null) return index
+        }
+
+        return state.indexFocused
+
+    }
+
+    private fun getPreviousFocusedIndex(): Int {
+        return state.indexFocused.minus(1).coerceAtLeast(0) ?: 0
     }
 
     private fun validateIfWordContainsLetter(): List<Pair<String, WordCharState>> {
@@ -258,27 +314,27 @@ class EasyViewModel @Inject constructor(
         val result = mutableListOf<Pair<String, WordCharState>>()
 
         for (i in state.secretWord.indices) {
-            if (state.secretWord[i].uppercase() == state.inputText[i].uppercase()) {
-                result.add(Pair(state.inputText[i].toString(), WordCharState.IsOnPosition))
+            if (state.secretWord[i].uppercase() == state.inputList[i]?.uppercase().orEmpty()) {
+                result.add(Pair(state.inputList[i].toString(), WordCharState.IsOnPosition))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnPosition) else it
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnPosition) else it
                     }
                 )
             } else if (state.secretWord.uppercase()
-                    .contains(state.inputText[i].uppercase())
+                    .contains(state.inputList[i]?.uppercase().orEmpty())
             ) {
-                result.add(Pair(state.inputText[i].toString(), WordCharState.IsOnWord))
+                result.add(Pair(state.inputList[i].toString(), WordCharState.IsOnWord))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsOnWord) else it
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnWord) else it
                     }
                 )
             } else {
-                result.add(Pair(state.inputText[i].toString(), WordCharState.IsNotInWord))
+                result.add(Pair(state.inputList[i].toString(), WordCharState.IsNotInWord))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputText[i].uppercase()) it.copy(type = ButtonType.IsNotInWord) else it
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsNotInWord) else it
                     }
                 )
             }
@@ -292,7 +348,6 @@ class EasyViewModel @Inject constructor(
 
     private fun resetGame() {
         state = state.copy(
-            inputText = "",
             tryNumber = 0,
             intento1 = TryInfo(),
             intento2 = TryInfo(),
@@ -301,7 +356,9 @@ class EasyViewModel @Inject constructor(
             isGameWon = null,
             secretWord = "",
             keyboard = keyboardCreator(),
-            wordsTried = emptyList()
+            wordsTried = emptyList(),
+            inputList = (1..4).map { null },
+            indexFocused = 0
         )
     }
 

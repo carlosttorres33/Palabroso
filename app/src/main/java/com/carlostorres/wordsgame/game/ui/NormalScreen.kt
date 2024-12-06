@@ -282,7 +282,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
+                                        char = char[0],
                                         isTurn = true
                                     )
                                 } else if (state.tryNumber > 0) {
@@ -293,7 +293,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento1.resultado[index].first[0], //state.intento1.word[index].toString()
                                         isTurn = false
                                     )
                                 } else {
@@ -303,7 +303,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -341,7 +341,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
+                                        char = char[0],
                                         isTurn = true
                                     )
                                 } else if (state.tryNumber > 1) {
@@ -352,7 +352,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento2.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -361,7 +361,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -399,7 +399,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
+                                        char = char[0],
                                         isTurn = true
                                     )
                                 } else if (state.tryNumber > 2) {
@@ -410,7 +410,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento3.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento3.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -419,7 +419,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -457,7 +457,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
+                                        char = char[0],
                                         isTurn = true
                                     )
                                 } else if (state.tryNumber > 3) {
@@ -468,7 +468,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento4.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento4.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -477,7 +477,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -515,7 +515,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
+                                        char = char[0],
                                         isTurn = true
                                     )
                                 } else if (state.tryNumber > 4) {
@@ -526,7 +526,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento5.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento5.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -535,7 +535,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 

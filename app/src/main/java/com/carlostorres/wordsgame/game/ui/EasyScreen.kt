@@ -32,7 +32,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -125,7 +128,7 @@ fun EasyScreen(
                         onClick = {
                             onHomeClick()
                         }
-                    ){
+                    ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "",
@@ -278,57 +281,48 @@ fun EasyScreen(
                     Spacer(modifier = Modifier.weight(1f))
 
                     //region first try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        repeat(4) { index ->
 
-                            repeat(4) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
-
-                                if (state.tryNumber == 0) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
-                                    )
-                                } else if (state.tryNumber > 0) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
-                                        isTurn = false
-                                    )
-                                }else{
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        char = ""
-                                    )
-                                }
-
+                            if (state.tryNumber == 0) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = WordCharState.Empty,
+                                    char = state.inputList[index],
+                                    isTurn = true,
+                                    onFocusClick = {
+                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                    },
+                                    isFocused = state.indexFocused == index
+                                )
+                            } else if (state.tryNumber > 0) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = state.intento1.resultado[index].second,
+                                    char = state.intento1.resultado[index].first[0],
+                                    isTurn = false
+                                )
+                            } else {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    char = null
+                                )
                             }
 
                         }
@@ -337,56 +331,46 @@ fun EasyScreen(
                     //endregion
 
                     //region second try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        repeat(4) { index ->
 
-                            repeat(4) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
-
-                                if (state.tryNumber == 1) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
-                                    )
-                                } else if (state.tryNumber > 1) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
-                                    )
-                                } else {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        char = ""
-                                    )
-                                }
-
+                            if (state.tryNumber == 1) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = WordCharState.Empty,
+                                    char = state.inputList[index],
+                                    isTurn = true,
+                                    onFocusClick = {
+                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                    },
+                                    isFocused = state.indexFocused == index
+                                )
+                            } else if (state.tryNumber > 1) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = state.intento2.resultado[index].second,
+                                    char = state.intento2.resultado[index].first[0],
+                                )
+                            } else {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    char = null
+                                )
                             }
 
                         }
@@ -395,56 +379,46 @@ fun EasyScreen(
                     //endregion
 
                     //region third try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        repeat(4) { index ->
 
-                            repeat(4) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
-
-                                if (state.tryNumber == 2) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
-                                    )
-                                } else if (state.tryNumber > 2) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento3.resultado[index].first, //state.intento1.word[index].toString()
-                                    )
-                                } else {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        char = ""
-                                    )
-                                }
-
+                            if (state.tryNumber == 2) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = WordCharState.Empty,
+                                    char = state.inputList[index],
+                                    isTurn = true,
+                                    onFocusClick = {
+                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                    },
+                                    isFocused = state.indexFocused == index
+                                )
+                            } else if (state.tryNumber > 2) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                    char = state.intento3.resultado[index].first[0], //state.intento1.word[index].toString()
+                                )
+                            } else {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    char = null
+                                )
                             }
 
                         }
@@ -453,56 +427,46 @@ fun EasyScreen(
                     //endregion
 
                     //region furth try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        repeat(4) { index ->
 
-                            repeat(4) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
-
-                                if (state.tryNumber == 3) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
-                                    )
-                                } else if (state.tryNumber > 3) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento4.resultado[index].first, //state.intento1.word[index].toString()
-                                    )
-                                } else {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        char = ""
-                                    )
-                                }
-
+                            if (state.tryNumber == 3) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = WordCharState.Empty,
+                                    char = state.inputList[index],
+                                    isTurn = true,
+                                    onFocusClick = {
+                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                    },
+                                    isFocused = state.indexFocused == index
+                                )
+                            } else if (state.tryNumber > 3) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
+                                    char = state.intento4.resultado[index].first[0], //state.intento1.word[index].toString()
+                                )
+                            } else {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    char = null
+                                )
                             }
 
                         }
@@ -511,56 +475,46 @@ fun EasyScreen(
                     //endregion
 
                     //region Fifth try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        repeat(4) { index ->
 
-                            repeat(4) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
-
-                                if (state.tryNumber == 4) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
-                                    )
-                                } else if (state.tryNumber > 4) {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        charState = state.intento5.resultado[index].second,
-                                        char = state.intento5.resultado[index].first,
-                                    )
-                                } else {
-                                    WordChar(
-                                        modifier = Modifier
-                                            .height(
-                                                if (boxHeight > boxWidth) boxWidth else boxHeight
-                                            )
-                                            .width(boxWidth),
-                                        char = ""
-                                    )
-                                }
-
+                            if (state.tryNumber == 4) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = WordCharState.Empty,
+                                    char = state.inputList[index],
+                                    isTurn = true,
+                                    onFocusClick = {
+                                        viewModel.onEvent(EasyEvents.OnFocusChange(index))
+                                    },
+                                    isFocused = state.indexFocused == index
+                                )
+                            } else if (state.tryNumber > 4) {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    charState = state.intento5.resultado[index].second,
+                                    char = state.intento5.resultado[index].first[0],
+                                )
+                            } else {
+                                WordChar(
+                                    modifier = Modifier
+                                        .height(
+                                            if (boxHeight > boxWidth) boxWidth else boxHeight
+                                        )
+                                        .width(boxWidth),
+                                    char = null
+                                )
                             }
 
                         }
@@ -591,20 +545,24 @@ fun EasyScreen(
                         start.linkTo(parent.start)
                     },
                 onButtonClick = { charClicked ->
-                    if (state.inputText.length < 4) {
-                        viewModel.onEvent(EasyEvents.OnInputTextChange(charClicked))
-                    }
+                    viewModel.onEvent(
+                        EasyEvents.OnKeyboardClick(
+                            charClicked[0],
+                            state.indexFocused!!
+                        )
+                    )
                 },
                 keyboard = state.keyboard,
                 onAcceptClick = {
-                    if (state.wordsTried.contains(state.inputText)) {
+                    if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
                         viewModel.onEvent(EasyEvents.OnAcceptClick)
                     }
                 },
-                onAcceptState = if (state.inputText.length == 4) ButtonType.Unclicked else ButtonType.IsNotInWord,
+                onAcceptState = if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,
                 onBackspaceClick = {
+                    viewModel.onEvent(EasyEvents.OnKeyboardDeleteClick)
                     viewModel.onEvent(EasyEvents.OnDeleteClick)
                 }
             )
