@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -39,12 +38,11 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.hard.HardViewModel
-import com.carlostorres.wordsgame.game.presentation.hard.HardEvents
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GameLimitDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
@@ -246,23 +244,11 @@ fun HardScreen(
                     Spacer(modifier = Modifier.weight(1f))
 
                     //region first try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(6) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 0) {
                                     WordChar(
@@ -272,8 +258,12 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 0) {
                                     WordChar(
@@ -282,8 +272,8 @@ fun HardScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                        charState = state.intento1.resultado[index].second,
+                                        char = state.intento1.resultado[index].first[0],
                                         isTurn = false
                                     )
                                 } else {
@@ -293,7 +283,7 @@ fun HardScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -301,27 +291,14 @@ fun HardScreen(
 
                         }
 
-                    }
                     //endregion
 
                     //region second try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(6) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 1) {
                                     WordChar(
@@ -331,8 +308,12 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 1) {
                                     WordChar(
@@ -342,7 +323,7 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento2.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -351,35 +332,21 @@ fun HardScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
                             }
 
                         }
-
-                    }
                     //endregion
 
                     //region third try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(6) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 2) {
                                     WordChar(
@@ -389,8 +356,12 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 2) {
                                     WordChar(
@@ -400,7 +371,7 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento3.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento3.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -409,7 +380,7 @@ fun HardScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -417,27 +388,15 @@ fun HardScreen(
 
                         }
 
-                    }
+
                     //endregion
 
                     //region furth try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(6) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 3) {
                                     WordChar(
@@ -447,8 +406,12 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 3) {
                                     WordChar(
@@ -458,7 +421,7 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento4.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento4.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -467,7 +430,7 @@ fun HardScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -475,27 +438,15 @@ fun HardScreen(
 
                         }
 
-                    }
+
                     //endregion
 
                     //region fifth try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(6) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 4) {
                                     WordChar(
@@ -505,8 +456,12 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 4) {
                                     WordChar(
@@ -516,7 +471,7 @@ fun HardScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento5.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento5.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -525,7 +480,7 @@ fun HardScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -533,7 +488,7 @@ fun HardScreen(
 
                         }
 
-                    }
+
                     //endregion
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -559,21 +514,24 @@ fun HardScreen(
                         start.linkTo(parent.start)
                     },
                 onButtonClick = { charClicked ->
-                    if (state.inputText.length < 6) {
-                        viewModel.onEvent(HardEvents.OnInputTextChange(charClicked))
-                    }
+                    viewModel.onEvent(
+                        GameEvents.OnKeyboardClick(
+                            charClicked[0],
+                            state.indexFocused
+                        )
+                    )
                 },
                 keyboard = state.keyboard,
                 onAcceptClick = {
-                    if (state.wordsTried.contains(state.inputText)) {
+                    if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(HardEvents.OnAcceptClick)
+                        viewModel.onEvent(GameEvents.OnAcceptClick)
                     }
                 },
-                onAcceptState = if (state.inputText.length == 6) ButtonType.Unclicked else ButtonType.IsNotInWord,
+                onAcceptState =  if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,
                 onBackspaceClick = {
-                    viewModel.onEvent(HardEvents.OnDeleteClick)
+                    viewModel.onEvent(GameEvents.OnKeyboardDeleteClick)
                 }
             )
 

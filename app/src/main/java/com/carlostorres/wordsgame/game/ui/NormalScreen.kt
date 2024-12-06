@@ -41,6 +41,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
+import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.normal.NormalEvents
 import com.carlostorres.wordsgame.game.presentation.normal.NormalViewModel
 import com.carlostorres.wordsgame.ui.components.CountBox
@@ -256,23 +257,11 @@ fun NormalScreen(
                     Spacer(modifier = Modifier.weight(1f))
 
                     //region first try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(5) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 0) {
                                     WordChar(
@@ -282,8 +271,12 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 0) {
                                     WordChar(
@@ -293,7 +286,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento1.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento1.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento1.resultado[index].first[0], //state.intento1.word[index].toString()
                                         isTurn = false
                                     )
                                 } else {
@@ -303,35 +296,21 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
                             }
 
                         }
-
-                    }
                     //endregion
 
                     //region second try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(5) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 1) {
                                     WordChar(
@@ -341,8 +320,12 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 1) {
                                     WordChar(
@@ -352,7 +335,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento2.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento2.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento2.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -361,35 +344,21 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
                             }
 
                         }
-
-                    }
                     //endregion
 
                     //region third try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(5) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 2) {
                                     WordChar(
@@ -399,8 +368,12 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 2) {
                                     WordChar(
@@ -410,7 +383,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento3.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento3.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento3.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -419,7 +392,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -427,27 +400,14 @@ fun NormalScreen(
 
                         }
 
-                    }
                     //endregion
 
                     //region furth try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
-                        Row(
+                    Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(5) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 3) {
                                     WordChar(
@@ -457,8 +417,12 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
-                                        isTurn = true
+                                        char = state.inputList[index],
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 3) {
                                     WordChar(
@@ -468,7 +432,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento4.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento4.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento4.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -477,35 +441,21 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
                             }
 
                         }
-
-                    }
                     //endregion
 
                     //region fifth try
-                    BasicTextField(
-                        value = state.inputText,
-                        onValueChange = {},
-                        enabled = false,
-                        singleLine = true
-                    ){
-
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
                             repeat(5) { index ->
-
-                                val char = when {
-                                    index >= state.inputText.length -> ""
-                                    else -> state.inputText[index].toString()
-                                }
 
                                 if (state.tryNumber == 4) {
                                     WordChar(
@@ -515,7 +465,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
-                                        char = char,
+                                        char = state.inputList[index],
                                         isTurn = true
                                     )
                                 } else if (state.tryNumber > 4) {
@@ -526,7 +476,7 @@ fun NormalScreen(
                                             )
                                             .width(boxWidth),
                                         charState = state.intento5.resultado[index].second,// if (state.intento1.coincidences.contains(index)) WordCharState.IsOnPosition else WordCharState.Empty,
-                                        char = state.intento5.resultado[index].first, //state.intento1.word[index].toString()
+                                        char = state.intento5.resultado[index].first[0], //state.intento1.word[index].toString()
                                     )
                                 } else {
                                     WordChar(
@@ -535,7 +485,7 @@ fun NormalScreen(
                                                 if (boxHeight > boxWidth) boxWidth else boxHeight
                                             )
                                             .width(boxWidth),
-                                        char = ""
+                                        char = null
                                     )
                                 }
 
@@ -543,7 +493,6 @@ fun NormalScreen(
 
                         }
 
-                    }
                     //endregion
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -569,21 +518,24 @@ fun NormalScreen(
                         start.linkTo(parent.start)
                     },
                 onButtonClick = { charClicked ->
-                    if (state.inputText.length < 5) {
-                        viewModel.onEvent(NormalEvents.OnInputTextChange(charClicked))
-                    }
+                    viewModel.onEvent(
+                        GameEvents.OnKeyboardClick(
+                            charClicked[0],
+                            state.indexFocused
+                        )
+                    )
                 },
                 keyboard = state.keyboard,
                 onAcceptClick = {
-                    if (state.wordsTried.contains(state.inputText)) {
+                    if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(NormalEvents.OnAcceptClick)
+                        viewModel.onEvent(GameEvents.OnAcceptClick)
                     }
                 },
-                onAcceptState = if (state.inputText.length == 5) ButtonType.Unclicked else ButtonType.IsNotInWord,
+                onAcceptState = if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,
                 onBackspaceClick = {
-                    viewModel.onEvent(NormalEvents.OnDeleteClick)
+                    viewModel.onEvent(GameEvents.OnKeyboardDeleteClick)
                 }
             )
 

@@ -232,9 +232,9 @@ fun PagerContent(
                     )
                 }
                 1 -> {
-                    WordChar(char = "A", charState =WordCharState.IsOnWord, modifier = Modifier.size(60.dp))
-                    WordChar(char = "B", charState =WordCharState.IsNotInWord, modifier = Modifier.size(60.dp))
-                    WordChar(char = "C", charState =WordCharState.IsOnPosition, modifier = Modifier.size(60.dp))
+                    WordChar(char = 'A', charState =WordCharState.IsOnWord, modifier = Modifier.size(60.dp))
+                    WordChar(char = 'B', charState =WordCharState.IsNotInWord, modifier = Modifier.size(60.dp))
+                    WordChar(char = 'C', charState =WordCharState.IsOnPosition, modifier = Modifier.size(60.dp))
                 }
                 else -> {}
             }
