@@ -14,7 +14,7 @@ data class HardState(
     //Variable que almacena el numero de intento en el que va el usuario
     val tryNumber : Int = 0,
 
-    val lettersHintsRemaining : Int = 2,
+    val lettersHintsRemaining : Int = 1,
     val keyboardHintsRemaining : Int = 1,
 
     val indexesGuessed : List<Int> = emptyList(),

@@ -558,7 +558,7 @@ class HardViewModel @Inject constructor(
             wordsTried = emptyList(),
             inputList = (1..6).map { null },
             indexFocused = 0,
-            lettersHintsRemaining = 2,
+            lettersHintsRemaining = 1,
             keyboardHintsRemaining = 1,
             indexesGuessed = emptyList()
         )
