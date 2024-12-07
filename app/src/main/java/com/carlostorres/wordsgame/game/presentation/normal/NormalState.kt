@@ -13,6 +13,8 @@ data class NormalState(
     val lettersHintsRemaining : Int = 1,
     val keyboardHintsRemaining : Int = 1,
 
+    val indexesGuessed : List<Int> = emptyList(),
+
     val tryNumber: Int = 0,
     val intento1 : TryInfo = TryInfo(),
     val intento2 : TryInfo = TryInfo(),

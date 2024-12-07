@@ -257,7 +257,8 @@ class NormalViewModel @Inject constructor(
                 state = state.copy(
                     keyboard = state.keyboard.map {
                         if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnPosition) else it
-                    }
+                    },
+                    indexesGuessed = if (state.indexesGuessed.contains(i)) state.indexesGuessed else state.indexesGuessed.plus(i)
                 )
             } else if (state.secretWord.uppercase()
                     .contains(state.inputList[i]?.uppercase().orEmpty())
@@ -416,7 +417,23 @@ class NormalViewModel @Inject constructor(
 
     private fun getOneLetterWord() {
 
-        val indexToShow = (0..3).random()
+        if (state.indexesGuessed.size == 5){
+            Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
+            state = state.copy(
+                lettersHintsRemaining = -1
+            )
+            return
+        }
+
+        val indexesUnknowns = (0..4).mapNotNull { index ->
+            if (state.indexesGuessed.contains(index)){
+                null
+            }else{
+                index
+            }
+        }
+
+        val indexToShow = indexesUnknowns.random()
 
         state = state.copy(
             inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
@@ -426,7 +443,9 @@ class NormalViewModel @Inject constructor(
                     currentChar
                 }
             },
-            lettersHintsRemaining = state.lettersHintsRemaining - 1
+            lettersHintsRemaining = state.lettersHintsRemaining - 1,
+            indexesGuessed = state.indexesGuessed.plus(indexToShow),
+            indexFocused = getNextFocusedIndex()
         )
 
     }
@@ -530,7 +549,8 @@ class NormalViewModel @Inject constructor(
             inputList = (1..5).map { null },
             indexFocused = 0,
             lettersHintsRemaining = 1,
-            keyboardHintsRemaining = 1
+            keyboardHintsRemaining = 1,
+            indexesGuessed = emptyList()
         )
     }
 

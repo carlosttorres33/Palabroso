@@ -17,6 +17,8 @@ data class HardState(
     val lettersHintsRemaining : Int = 2,
     val keyboardHintsRemaining : Int = 1,
 
+    val indexesGuessed : List<Int> = emptyList(),
+
     //region informacion de los intentos
     val intento1 : TryInfo = TryInfo(),
     val intento2 : TryInfo = TryInfo(),

@@ -323,8 +323,12 @@ class EasyViewModel @Inject constructor(
                 result.add(Pair(state.inputList[i].toString(), WordCharState.IsOnPosition))
                 state = state.copy(
                     keyboard = state.keyboard.map {
-                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnPosition) else it
-                    }
+                        if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()){
+                            it.copy(type = ButtonType.IsOnPosition)
+                        } else it
+                    },
+                    //adding the index to the list of indexes guessed
+                    indexesGuessed = if (state.indexesGuessed.contains(i)) state.indexesGuessed else state.indexesGuessed.plus(i)
                 )
             } else if (state.secretWord.uppercase()
                     .contains(state.inputList[i]?.uppercase().orEmpty())
@@ -366,6 +370,7 @@ class EasyViewModel @Inject constructor(
             indexFocused = 0,
             keyboardHintsRemaining = 1,
             lettersHintsRemaining = 1,
+            indexesGuessed = emptyList()
         )
     }
 
@@ -430,7 +435,23 @@ class EasyViewModel @Inject constructor(
 
     private fun getOneLetterWord() {
 
-        val indexToShow = (0..3).random()
+        if (state.indexesGuessed.size == 4){
+            Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
+            state = state.copy(
+                lettersHintsRemaining = -1
+            )
+            return
+        }
+
+        val indexesUnknowns = (0..3).mapNotNull { index ->
+            if (state.indexesGuessed.contains(index)){
+                null
+            }else{
+                index
+            }
+        }
+
+        val indexToShow = indexesUnknowns.random()
 
         state = state.copy(
             inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
@@ -440,7 +461,9 @@ class EasyViewModel @Inject constructor(
                     currentChar
                 }
             },
-            lettersHintsRemaining = state.lettersHintsRemaining - 1
+            lettersHintsRemaining = state.lettersHintsRemaining - 1,
+            indexesGuessed = state.indexesGuessed.plus(indexToShow),
+            indexFocused = getNextFocusedIndex()
         )
 
     }
