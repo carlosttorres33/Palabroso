@@ -438,7 +438,7 @@ class EasyViewModel @Inject constructor(
         if (state.indexesGuessed.size == 4){
             Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
             state = state.copy(
-                lettersHintsRemaining = -1
+                lettersHintsRemaining = state.lettersHintsRemaining -1
             )
             return
         }
