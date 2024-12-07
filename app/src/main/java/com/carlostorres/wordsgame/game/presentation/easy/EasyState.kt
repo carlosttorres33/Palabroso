@@ -2,7 +2,6 @@ package com.carlostorres.wordsgame.game.presentation.easy
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
-import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
 
@@ -15,6 +14,11 @@ data class EasyState(
 
     //Variable que almacena el numero de intento en el que va el usuario
     val tryNumber : Int = 0,
+
+    val lettersHintsRemaining : Int = 1,
+    val keyboardHintsRemaining : Int = 1,
+
+    val indexesGuessed : List<Int> = emptyList(),
 
     //region informacion de los intentos
     val intento1 : TryInfo = TryInfo(),

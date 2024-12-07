@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,11 +42,14 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.easy.EasyViewModel
+import com.carlostorres.wordsgame.game.presentation.easy.RewardedAdType
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
+import com.carlostorres.wordsgame.ui.components.HintBox
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
@@ -152,6 +158,8 @@ fun EasyScreen(
                 winsCounter,
                 loseCounter,
                 bannerAd,
+                getOneLetterHint,
+                disableLettersHint
             ) = createRefs()
 
             //region Game Situations Dialogs
@@ -239,6 +247,39 @@ fun EasyScreen(
                 count = winsCont.value,
                 color = if (isSystemInDarkTheme()) DarkGreen else LightGreen
             )
+
+            HintBox(
+                modifier = Modifier
+                    .constrainAs(getOneLetterHint){
+                        top.linkTo(winsCounter.top)
+                        bottom.linkTo(loseCounter.bottom)
+                        start.linkTo(winsCounter.end)
+                        end.linkTo(loseCounter.start)
+                        height = Dimension.fillToConstraints
+                    }
+                    .aspectRatio(1f),
+                icon = R.drawable.text_magnifying_glass,
+                hintsRemaining = state.lettersHintsRemaining,
+                clickEnabled = state.lettersHintsRemaining > 0
+            ) {
+                viewModel.showRewardedAd(activity, RewardedAdType.ONE_LETTER)
+            }
+
+            HintBox(
+                modifier = Modifier
+                    .constrainAs(disableLettersHint){
+                        top.linkTo(winsCounter.top)
+                        bottom.linkTo(loseCounter.bottom)
+                        end.linkTo(loseCounter.start)
+                        start.linkTo(getOneLetterHint.end)
+                        height = Dimension.fillToConstraints
+                    },
+                icon = R.drawable.packages,
+                hintsRemaining = state.keyboardHintsRemaining,
+                clickEnabled = state.keyboardHintsRemaining > 0
+            ) {
+                viewModel.showRewardedAd(activity, RewardedAdType.KEYBOARD)
+            }
 
             CountBox(
                 modifier = Modifier.constrainAs(loseCounter) {

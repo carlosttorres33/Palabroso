@@ -17,6 +17,7 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
+import com.carlostorres.wordsgame.game.presentation.easy.RewardedAdType
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -28,8 +29,11 @@ import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -257,7 +261,8 @@ class HardViewModel @Inject constructor(
                 state = state.copy(
                     keyboard = state.keyboard.map {
                         if (it.char.uppercase() == state.inputList[i]?.uppercase().orEmpty()) it.copy(type = ButtonType.IsOnPosition) else it
-                    }
+                    },
+                    indexesGuessed = if (state.indexesGuessed.contains(i)) state.indexesGuessed else state.indexesGuessed.plus(i)
                 )
             } else if (state.secretWord.uppercase()
                     .contains(state.inputList[i]?.uppercase().orEmpty())
@@ -359,6 +364,122 @@ class HardViewModel @Inject constructor(
         return state.indexFocused.minus(1).coerceAtLeast(0) ?: 0
     }
 
+    private fun disable4KeyboardLettersHint(){
+
+        //get random index from keyboard list that doesnt contains secret word chars
+        val randomIndex = (0..2). map { counterIndex ->
+            var possibleIndex = (0 until state.keyboard.size).random()
+            while (state.secretWord.contains(state.keyboard[possibleIndex].char) || state.keyboard[possibleIndex].type == ButtonType.IsNotInWord){
+                possibleIndex = (0 until state.keyboard.size).random()
+            }
+            possibleIndex
+        }
+
+        state = state.copy(
+            keyboard = state.keyboard.mapIndexed { index, keyboardChar ->
+                if (randomIndex.contains(index)){
+                    keyboardChar.copy(type = ButtonType.IsNotInWord)
+                }else{
+                    keyboardChar
+                }
+            },
+            keyboardHintsRemaining = state.keyboardHintsRemaining - 1
+        )
+
+    }
+
+    private fun getOneLetterWord() {
+
+        if (state.indexesGuessed.size == 6){
+            Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
+            state = state.copy(
+                lettersHintsRemaining = state.lettersHintsRemaining-1
+            )
+            return
+        }
+
+        val indexesUnknowns = (0..5).mapNotNull { index ->
+            if (state.indexesGuessed.contains(index)){
+                null
+            }else{
+                index
+            }
+        }
+
+        val indexToShow = indexesUnknowns.random()
+
+        state = state.copy(
+            inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
+                if (currentIndex == indexToShow){
+                    state.secretWord[indexToShow]
+                }else{
+                    currentChar
+                }
+            },
+            lettersHintsRemaining = state.lettersHintsRemaining - 1,
+            indexesGuessed = state.indexesGuessed.plus(indexToShow),
+            indexFocused = getNextFocusedIndex()
+        )
+
+    }
+
+    fun showRewardedAd(activity: Activity, adType: RewardedAdType) {
+        state = state.copy(gameSituation = GameSituations.GameLoading)
+        loadRewardedAd(activity){ rewardedAd ->
+
+            if (rewardedAd != null){
+
+                rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+                    override fun onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent()
+                        when(adType){
+                            RewardedAdType.ONE_LETTER ->{
+                                Log.d("EasyViewModel", "One letter hint")
+                                getOneLetterWord()
+                            }
+                            RewardedAdType.KEYBOARD -> {
+                                Log.d("EasyViewModel", "Keyboard hint")
+                                disable4KeyboardLettersHint()
+                            }
+                        }
+                        state = state.copy(gameSituation = GameSituations.GameInProgress)
+                    }
+                }
+
+                rewardedAd.show(activity, OnUserEarnedRewardListener { rewardItem ->
+                    val amount = rewardItem.amount
+                })
+
+            }else{
+                Toast.makeText(context, "Por ahora no se puede mostrar el anuncio :c", Toast.LENGTH_SHORT).show()
+                state = state.copy(gameSituation = GameSituations.GameInProgress)
+            }
+
+        }
+    }
+
+    private fun loadRewardedAd(activity: Activity, callback: (RewardedAd?) -> Unit) {
+        val adRequest = com.google.android.gms.ads.AdRequest.Builder().build()
+
+        RewardedAd.load(
+            activity,
+            context.getString(R.string.ad_rewarded_id),
+            adRequest,
+            object : RewardedAdLoadCallback(){
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    super.onAdFailedToLoad(error)
+                    callback(null)
+                }
+
+                override fun onAdLoaded(rewardedAd: RewardedAd) {
+                    super.onAdLoaded(rewardedAd)
+                    callback(rewardedAd)
+                }
+            }
+        )
+
+    }
+
     fun showInterstitial(activity: Activity, navHome : () -> Unit, ifBack : Boolean = false) {
 
         state = state.copy(
@@ -436,7 +557,10 @@ class HardViewModel @Inject constructor(
             keyboard = keyboardCreator(),
             wordsTried = emptyList(),
             inputList = (1..6).map { null },
-            indexFocused = 0
+            indexFocused = 0,
+            lettersHintsRemaining = 2,
+            keyboardHintsRemaining = 1,
+            indexesGuessed = emptyList()
         )
     }
 
