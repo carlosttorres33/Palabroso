@@ -363,7 +363,9 @@ class EasyViewModel @Inject constructor(
             keyboard = keyboardCreator(),
             wordsTried = emptyList(),
             inputList = (1..4).map { null },
-            indexFocused = 0
+            indexFocused = 0,
+            keyboardHintsRemaining = 1,
+            lettersHintsRemaining = 1,
         )
     }
 

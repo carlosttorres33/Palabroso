@@ -10,6 +10,9 @@ data class NormalState(
     val inputList : List<Char?> = (1..5).map { null },
     val indexFocused : Int = 0,
 
+    val lettersHintsRemaining : Int = 1,
+    val keyboardHintsRemaining : Int = 1,
+
     val tryNumber: Int = 0,
     val intento1 : TryInfo = TryInfo(),
     val intento2 : TryInfo = TryInfo(),

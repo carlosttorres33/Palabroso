@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,10 +39,13 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.presentation.GameEvents
+import com.carlostorres.wordsgame.game.presentation.easy.RewardedAdType
 import com.carlostorres.wordsgame.game.presentation.hard.HardViewModel
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CountBox
+import com.carlostorres.wordsgame.ui.components.HintBox
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
@@ -142,6 +146,8 @@ fun HardScreen(
                 winsCounter,
                 loseCounter,
                 bannerAd,
+                getOneLetterHint,
+                disableLettersHint
             ) = createRefs()
 
             //region Game Situations Dialogs
@@ -217,6 +223,39 @@ fun HardScreen(
                 count = losesCont.value,
                 color = if (isSystemInDarkTheme()) DarkRed else LightRed
             )
+
+            HintBox(
+                modifier = Modifier
+                    .constrainAs(getOneLetterHint){
+                        top.linkTo(winsCounter.top)
+                        bottom.linkTo(loseCounter.bottom)
+                        start.linkTo(winsCounter.end)
+                        end.linkTo(loseCounter.start)
+                        height = Dimension.fillToConstraints
+                    }
+                    .aspectRatio(1f),
+                icon = R.drawable.text_magnifying_glass,
+                hintsRemaining = state.lettersHintsRemaining,
+                clickEnabled = state.lettersHintsRemaining > 0
+            ) {
+                viewModel.showRewardedAd(activity, RewardedAdType.ONE_LETTER)
+            }
+
+            HintBox(
+                modifier = Modifier
+                    .constrainAs(disableLettersHint){
+                        top.linkTo(winsCounter.top)
+                        bottom.linkTo(loseCounter.bottom)
+                        end.linkTo(loseCounter.start)
+                        start.linkTo(getOneLetterHint.end)
+                        height = Dimension.fillToConstraints
+                    },
+                icon = R.drawable.packages,
+                hintsRemaining = state.keyboardHintsRemaining,
+                clickEnabled = state.keyboardHintsRemaining > 0
+            ) {
+                viewModel.showRewardedAd(activity, RewardedAdType.KEYBOARD)
+            }
 
             BoxWithConstraints(
                 modifier = Modifier
