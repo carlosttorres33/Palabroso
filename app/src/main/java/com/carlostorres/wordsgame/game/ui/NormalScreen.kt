@@ -502,7 +502,11 @@ fun NormalScreen(
                                             .width(boxWidth),
                                         charState = WordCharState.Empty,
                                         char = state.inputList[index],
-                                        isTurn = true
+                                        isTurn = true,
+                                        onFocusClick = {
+                                            viewModel.onEvent(GameEvents.OnFocusChange(index))
+                                        },
+                                        isFocused = state.indexFocused == index
                                     )
                                 } else if (state.tryNumber > 4) {
                                     WordChar(
