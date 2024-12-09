@@ -7,13 +7,17 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
@@ -28,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,12 +65,14 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.menu.presentation.MenuViewModel
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.BannerAd
+import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import java.text.SimpleDateFormat
@@ -143,18 +150,34 @@ fun MenuScreen(
         else LightBackgroundGray,
         topBar = {
             CenterAlignedTopAppBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(TOP_BAR_HEIGHT.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
                     else LightBackgroundGray
                 ),
                 title = {
-                    Text(
-                        modifier = Modifier,
-                        text = "PALABROSO",
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            text = "PALABROSO",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                actions = {
+                    CoinsCounter(
+                        icon = R.drawable.coins, coinsRemaining = 250, modifier = Modifier
+                            .fillMaxHeight()
+                            .width(100.dp)
+                    ) {
+                    }
                 }
             )
         },
