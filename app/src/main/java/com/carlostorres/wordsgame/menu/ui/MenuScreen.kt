@@ -69,6 +69,8 @@ import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
@@ -98,6 +100,7 @@ fun MenuScreen(
 
     val userDailyStats = viewModel.dailyStats.collectAsState()
     val canAccessToApp = viewModel.canAccessToApp.collectAsState()
+    val userCoins by viewModel.userCoins.collectAsState(initial = 0)
 
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
@@ -173,10 +176,13 @@ fun MenuScreen(
                 },
                 actions = {
                     CoinsCounter(
-                        icon = R.drawable.coins, coinsRemaining = 250, modifier = Modifier
+                        icon = R.drawable.coins,
+                        coinsRemaining = userCoins,
+                        modifier = Modifier
                             .fillMaxHeight()
                             .width(100.dp)
                     ) {
+                        viewModel.showCoinsDialog(true)
                     }
                 }
             )
@@ -370,7 +376,23 @@ fun MenuScreen(
                     }
             )
 
-            if (state.blockVersion || !canAccessToApp.value) {
+            if (state.isLoading) {
+                LoadingDialog()
+            }
+
+            if (state.showCoinsDialog) {
+                GetCoinsDialog(
+                    onAcceptClick = {
+                        viewModel.showRewardedAd(activity, actualUserCoins = userCoins)
+                        viewModel.showCoinsDialog(false)
+                    },
+                    onCancelClick = {
+                        viewModel.showCoinsDialog(false)
+                    }
+                )
+            }
+
+            if (state.blockVersion || canAccessToApp.value) {
                 UpdateDialog()
             }
 

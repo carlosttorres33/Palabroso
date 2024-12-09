@@ -16,18 +16,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.carlostorres.wordsgame.R
-import com.carlostorres.wordsgame.ui.theme.DarkRed
 import com.carlostorres.wordsgame.ui.theme.LightCustomGray
-import com.carlostorres.wordsgame.ui.theme.LightRed
 
 @Composable
 fun HintBox(
     modifier: Modifier = Modifier,
-    icon: Int ,
-    hintsRemaining: Int,
+    icon: Int,
+    hintCoast: Int,
     clickEnabled: Boolean = true,
     clickAction: () -> Unit
 ) {
@@ -66,17 +65,16 @@ fun HintBox(
                     top.linkTo(parent.top)
                     end.linkTo(parent.end)
                     bottom.linkTo(startToEndGuideline)
-                    start.linkTo(topToBottomGuideline)
                     height = Dimension.fillToConstraints
-                    width = Dimension.fillToConstraints
+                    width = Dimension.ratio("1:1")
                 }
                 .background(
-                    color = if (isSystemInDarkTheme()) DarkRed.copy(alpha = 0.8f) else LightRed.copy(alpha = 0.8f),
+                    color = Color.Blue.copy(alpha = 0.8f),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
         ){
-            Text(text = hintsRemaining.toString())
+            Text(text = hintCoast.toString(), color = Color.White, fontSize = 15.sp)
         }
 
     }
@@ -89,6 +87,6 @@ private fun HintBoxPreview() {
     HintBox(
         modifier = Modifier.size(50.dp),
         icon = R.drawable.text_magnifying_glass,
-        hintsRemaining = 3,
+        hintCoast = 3,
     ){}
 }

@@ -23,6 +23,8 @@ import com.carlostorres.wordsgame.game.domain.usecases.MenuUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.stats.GetGameModeStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.OnboardingUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.StatsUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.coins.GetCoinsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.coins.UpdateCoinsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadAccessToAppDataStore
 import com.carlostorres.wordsgame.game.domain.usecases.stats.ReadDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadInstructionsUseCase
@@ -33,7 +35,6 @@ import com.carlostorres.wordsgame.game.domain.usecases.stats.UpdateDailyStatsUse
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpsertStatsUseCase
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.ConnectivityObserverImpl
-import com.carlostorres.wordsgame.utils.Constants.BASE_URL
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL_FIREBASE
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -138,7 +139,9 @@ object WordsModule {
     ) : GameUseCases = GameUseCases(
         getRandomWordUseCase = GetRandomWordUseCase(wordsRepository),
         updateDailyStatsUseCase = UpdateDailyStatsUseCase(dataStoreOperations),
-        readDailyStatsUseCase = ReadDailyStatsUseCase(dataStoreOperations)
+        readDailyStatsUseCase = ReadDailyStatsUseCase(dataStoreOperations),
+        getCoinsUseCase = GetCoinsUseCase(dataStoreOperations),
+        updateCoinsUseCase = UpdateCoinsUseCase(dataStoreOperations)
     )
 
     @Singleton

@@ -11,8 +11,11 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.canAccessToAppKey
+import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.coinsKey
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.instructionsKey
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
+import com.carlostorres.wordsgame.utils.Constants.CAN_ACCESS_TO_APP_KEY
+import com.carlostorres.wordsgame.utils.Constants.COINS_KEY
 import com.carlostorres.wordsgame.utils.Constants.EASY_GAMES_PLAYED_KEY
 import com.carlostorres.wordsgame.utils.Constants.HARD_GAMES_PLAYED_KEY
 import com.carlostorres.wordsgame.utils.Constants.INSTRUCTIONS_KEY
@@ -47,7 +50,9 @@ class DataStoreOperationsImpl @Inject constructor(
         val hardGamesPlayedKey = intPreferencesKey(name = HARD_GAMES_PLAYED_KEY)
         val lastPlayedDateKey = stringPreferencesKey(name = LAST_PLAYED_DATE_KEY)
 
-        val canAccessToAppKey = booleanPreferencesKey(name = "can_access_to_app")
+        val canAccessToAppKey = booleanPreferencesKey(name = CAN_ACCESS_TO_APP_KEY)
+
+        val coinsKey = intPreferencesKey(name = COINS_KEY)
     }
 
     private val dataStore = context.dataStore
@@ -60,7 +65,6 @@ class DataStoreOperationsImpl @Inject constructor(
             it[PreferencesKeys.lastPlayedDateKey] = stats.lastPlayedDate
         }
     }
-
 
     override fun readDailyStats(): Flow<UserDailyStats> = dataStore.data
         .catch {
@@ -127,5 +131,26 @@ class DataStoreOperationsImpl @Inject constructor(
             }
     }
 
+    override suspend fun updateCoins(coins: Int) {
+        dataStore.edit { preferences ->
+            preferences[coinsKey] = coins
+        }
+    }
+
+    override fun getCoins(): Flow<Int> {
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                }else{
+                    throw exception
+                }
+            }
+            .map { preferences ->
+                val coins = preferences[coinsKey] ?: 150
+                Log.d("Datastore", "Coins: $coins")
+                coins
+            }
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.carlostorres.wordsgame.game.domain.usecases
 
+import com.carlostorres.wordsgame.game.domain.usecases.coins.GetCoinsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.coins.UpdateCoinsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.ReadDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpdateDailyStatsUseCase
@@ -8,5 +10,7 @@ import com.carlostorres.wordsgame.game.domain.usecases.words.GetRandomWordUseCas
 class GameUseCases(
     val getRandomWordUseCase: GetRandomWordUseCase,
     val updateDailyStatsUseCase: UpdateDailyStatsUseCase,
-    val readDailyStatsUseCase: ReadDailyStatsUseCase
+    val readDailyStatsUseCase: ReadDailyStatsUseCase,
+    val getCoinsUseCase: GetCoinsUseCase,
+    val updateCoinsUseCase: UpdateCoinsUseCase
 )

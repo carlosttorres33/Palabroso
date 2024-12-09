@@ -18,6 +18,8 @@ data class EasyState(
     val lettersHintsRemaining : Int = 1,
     val keyboardHintsRemaining : Int = 1,
 
+    val showCoinsDialog : Boolean = false,
+
     val indexesGuessed : List<Int> = emptyList(),
 
     //region informacion de los intentos

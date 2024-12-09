@@ -74,6 +74,8 @@ class EasyViewModel @Inject constructor(
         win = false
     )
 
+    val userCoins = useCases.getCoinsUseCase()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             useCases.readDailyStatsUseCase().collect { stats ->
@@ -145,7 +147,7 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-    private fun onAcceptClick() = viewModelScope.launch(Dispatchers.IO) {
+    private fun onAcceptClick(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
 
         state = state.copy(
             secretWordsList = state.wordsTried.plus(state.inputList.joinToString(""))
@@ -158,6 +160,7 @@ class EasyViewModel @Inject constructor(
                 gameSituation = GameSituations.GameWon,
             )
             increaseEasyGamesPlayed()
+            getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
@@ -244,8 +247,8 @@ class EasyViewModel @Inject constructor(
     fun onEvent(event: GameEvents) {
         when (event) {
 
-            GameEvents.OnAcceptClick -> {
-                onAcceptClick()
+            is GameEvents.OnAcceptClick -> {
+                onAcceptClick(event.actualUserCoins)
             }
 
             is GameEvents.OnFocusChange -> {
@@ -409,7 +412,9 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    private fun disable4KeyboardLettersHint(){
+    fun disable4KeyboardLettersHint(actualUserCoins: Int){
+
+        buyHint(HintType.KEYBOARD, actualUserCoins = actualUserCoins)
 
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
@@ -433,7 +438,9 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    private fun getOneLetterWord() {
+    fun getOneLetterWord(actualUserCoins: Int) {
+
+        buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
 
         if (state.indexesGuessed.size == 4){
             Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
@@ -468,7 +475,23 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    fun showRewardedAd(activity: Activity, adType: RewardedAdType) {
+    private fun getCoinsFromAd(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 75)
+    }
+
+    private fun getCoinsFromWin(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 25)
+    }
+
+    private fun buyHint(hintType: HintType, actualUserCoins: Int) = viewModelScope.launch {
+        val discount = when(hintType){
+            HintType.ONE_LETTER -> 75
+            HintType.KEYBOARD -> 50
+        }
+        useCases.updateCoinsUseCase(actualUserCoins - discount)
+    }
+
+    fun showRewardedAd(activity: Activity, actualUserCoins: Int) {
         state = state.copy(gameSituation = GameSituations.GameLoading)
         loadRewardedAd(activity){ rewardedAd ->
 
@@ -477,16 +500,7 @@ class EasyViewModel @Inject constructor(
                 rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        when(adType){
-                            RewardedAdType.ONE_LETTER ->{
-                                Log.d("EasyViewModel", "One letter hint")
-                                getOneLetterWord()
-                            }
-                            RewardedAdType.KEYBOARD -> {
-                                Log.d("EasyViewModel", "Keyboard hint")
-                                disable4KeyboardLettersHint()
-                            }
-                        }
+                        getCoinsFromAd(actualUserCoins)
                         state = state.copy(gameSituation = GameSituations.GameInProgress)
                     }
                 }
@@ -551,8 +565,14 @@ class EasyViewModel @Inject constructor(
 
     }
 
+    fun showCoinsDialog(show: Boolean) {
+        state = state.copy(
+            showCoinsDialog = show
+        )
+    }
+
 }
 
-enum class RewardedAdType{
+enum class HintType{
     ONE_LETTER, KEYBOARD
 }

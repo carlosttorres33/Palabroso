@@ -17,7 +17,7 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
-import com.carlostorres.wordsgame.game.presentation.easy.RewardedAdType
+import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -75,6 +75,8 @@ class NormalViewModel @Inject constructor(
         difficult = difficultToString(GameDifficult.Normal),
         win = false
     )
+
+    val userCoins = useCases.getCoinsUseCase()
 
     init {
         viewModelScope.launch {
@@ -151,7 +153,7 @@ class NormalViewModel @Inject constructor(
         )
     }
 
-    private fun onAcceptClick() = viewModelScope.launch {
+    private fun onAcceptClick(actualUserCoins : Int) = viewModelScope.launch {
 
         state = state.copy(
             wordsTried = state.wordsTried.plus(state.inputList.joinToString(""))
@@ -164,6 +166,7 @@ class NormalViewModel @Inject constructor(
                 gameSituation = GameSituations.GameWon,
             )
             increaseNormalGamesPlayed()
+            getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
@@ -285,11 +288,23 @@ class NormalViewModel @Inject constructor(
 
     }
 
+    private fun getCoinsFromAd(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 75)
+    }
+
+    private fun buyHint(hintType: HintType, actualUserCoins: Int) = viewModelScope.launch {
+        val discount = when(hintType){
+            HintType.ONE_LETTER -> 75
+            HintType.KEYBOARD -> 50
+        }
+        useCases.updateCoinsUseCase(actualUserCoins - discount)
+    }
+
     fun onEvent(event: GameEvents) {
 
         when (event) {
-            GameEvents.OnAcceptClick -> {
-                onAcceptClick()
+            is GameEvents.OnAcceptClick -> {
+                onAcceptClick(event.actualUserCoins)
             }
             is GameEvents.OnFocusChange -> {
                 state = state.copy(
@@ -391,7 +406,9 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    private fun disable4KeyboardLettersHint(){
+    fun disable4KeyboardLettersHint(actualUserCoins: Int){
+
+        buyHint(HintType.KEYBOARD, actualUserCoins)
 
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
@@ -415,7 +432,9 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    private fun getOneLetterWord() {
+    fun getOneLetterWord(actualUserCoins: Int) {
+
+        buyHint(HintType.ONE_LETTER, actualUserCoins)
 
         if (state.indexesGuessed.size == 5){
             Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
@@ -450,7 +469,7 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    fun showRewardedAd(activity: Activity, adType: RewardedAdType) {
+    fun showRewardedAd(activity: Activity, actualUserCoins: Int) {
         state = state.copy(gameSituation = GameSituations.GameLoading)
         loadRewardedAd(activity){ rewardedAd ->
 
@@ -459,16 +478,7 @@ class NormalViewModel @Inject constructor(
                 rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        when(adType){
-                            RewardedAdType.ONE_LETTER ->{
-                                Log.d("EasyViewModel", "One letter hint")
-                                getOneLetterWord()
-                            }
-                            RewardedAdType.KEYBOARD -> {
-                                Log.d("EasyViewModel", "Keyboard hint")
-                                disable4KeyboardLettersHint()
-                            }
-                        }
+                        getCoinsFromAd(actualUserCoins)
                         state = state.copy(gameSituation = GameSituations.GameInProgress)
                     }
                 }
@@ -533,6 +543,10 @@ class NormalViewModel @Inject constructor(
 
     }
 
+    private fun getCoinsFromWin(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 25)
+    }
+
     private fun resetGame() {
 
         state = state.copy(
@@ -551,6 +565,11 @@ class NormalViewModel @Inject constructor(
             lettersHintsRemaining = 1,
             keyboardHintsRemaining = 1,
             indexesGuessed = emptyList()
+        )
+    }
+    fun showCoinsDialog(show: Boolean) {
+        state = state.copy(
+            showCoinsDialog = show
         )
     }
 
