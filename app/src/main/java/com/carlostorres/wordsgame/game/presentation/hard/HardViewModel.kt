@@ -17,7 +17,6 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
-import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -25,6 +24,7 @@ import com.carlostorres.wordsgame.utils.Constants.EP_6_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.HintType
 import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback

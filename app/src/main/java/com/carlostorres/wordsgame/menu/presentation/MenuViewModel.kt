@@ -14,7 +14,6 @@ import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.MenuUseCases
-import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -25,7 +24,6 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

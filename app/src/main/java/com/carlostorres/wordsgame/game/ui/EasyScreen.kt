@@ -46,7 +46,6 @@ import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.easy.EasyViewModel
-import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
@@ -73,6 +72,7 @@ import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.ONE_LETTER_HINT_PRICE
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.HintType
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)

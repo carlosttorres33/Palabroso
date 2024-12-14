@@ -24,6 +24,7 @@ import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.EP_4_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.HintType
 import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -604,8 +605,4 @@ class EasyViewModel @Inject constructor(
         )
     }
 
-}
-
-enum class HintType{
-    ONE_LETTER, KEYBOARD
 }

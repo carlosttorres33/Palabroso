@@ -43,7 +43,6 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.presentation.GameEvents
-import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.game.presentation.hard.HardViewModel
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CoinsCounter
@@ -71,6 +70,7 @@ import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.ONE_LETTER_HINT_PRICE
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.HintType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
