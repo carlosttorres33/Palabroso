@@ -5,4 +5,5 @@ data class MenuState(
     val seenInstructions : Boolean = false,
     val isLoading : Boolean = false,
     val showCoinsDialog : Boolean = false,
+    val userCoins : Int = 0,
 )

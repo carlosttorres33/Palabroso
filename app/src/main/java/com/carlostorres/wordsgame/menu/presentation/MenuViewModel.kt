@@ -14,6 +14,7 @@ import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.MenuUseCases
+import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -61,7 +63,7 @@ class MenuViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
-    val userCoins : Flow<Int> = useCases.getCoinsUseCase()
+    //val userCoins : Flow<Int> = useCases.getCoinsUseCase()
 
     private val _canAccessToApp = MutableStateFlow(false)
     val canAccessToApp: StateFlow<Boolean> = _canAccessToApp.asStateFlow()
@@ -71,6 +73,15 @@ class MenuViewModel @Inject constructor(
             checkUserVersion()
             _dailyStats.value = useCases.readDailyStatsUseCase().stateIn(viewModelScope).value
             _canAccessToApp.value = menuUseCases.readAccessToAppUseCase().stateIn(viewModelScope).value
+            getUserCoins()
+        }
+    }
+
+    private fun getUserCoins() = viewModelScope.launch {
+        useCases.getCoinsUseCase().collectLatest{ coins ->
+            state = state.copy(
+                userCoins = coins
+            )
         }
     }
 

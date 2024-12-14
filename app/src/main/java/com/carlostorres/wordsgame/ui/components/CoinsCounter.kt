@@ -1,17 +1,20 @@
 package com.carlostorres.wordsgame.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +22,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -26,6 +30,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -74,7 +79,7 @@ fun CoinsCounter(
         val horizontalGuideline = createGuidelineFromTop(0.5f)
         val horizontalGuidelineTop = createGuidelineFromTop(0.1f)
 
-        ElevatedCard(
+        Card(
             modifier = Modifier
                 .padding(vertical = 5.dp)
                 .constrainAs(iconRef) {
@@ -85,13 +90,10 @@ fun CoinsCounter(
                     height = Dimension.fillToConstraints
                     width = Dimension.fillToConstraints
                 },
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray,
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 10.dp
-            ),
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(18.dp),
+            backgroundColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray,
+            border = BorderStroke(0.dp, Color.Transparent),
+            elevation = 0.dp
         ) {
 
             BoxWithConstraints(
@@ -120,36 +122,23 @@ fun CoinsCounter(
                     Text(
                         text = coinsRemaining.toString(),
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .weight(1f),
                         textAlign = TextAlign.Start
                     )
+
+                    Icon(
+                        modifier = Modifier
+                            .size(height/2),
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = "",
+                        tint = if (isSystemInDarkTheme()) LightBackgroundGray else DarkBackgroundGray
+                    )
+
+                    Spacer(modifier = Modifier.width(5.dp))
                 }
 
             }
 
-        }
-
-        Box(
-            modifier = Modifier
-                .constrainAs(hintsRemainingRef) {
-                    top.linkTo(horizontalGuidelineTop)
-                    end.linkTo(verticalGuidelineEnd)
-                    bottom.linkTo(horizontalGuideline)
-                    height = Dimension.fillToConstraints
-                    width = Dimension.ratio("1:1")
-                }
-                .background(
-                    color = Color.Blue,
-                    shape = CircleShape
-                )
-        ) {
-            Icon(
-                modifier = Modifier
-                    .fillMaxSize(),
-                imageVector = Icons.Default.Add,
-                contentDescription = "",
-                tint = LightBackgroundGray
-            )
         }
 
     }
@@ -157,10 +146,12 @@ fun CoinsCounter(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview()
 @Composable
 private fun CoinsCounterPrev() {
-    CenterAlignedTopAppBar(title = { Text(text = "PALABROSO") }, actions = {
+    CenterAlignedTopAppBar(
+        title = { Text(text = "PALABROSO") },
+        actions = {
         CoinsCounter(
             icon = R.drawable.coins, coinsRemaining = 250, modifier = Modifier
                 .fillMaxHeight()

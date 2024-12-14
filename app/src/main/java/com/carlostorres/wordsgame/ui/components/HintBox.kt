@@ -3,8 +3,11 @@ package com.carlostorres.wordsgame.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -20,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightCustomGray
 
 @Composable
@@ -56,26 +60,27 @@ fun HintBox(
                 .aspectRatio(1f),
             painter = painterResource(id = icon),
             contentDescription = "",
-            tint = if (isSystemInDarkTheme()) LightCustomGray else Color.Black
+            tint = if (isSystemInDarkTheme()) LightCustomGray else DarkBackgroundGray
         )
 
-        Box(
-            modifier = Modifier
-                .constrainAs(hintsRemainingRef) {
-                    top.linkTo(parent.top)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(startToEndGuideline)
-                    height = Dimension.fillToConstraints
-                    width = Dimension.ratio("1:1")
-                }
-                .background(
-                    color = Color.Blue.copy(alpha = 0.8f),
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ){
-            Text(text = hintCoast.toString(), color = Color.White, fontSize = 15.sp)
-        }
+//        Column(
+//            modifier = Modifier
+//                .constrainAs(hintsRemainingRef) {
+//                    top.linkTo(parent.top)
+//                    end.linkTo(parent.end)
+//                    bottom.linkTo(startToEndGuideline)
+//                    height = Dimension.fillToConstraints
+//                    width = Dimension.ratio("1:1")
+//                }
+//                .background(
+//                    color = Color.Blue.copy(alpha = 0.8f),
+//                    shape = CircleShape
+//                ),
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ){
+//            Text(modifier = Modifier.padding(horizontal = 3.dp), text = hintCoast.toString(), color = Color.White, fontSize = 10.sp)
+//        }
 
     }
 

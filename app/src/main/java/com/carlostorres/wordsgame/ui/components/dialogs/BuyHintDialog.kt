@@ -7,38 +7,48 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.game.presentation.easy.HintType
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
-import com.carlostorres.wordsgame.ui.theme.DarkYellow
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
-import com.carlostorres.wordsgame.ui.theme.LightYellow
 
 @Composable
-fun GetCoinsDialog(
-    onAcceptClick: () -> Unit,
-    onCancelClick: () -> Unit,
+fun BuyHintDialog(
+    hintType: HintType,
+    onDismiss: () -> Unit,
+    onAccept: (HintType) -> Unit,
 ) {
 
-    Dialog(onDismissRequest = {onCancelClick()}) {
+    val hintCoast = when (hintType) {
+        HintType.ONE_LETTER -> 75
+        HintType.KEYBOARD -> 50
+    }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+    val dialogText = when (hintType) {
+        HintType.ONE_LETTER -> "Compra una letra de la palabra secreta por 75 pejecoins"
+        HintType.KEYBOARD -> "Descarta 3 letras del teclado por 50 pejecoins"
+    }
+    
+    Dialog(onDismissRequest = {onDismiss()}) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -57,32 +67,28 @@ fun GetCoinsDialog(
                 ) {
 
                     Text(
-                        text = "Deseas ver un anucnio para obtener 75 Pejecoins?",
+                        text = dialogText,
                         color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
 
-                    Icon(
-                        modifier = Modifier.size(100.dp),
-                        painter = painterResource(id = R.drawable.coins),
-                        contentDescription = "",
-                        tint = if (isSystemInDarkTheme()) DarkYellow else LightYellow
-                    )
-
                     MyButton(
                         modifier = Modifier,
                         onClick = {
-                            onAcceptClick()
+                            when (hintType) {
+                                HintType.ONE_LETTER -> onAccept(HintType.ONE_LETTER)
+                                HintType.KEYBOARD -> onAccept(HintType.KEYBOARD)
+                            }
                         },
                         difficult = GameDifficult.Easy,
-                        text = "Obtener Pejecoins"
+                        text = "Aceptar"
                     )
 
                     MyButton(
                         modifier = Modifier,
                         onClick = {
-                            onCancelClick()
+                            onDismiss()
                         },
                         difficult = GameDifficult.Normal,
                         text = "Cancelar"
@@ -91,6 +97,7 @@ fun GetCoinsDialog(
                 }
             }
         }
+
     }
 
 }

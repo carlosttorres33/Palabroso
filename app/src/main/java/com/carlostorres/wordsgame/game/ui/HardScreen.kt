@@ -49,6 +49,7 @@ import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HintBox
+import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
@@ -87,7 +88,7 @@ fun HardScreen(
         mutableStateOf(false)
     }
 
-    val userCoins by viewModel.userCoins.collectAsState(initial = 0)
+    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
 
     val userDailyStats by viewModel.userDailyStats.collectAsState()
 
@@ -147,7 +148,7 @@ fun HardScreen(
                 actions = {
                     CoinsCounter(
                         icon = R.drawable.coins,
-                        coinsRemaining = userCoins,
+                        coinsRemaining = state.userCoins,
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(100.dp)
@@ -185,13 +186,52 @@ fun HardScreen(
             if (state.showCoinsDialog) {
                 GetCoinsDialog(
                     onAcceptClick = {
-                        viewModel.showRewardedAd(activity, actualUserCoins = userCoins)
+                        viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
                         viewModel.showCoinsDialog(false)
                     },
                     onCancelClick = {
                         viewModel.showCoinsDialog(false)
                     }
                 )
+            }
+
+            if (state.showKeyboardHintDialog){
+                BuyHintDialog(
+                    hintType = HintType.KEYBOARD,
+                    onDismiss = {
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.KEYBOARD,
+                            show = false
+                        )
+                    },
+                    onAccept = {
+                        viewModel.disable4KeyboardLettersHint(state.userCoins)
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.KEYBOARD,
+                            show = false
+                        )
+                    }
+                )
+            }
+
+            if (state.showLetterHintDialog){
+                BuyHintDialog(
+                    hintType = HintType.ONE_LETTER,
+                    onDismiss = {
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.ONE_LETTER,
+                            show = false
+                        )
+                    },
+                    onAccept = {
+                        viewModel.getOneLetterWord(state.userCoins)
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.ONE_LETTER,
+                            show = false
+                        )
+                    }
+                )
+
             }
 
             AnimatedContent(state.gameSituation, label = "") { situation ->
@@ -274,9 +314,9 @@ fun HardScreen(
                     .aspectRatio(1f),
                 icon = R.drawable.text_magnifying_glass,
                 hintCoast = ONE_LETTER_HINT_PRICE,
-                clickEnabled = userCoins >= ONE_LETTER_HINT_PRICE
+                clickEnabled = state.userCoins >= ONE_LETTER_HINT_PRICE
             ) {
-                viewModel.getOneLetterWord(userCoins)
+                viewModel.hintDialogHandler(HintType.ONE_LETTER, true)
             }
 
             HintBox(
@@ -290,9 +330,9 @@ fun HardScreen(
                     },
                 icon = R.drawable.packages,
                 hintCoast = KEYBOARD_HINT_PRICE,
-                clickEnabled = userCoins >= KEYBOARD_HINT_PRICE
+                clickEnabled = state.userCoins >= KEYBOARD_HINT_PRICE
             ) {
-                viewModel.disable4KeyboardLettersHint(userCoins)
+                viewModel.hintDialogHandler(HintType.KEYBOARD, true)
             }
 
             BoxWithConstraints(
@@ -603,7 +643,7 @@ fun HardScreen(
                     if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(GameEvents.OnAcceptClick(userCoins))
+                        viewModel.onEvent(GameEvents.OnAcceptClick(state.userCoins))
                     }
                 },
                 onAcceptState =  if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,

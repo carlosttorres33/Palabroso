@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -70,7 +71,7 @@ class HardViewModel @Inject constructor(
         win = true
     )
 
-    val userCoins = useCases.getCoinsUseCase()
+    //val userCoins = useCases.getCoinsUseCase()
 
     val gameLostCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
         difficult = difficultToString(GameDifficult.Hard),
@@ -79,9 +80,14 @@ class HardViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            useCases.readDailyStatsUseCase().collect { stats ->
-                _userDailyStats.value = stats
-            }
+            getDailyStats()
+            getUserCoins()
+        }
+    }
+
+    private fun getDailyStats() = viewModelScope.launch(Dispatchers.IO) {
+        useCases.readDailyStatsUseCase().collect { stats ->
+            _userDailyStats.value = stats
         }
     }
 
@@ -369,8 +375,6 @@ class HardViewModel @Inject constructor(
 
     fun disable4KeyboardLettersHint(actualUserCoins: Int){
 
-        buyHint(HintType.KEYBOARD, actualUserCoins)
-
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
             var possibleIndex = (0 until state.keyboard.size).random()
@@ -379,6 +383,8 @@ class HardViewModel @Inject constructor(
             }
             possibleIndex
         }
+
+        buyHint(HintType.KEYBOARD, actualUserCoins)
 
         state = state.copy(
             keyboard = state.keyboard.mapIndexed { index, keyboardChar ->
@@ -395,15 +401,15 @@ class HardViewModel @Inject constructor(
 
     fun getOneLetterWord(actualUserCoins: Int) {
 
-        buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
-
         if (state.indexesGuessed.size == 6){
-            Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Parece que ya tienes todas las letras", Toast.LENGTH_SHORT).show()
             state = state.copy(
                 lettersHintsRemaining = state.lettersHintsRemaining-1
             )
             return
         }
+
+        buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
 
         val indexesUnknowns = (0..5).mapNotNull { index ->
             if (state.indexesGuessed.contains(index)){
@@ -424,7 +430,10 @@ class HardViewModel @Inject constructor(
                 }
             },
             lettersHintsRemaining = state.lettersHintsRemaining - 1,
-            indexesGuessed = state.indexesGuessed.plus(indexToShow),
+            indexesGuessed = state.indexesGuessed.plus(indexToShow)
+        )
+
+        state = state.copy(
             indexFocused = getNextFocusedIndex()
         )
 
@@ -576,6 +585,30 @@ class HardViewModel @Inject constructor(
             keyboardHintsRemaining = 1,
             indexesGuessed = emptyList()
         )
+    }
+
+    private fun getUserCoins() = viewModelScope.launch {
+        useCases.getCoinsUseCase().collectLatest{ coins ->
+            state = state.copy(
+                userCoins = coins
+            )
+        }
+    }
+
+    fun hintDialogHandler(hintType: HintType, show: Boolean){
+        state = when(hintType){
+            HintType.ONE_LETTER -> {
+                state.copy(
+                    showLetterHintDialog = show
+                )
+            }
+
+            HintType.KEYBOARD -> {
+                state.copy(
+                    showKeyboardHintDialog = show
+                )
+            }
+        }
     }
 
     fun showCoinsDialog(show: Boolean) {

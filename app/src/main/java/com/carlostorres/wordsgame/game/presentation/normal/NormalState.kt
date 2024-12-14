@@ -7,6 +7,10 @@ import com.carlostorres.wordsgame.utils.keyboardCreator
 
 data class NormalState(
 
+    val showLetterHintDialog : Boolean = false,
+    val showKeyboardHintDialog : Boolean = false,
+    val userCoins : Int = 0,
+
     val inputList : List<Char?> = (1..5).map { null },
     val indexFocused : Int = 0,
 

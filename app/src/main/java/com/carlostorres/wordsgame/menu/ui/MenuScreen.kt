@@ -100,7 +100,7 @@ fun MenuScreen(
 
     val userDailyStats = viewModel.dailyStats.collectAsState()
     val canAccessToApp = viewModel.canAccessToApp.collectAsState()
-    val userCoins by viewModel.userCoins.collectAsState(initial = 0)
+    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
 
     val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
@@ -177,7 +177,7 @@ fun MenuScreen(
                 actions = {
                     CoinsCounter(
                         icon = R.drawable.coins,
-                        coinsRemaining = userCoins,
+                        coinsRemaining = state.userCoins,
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(100.dp)
@@ -383,7 +383,7 @@ fun MenuScreen(
             if (state.showCoinsDialog) {
                 GetCoinsDialog(
                     onAcceptClick = {
-                        viewModel.showRewardedAd(activity, actualUserCoins = userCoins)
+                        viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
                         viewModel.showCoinsDialog(false)
                     },
                     onCancelClick = {
