@@ -121,6 +121,7 @@ class EasyViewModel @Inject constructor(
                     wordLength = EASY_WORD_LENGTH,
                     dayTries = dailyStats.value.easyGamesPlayed,
                     group = EP_4_LETTERS,
+                    gameDifficult = difficultToString(GameDifficult.Easy)
                 )
 
                 if (!word.isNullOrEmpty()) {

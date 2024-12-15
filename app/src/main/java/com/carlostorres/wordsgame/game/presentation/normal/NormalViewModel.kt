@@ -120,7 +120,8 @@ class NormalViewModel @Inject constructor(
                     wordsTried = state.secretWordsList,
                     wordLength = NORMAL_WORD_LENGTH,
                     dayTries = userDailyStats.value.normalGamesPlayed,
-                    group = EP_5_LETTERS
+                    group = EP_5_LETTERS,
+                    gameDifficult = difficultToString(GameDifficult.Normal)
                 )
 
                 state = if (!word.isNullOrEmpty()) {

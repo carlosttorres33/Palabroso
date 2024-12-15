@@ -18,6 +18,9 @@ interface StatsGameDao {
     @Query("SELECT COUNT(*) FROM stats_table WHERE gameDifficult = :gameDifficult AND win = :win")
     fun getGameModeStats(gameDifficult: String, win: Boolean): Flow<Int>
 
+    @Query("SELECT * FROM stats_table WHERE gameDifficult = :gameDifficult AND win = :win")
+    fun getWordsGuessed(gameDifficult: String, win: Boolean): List<StatsEntity>
+
     @Query("SELECT * FROM stats_table")
     fun getAllStats(): List<StatsEntity>
 
