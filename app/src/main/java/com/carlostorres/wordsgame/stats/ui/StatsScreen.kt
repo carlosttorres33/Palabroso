@@ -171,8 +171,7 @@ fun StatsScreen(
                                         state.easyStats.filter { it.attempts == 1 && it.win }.size,
                                         state.easyStats.filter { it.attempts == 2 && it.win }.size,
                                         state.easyStats.filter { it.attempts == 3 && it.win }.size,
-                                        state.easyStats.filter { it.attempts == 4 && it.win }.size,
-                                        state.easyStats.filter { !it.win }.size,
+                                        state.easyStats.filter { it.attempts == 4 && it.win }.size
                                     )
                                 }
 
@@ -182,8 +181,7 @@ fun StatsScreen(
                                         state.hardStats.filter { it.attempts == 1 && it.win }.size,
                                         state.hardStats.filter { it.attempts == 2 && it.win }.size,
                                         state.hardStats.filter { it.attempts == 3 && it.win }.size,
-                                        state.hardStats.filter { it.attempts == 4 && it.win }.size,
-                                        state.hardStats.filter { !it.win }.size,
+                                        state.hardStats.filter { it.attempts == 4 && it.win }.size
                                     )
                                 }
 
@@ -193,12 +191,11 @@ fun StatsScreen(
                                         state.normalStats.filter { it.attempts == 1 && it.win }.size,
                                         state.normalStats.filter { it.attempts == 2 && it.win }.size,
                                         state.normalStats.filter { it.attempts == 3 && it.win }.size,
-                                        state.normalStats.filter { it.attempts == 4 && it.win }.size,
-                                        state.normalStats.filter { !it.win }.size,
+                                        state.normalStats.filter { it.attempts == 4 && it.win }.size
                                     )
                                 }
                             },
-                            xAxisScale = listOf("1", "2", "3", "4", "5", "L"),
+                            xAxisScale = listOf("1", "2", "3", "4", "5"),
                             total_amount = when (state.statsShowed) {
                                 GameDifficult.Easy -> {
                                     listOf(
@@ -206,8 +203,7 @@ fun StatsScreen(
                                         state.easyStats.filter { it.attempts == 1 && it.win }.size,
                                         state.easyStats.filter { it.attempts == 2 && it.win }.size,
                                         state.easyStats.filter { it.attempts == 3 && it.win }.size,
-                                        state.easyStats.filter { it.attempts == 4 && it.win }.size,
-                                        state.easyStats.filter { !it.win }.size,
+                                        state.easyStats.filter { it.attempts == 4 && it.win }.size
                                     ).maxOrNull() ?: 0
                                 }
 
@@ -217,8 +213,7 @@ fun StatsScreen(
                                         state.hardStats.filter { it.attempts == 1 && it.win }.size,
                                         state.hardStats.filter { it.attempts == 2 && it.win }.size,
                                         state.hardStats.filter { it.attempts == 3 && it.win }.size,
-                                        state.hardStats.filter { it.attempts == 4 && it.win }.size,
-                                        state.hardStats.filter { !it.win }.size,
+                                        state.hardStats.filter { it.attempts == 4 && it.win }.size
                                     ).maxOrNull() ?: 0
                                 }
 
@@ -228,8 +223,7 @@ fun StatsScreen(
                                         state.normalStats.filter { it.attempts == 1 && it.win }.size,
                                         state.normalStats.filter { it.attempts == 2 && it.win }.size,
                                         state.normalStats.filter { it.attempts == 3 && it.win }.size,
-                                        state.normalStats.filter { it.attempts == 4 && it.win }.size,
-                                        state.normalStats.filter { !it.win }.size,
+                                        state.normalStats.filter { it.attempts == 4 && it.win }.size
                                     ).maxOrNull() ?: 0
                                 }
                             },
@@ -245,19 +239,19 @@ fun StatsScreen(
                             LazyColumn() {
                                 when (it) {
                                     GameDifficult.Easy -> {
-                                        items(state.easyStats) {
+                                        items(state.easyStats.filter { it.win }) {
                                             WordItem(word = it.wordGuessed, isGuessed = it.win)
                                         }
                                     }
 
                                     GameDifficult.Hard -> {
-                                        items(state.hardStats) {
+                                        items(state.hardStats.filter { it.win }) {
                                             WordItem(word = it.wordGuessed, isGuessed = it.win)
                                         }
                                     }
 
                                     GameDifficult.Normal -> {
-                                        items(state.normalStats) {
+                                        items(state.normalStats.filter { it.win }) {
                                             WordItem(word = it.wordGuessed, isGuessed = it.win)
                                         }
                                     }
