@@ -75,7 +75,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 
     //Navigation
-    implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation("androidx.navigation:navigation-compose:2.8.5")
 
     //Room
     implementation("androidx.room:room-runtime:2.6.1")

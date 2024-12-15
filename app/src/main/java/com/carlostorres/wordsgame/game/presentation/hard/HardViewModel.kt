@@ -121,7 +121,8 @@ class HardViewModel @Inject constructor(
                     wordsTried = state.secretWordsList,
                     wordLength = HARD_WORD_LENGTH,
                     dayTries = userDailyStats.value.hardGamesPlayed,
-                    group = EP_6_LETTERS
+                    group = EP_6_LETTERS,
+                    gameDifficult = difficultToString(GameDifficult.Hard)
                 )
 
                 if (!word.isNullOrEmpty()) {

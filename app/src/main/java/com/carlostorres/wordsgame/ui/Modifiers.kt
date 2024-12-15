@@ -1,6 +1,15 @@
 package com.carlostorres.wordsgame.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.getValue
@@ -12,6 +21,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.navigation.NavBackStackEntry
 
 enum class ButtonState { Pressed, Idle }
 
@@ -45,4 +55,20 @@ fun Modifier.bounceClick(enabled: Boolean = true) = composed {
                 }
             }
         }
+}
+
+fun AnimatedContentTransitionScope<NavBackStackEntry>.verticalSlideEnterTransition(): EnterTransition {
+
+    return slideInVertically(
+        initialOffsetY = { fullHeight -> fullHeight },
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+    ) + fadeIn(animationSpec = tween(durationMillis = 300))
+}
+
+fun AnimatedContentTransitionScope<NavBackStackEntry>.verticalSlideExitTransition(): ExitTransition {
+
+    return slideOutVertically(
+        targetOffsetY = { fullHeight -> fullHeight },
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+    ) + fadeOut(animationSpec = tween(durationMillis = 300))
 }

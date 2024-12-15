@@ -12,6 +12,7 @@ import com.carlostorres.wordsgame.utils.Constants.REMOTE_CONFIG_MIN_VERSION_KEY
 import com.carlostorres.wordsgame.utils.InternetCheck
 import com.carlostorres.wordsgame.utils.removeAccents
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -19,49 +20,44 @@ class WordsRepositoryImplementation @Inject constructor(
     private val context: Context,
     private val remoteConfig: FirebaseRemoteConfig,
     private val localDataSource: LocalWordsDataSource,
-    private val remoteDataSource: RemoteWordDataSource
+    private val remoteDataSource: RemoteWordDataSource,
 ) : WordsRepository {
 
     override suspend fun getRandomWord(
         wordsTried: List<String>,
         group: String,
         dayTries: Int,
-        wordLength: Int
+        wordLength: Int,
+        gameDifficult: String
     ): String? {
 
         var id = (0..250).random()
 
+        Log.d("WordsRepo", "Group: $gameDifficult")
+
+        val wordsGuessedList = localDataSource.getGuessedWords(gameDifficult = gameDifficult, win = true).map { it.wordGuessed }
+        Log.d("WordsRepo", "WordsGuessed: $wordsGuessedList")
+
         return if (InternetCheck.isNetworkAvailable()) {
 
-            var word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
-                Log.d("Repo", "Internet is available and first $NUMBER_OF_GAMES_ALLOWED tries")
-                remoteDataSource.getRandomWord(group = group, id = id.toString())
-            }else{
-                Log.d("Repo", "Internet is available but $NUMBER_OF_GAMES_ALLOWED try so we get offline word")
-                getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
-            }
-
-            println(word)
+            var word = remoteDataSource.getRandomWord(group, id.toString())
+            Log.d("WordsRepo", "First word: $word")
 
             if (word != null) {
-                while (wordsTried.contains(word) || word!!.length != wordLength) {
+                while (wordsGuessedList.contains(word) || word!!.length != wordLength) {
                     id = (0..250).random()
-                    word = if (dayTries < NUMBER_OF_GAMES_ALLOWED-1) {
-                        remoteDataSource.getRandomWord(group = group, id = id.toString())
-                    } else {
-                        getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
-                    }
+                    word = remoteDataSource.getRandomWord(group = group, id = id.toString())
                 }
             }
 
-            Log.d("SecretWord", word.toString())
+            Log.d("WordsRepo", "New Word: $word")
             word?.trim()?.take(wordLength)?.uppercase() ?: ""
 
         } else {
 
             val word = getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
 
-            Log.d("SecretWord", word)
+            Log.d("WordsRepo", word)
             removeAccents(word.trim().take(wordLength)).uppercase()
         }
     }

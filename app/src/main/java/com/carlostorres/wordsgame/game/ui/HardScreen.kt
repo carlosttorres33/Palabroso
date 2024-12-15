@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.ui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -88,8 +89,6 @@ fun HardScreen(
         mutableStateOf(false)
     }
 
-    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
-
     val userDailyStats by viewModel.userDailyStats.collectAsState()
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -131,7 +130,13 @@ fun HardScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onHomeClick()
+                            viewModel.showInterstitial(
+                                activity,
+                                navHome = {
+                                    onHomeClick()
+                                },
+                                ifBack = true
+                            )
                         }
                     ){
                         Icon(
@@ -159,6 +164,16 @@ fun HardScreen(
             )
         }
     ) { paddingValues ->
+
+        BackHandler {
+            viewModel.showInterstitial(
+                activity,
+                navHome = {
+                    onHomeClick()
+                },
+                ifBack = true
+            )
+        }
 
         ConstraintLayout(
             modifier = Modifier
@@ -258,10 +273,16 @@ fun HardScreen(
                     GameSituations.GameWon -> {
                         GameWinDialog(
                             onRematchClick = {
-                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
+                                viewModel.setUpGame()
                             },
                             onHomeClick = {
-                                viewModel.showInterstitial(activity,navHome = {onHomeClick()}, ifBack = true)
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = {
+                                        onHomeClick()
+                                    },
+                                    ifBack = true
+                                )
                             },
                             isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -304,7 +325,7 @@ fun HardScreen(
 
             HintBox(
                 modifier = Modifier
-                    .constrainAs(getOneLetterHint){
+                    .constrainAs(getOneLetterHint) {
                         top.linkTo(winsCounter.top)
                         bottom.linkTo(loseCounter.bottom)
                         start.linkTo(winsCounter.end)

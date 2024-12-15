@@ -3,6 +3,7 @@ package com.carlostorres.wordsgame.game.ui
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -102,8 +103,6 @@ fun NormalScreen(
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
-
     val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
     val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
 
@@ -141,7 +140,13 @@ fun NormalScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onHomeClick()
+                            viewModel.showInterstitial(
+                                activity,
+                                navHome = {
+                                    onHomeClick()
+                                },
+                                ifBack = true
+                            )
                         }
                     ){
                         Icon(
@@ -169,6 +174,16 @@ fun NormalScreen(
             )
         }
     ) { paddingValues ->
+
+        BackHandler {
+            viewModel.showInterstitial(
+                activity,
+                navHome = {
+                    onHomeClick()
+                },
+                ifBack = true
+            )
+        }
 
         ConstraintLayout(
             modifier = Modifier
@@ -268,10 +283,16 @@ fun NormalScreen(
                     GameSituations.GameWon -> {
                         GameWinDialog(
                             onRematchClick = {
-                                viewModel.showInterstitial(activity,navHome = {onHomeClick()})
+                                viewModel.setUpGame()
                             },
                             onHomeClick = {
-                                viewModel.showInterstitial(activity,navHome = {onHomeClick()}, ifBack = true)
+                                viewModel.showInterstitial(
+                                    activity,
+                                    navHome = {
+                                        onHomeClick()
+                                    },
+                                    ifBack = true
+                                )
                             },
                             isGameLimitReached = userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
@@ -314,7 +335,7 @@ fun NormalScreen(
 
             HintBox(
                 modifier = Modifier
-                    .constrainAs(getOneLetterHint){
+                    .constrainAs(getOneLetterHint) {
                         top.linkTo(winsCounter.top)
                         bottom.linkTo(loseCounter.bottom)
                         start.linkTo(winsCounter.end)

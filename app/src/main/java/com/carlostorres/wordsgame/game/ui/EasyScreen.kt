@@ -3,6 +3,7 @@ package com.carlostorres.wordsgame.game.ui
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -99,8 +100,6 @@ fun EasyScreen(
     val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
     val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
 
-    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
-
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
     }
@@ -141,7 +140,13 @@ fun EasyScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onHomeClick()
+                            viewModel.showInterstitial(
+                                activity,
+                                navHome = {
+                                    onHomeClick()
+                                },
+                                ifBack = true
+                            )
                         }
                     ) {
                         Icon(
@@ -169,6 +174,16 @@ fun EasyScreen(
             )
         }
     ) { paddingValues ->
+
+        BackHandler {
+            viewModel.showInterstitial(
+                activity = activity,
+                navHome = {
+                    onHomeClick()
+                },
+                ifBack = true
+            )
+        }
 
         ConstraintLayout(
             modifier = Modifier
@@ -223,12 +238,7 @@ fun EasyScreen(
                     GameSituations.GameWon -> {
                         GameWinDialog(
                             onRematchClick = {
-                                viewModel.showInterstitial(
-                                    activity,
-                                    navHome = {
-                                        onHomeClick()
-                                    }
-                                )
+                                viewModel.setUpGame()
                             },
                             onHomeClick = {
                                 viewModel.showInterstitial(
