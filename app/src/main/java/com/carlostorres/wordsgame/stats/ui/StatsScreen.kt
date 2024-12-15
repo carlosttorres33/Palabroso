@@ -40,8 +40,15 @@ import com.carlostorres.wordsgame.stats.ui.components.CustomChart
 import com.carlostorres.wordsgame.stats.ui.components.WordItem
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
+import com.carlostorres.wordsgame.ui.components.UnderlinedButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkRed
+import com.carlostorres.wordsgame.ui.theme.DarkYellow
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightRed
+import com.carlostorres.wordsgame.ui.theme.LightYellow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,34 +126,37 @@ fun StatsScreen(
                             contentPadding = PaddingValues(start = 15.dp, end = 15.dp)
                         ) {
                             item {
-                                MyButton(
+                                UnderlinedButton(
+                                    modifier = Modifier.width(120.dp),
+                                    color = if (isSystemInDarkTheme()) DarkGreen else LightGreen,
+                                    isSelected = if (state.statsShowed == GameDifficult.Easy) false else true,
                                     text = "4 Letras",
-                                    modifier = Modifier.width(120.dp),
-                                    difficult = GameDifficult.Easy,
-                                    enabled = if (state.statsShowed == GameDifficult.Easy) false else true
-                                ) {
-                                    viewModel.onEvent(OnStatsEvents.onStatClicked(GameDifficult.Easy))
-                                }
+                                    onClick = {
+                                        viewModel.onEvent(OnStatsEvents.onStatClicked(GameDifficult.Easy))
+                                    }
+                                )
                             }
                             item {
-                                MyButton(
+                                UnderlinedButton(
+                                    modifier = Modifier.width(120.dp),
+                                    color = if (isSystemInDarkTheme()) DarkYellow else LightYellow,
+                                    isSelected = if (state.statsShowed == GameDifficult.Normal) false else true,
                                     text = "5 Letras",
-                                    modifier = Modifier.width(120.dp),
-                                    difficult = GameDifficult.Normal,
-                                    enabled = state.statsShowed != GameDifficult.Normal
-                                ) {
-                                    viewModel.onEvent(OnStatsEvents.onStatClicked(GameDifficult.Normal))
-                                }
+                                    onClick = {
+                                        viewModel.onEvent(OnStatsEvents.onStatClicked(GameDifficult.Normal))
+                                    }
+                                )
                             }
                             item {
-                                MyButton(
-                                    text = "6 Letras",
+                                UnderlinedButton(
                                     modifier = Modifier.width(120.dp),
-                                    difficult = GameDifficult.Hard,
-                                    enabled = state.statsShowed != GameDifficult.Hard
-                                ) {
-                                    viewModel.onEvent(OnStatsEvents.onStatClicked(GameDifficult.Hard))
-                                }
+                                    color = if (isSystemInDarkTheme()) DarkRed else LightRed,
+                                    isSelected = if (state.statsShowed == GameDifficult.Hard) false else true,
+                                    text = "6 Letras",
+                                    onClick = {
+                                        viewModel.onEvent(OnStatsEvents.onStatClicked(GameDifficult.Hard))
+                                    }
+                                )
                             }
                         }
 

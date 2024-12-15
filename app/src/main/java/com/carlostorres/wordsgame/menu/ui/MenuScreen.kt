@@ -5,12 +5,10 @@ import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,9 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
-import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,16 +27,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,7 +47,6 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -91,7 +82,6 @@ fun MenuScreen(
     val context = LocalContext.current
     val activity = context as Activity
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
     val snackBarHostState = remember {
         SnackbarHostState()
     }
@@ -100,9 +90,8 @@ fun MenuScreen(
 
     val userDailyStats = viewModel.dailyStats.collectAsState()
     val canAccessToApp = viewModel.canAccessToApp.collectAsState()
-    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
 
-    val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+    val textColor = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
     val currentDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
 
@@ -150,7 +139,7 @@ fun MenuScreen(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
-        else LightBackgroundGray,
+            else LightBackgroundGray,
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier
@@ -158,7 +147,7 @@ fun MenuScreen(
                     .height(TOP_BAR_HEIGHT.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
-                    else LightBackgroundGray
+                        else LightBackgroundGray
                 ),
                 title = {
                     Column(
@@ -247,7 +236,7 @@ fun MenuScreen(
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "Animation by: naiandersonbruno",
-                            color = colorText.copy(alpha = 0.7f),
+                            color = textColor.copy(alpha = 0.7f),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End,
                             fontSize = 10.sp
@@ -268,7 +257,7 @@ fun MenuScreen(
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorText
+                color = textColor
             )
 
             MyButton(
@@ -283,8 +272,7 @@ fun MenuScreen(
                         context,
                         "Ya jugaste todas las palabras de 4 letras de hoy",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     onDifficultySelected(GameDifficult.Easy)
                 }
@@ -302,8 +290,7 @@ fun MenuScreen(
                         context,
                         "Ya jugaste todas las palabras de 5 letras de hoy",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     onDifficultySelected(GameDifficult.Normal)
                 }
@@ -321,8 +308,7 @@ fun MenuScreen(
                         context,
                         "Ya jugaste todas las palabras de 6 letras de hoy",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     onDifficultySelected(GameDifficult.Hard)
                 }
@@ -346,7 +332,7 @@ fun MenuScreen(
                         width = Dimension.value(30.dp)
                     },
                 colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = colorText.copy(alpha = 0.7f)
+                    contentColor = textColor.copy(alpha = 0.7f)
                 ),
                 onClick = {
                     onStatsClick()

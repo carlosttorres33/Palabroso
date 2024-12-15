@@ -61,25 +61,15 @@ class MenuViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
-    //val userCoins : Flow<Int> = useCases.getCoinsUseCase()
-
     private val _canAccessToApp = MutableStateFlow(false)
     val canAccessToApp: StateFlow<Boolean> = _canAccessToApp.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             checkUserVersion()
-            _dailyStats.value = useCases.readDailyStatsUseCase().stateIn(viewModelScope).value
-            _canAccessToApp.value = menuUseCases.readAccessToAppUseCase().stateIn(viewModelScope).value
+            getDailyStats()
+            canAccessToApp()
             getUserCoins()
-        }
-    }
-
-    private fun getUserCoins() = viewModelScope.launch {
-        useCases.getCoinsUseCase().collectLatest{ coins ->
-            state = state.copy(
-                userCoins = coins
-            )
         }
     }
 
@@ -93,6 +83,27 @@ class MenuViewModel @Inject constructor(
         }
     }
 
+    //region InitFunctions
+    private fun canAccessToApp() = viewModelScope.launch {
+        menuUseCases.readAccessToAppUseCase().collectLatest { canAccess ->
+            _canAccessToApp.value = canAccess
+        }
+    }
+
+    private fun getDailyStats() = viewModelScope.launch {
+        useCases.readDailyStatsUseCase().collectLatest { stats ->
+            _dailyStats.value = stats
+        }
+    }
+
+    private fun getUserCoins() = viewModelScope.launch {
+        useCases.getCoinsUseCase().collectLatest{ coins ->
+            state = state.copy(
+                userCoins = coins
+            )
+        }
+    }
+
     private fun checkUserVersion() {
         viewModelScope.launch(Dispatchers.IO) {
             val result = menuUseCases.canAccessToAppUseCase()
@@ -100,18 +111,12 @@ class MenuViewModel @Inject constructor(
             state = state.copy(
                 blockVersion = !result
             )
-            if (result != null) {
-                menuUseCases.saveAccessToAppUseCase(!result)
-            }
+            menuUseCases.saveAccessToAppUseCase(!result)
         }
     }
+    //endregion
 
-    fun showCoinsDialog(show: Boolean){
-        state = state.copy(
-            showCoinsDialog = show
-        )
-    }
-
+    //region Rewarded Ad
     fun showRewardedAd(activity: Activity, actualUserCoins: Int) {
         state = state.copy(isLoading = true)
         loadRewardedAd(activity){ rewardedAd ->
@@ -158,6 +163,13 @@ class MenuViewModel @Inject constructor(
             }
         )
 
+    }
+    //endregion
+
+    fun showCoinsDialog(show: Boolean){
+        state = state.copy(
+            showCoinsDialog = show
+        )
     }
 
 }
