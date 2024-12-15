@@ -38,6 +38,12 @@ fun CornerButton(
             bottomEnd = 0.dp
         )
         ButtonPlace.Center -> RoundedCornerShape(0.dp)
+        ButtonPlace.Bottom -> RoundedCornerShape(
+            topStart = 0.dp,
+            topEnd = 0.dp,
+            bottomStart = ROUND_CORNER_SIZE.dp,
+            bottomEnd = ROUND_CORNER_SIZE.dp
+        )
     }
 
     Button(
