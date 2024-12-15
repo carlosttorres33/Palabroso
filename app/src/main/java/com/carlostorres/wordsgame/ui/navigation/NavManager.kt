@@ -14,6 +14,8 @@ import com.carlostorres.wordsgame.menu.ui.MenuScreen
 import com.carlostorres.wordsgame.onboarding.ui.OnboardingScreen
 import com.carlostorres.wordsgame.splash.SplashScreen
 import com.carlostorres.wordsgame.stats.ui.StatsScreen
+import com.carlostorres.wordsgame.ui.verticalSlideEnterTransition
+import com.carlostorres.wordsgame.ui.verticalSlideExitTransition
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 
 @Composable
@@ -115,7 +117,11 @@ fun NavManager() {
         }
 
         composable(
-            route = NavRoutes.Stats.route
+            route = NavRoutes.Stats.route,
+            enterTransition = { verticalSlideEnterTransition() },
+            exitTransition = { verticalSlideExitTransition() },
+            popEnterTransition = { verticalSlideEnterTransition() },
+            popExitTransition = { verticalSlideExitTransition() }
         ){
             StatsScreen (
                 onHomeClick = {
