@@ -1,5 +1,10 @@
 package com.carlostorres.wordsgame.ui.components
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,8 +39,15 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -50,6 +62,7 @@ import com.carlostorres.wordsgame.ui.theme.DarkYellow
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightCustomGray
 import com.carlostorres.wordsgame.ui.theme.LightYellow
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -60,6 +73,42 @@ fun CoinsCounter(
     clickEnabled: Boolean = true,
     clickAction: () -> Unit
 ) {
+
+    var isExploding by remember {
+        mutableStateOf(false)
+    }
+
+    val transition = updateTransition(targetState = isExploding, label = "explosion")
+
+    val scale by transition.animateFloat(
+        transitionSpec = {
+            if (targetState) {
+                spring(stiffness = Spring.StiffnessLow)
+            } else {
+                tween(durationMillis = 300)
+            }
+        }, label = "scale"
+    ) { exploding ->
+        if (exploding) 5f else 1f
+    }
+
+    val alpha by transition.animateFloat(
+        transitionSpec = {
+            if (targetState) {
+                tween(durationMillis = 200)
+            } else {
+                tween(durationMillis = 300)
+            }
+        }, label = "alpha"
+    ) { exploding ->
+        if (exploding) 0f else 1f
+    }
+
+    LaunchedEffect(coinsRemaining) {
+        isExploding = true
+        delay(500)
+        isExploding = false
+    }
 
     ConstraintLayout(
         modifier = modifier
@@ -120,9 +169,11 @@ fun CoinsCounter(
                     )
 
                     Text(
-                        text = coinsRemaining.toString(),
                         modifier = Modifier
-                            .weight(1f),
+                            .weight(1f)
+                            .alpha(alpha)
+                            .scale(scale),
+                        text = coinsRemaining.toString(),
                         textAlign = TextAlign.Start
                     )
 
