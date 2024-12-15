@@ -114,7 +114,7 @@ fun GameLoseDialog(
                     buttonText = "Volver al Inicio",
                     textColor = if (isSystemInDarkTheme()) DarkRed else LightRed
                 ) {
-                    onRetryClick()
+                    onHomeClick()
                 }
 
             }
