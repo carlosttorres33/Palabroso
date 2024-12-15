@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,14 +43,16 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.presentation.GameEvents
-import com.carlostorres.wordsgame.game.presentation.easy.RewardedAdType
 import com.carlostorres.wordsgame.game.presentation.hard.HardViewModel
 import com.carlostorres.wordsgame.ui.components.BannerAd
+import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HintBox
+import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
@@ -61,8 +65,12 @@ import com.carlostorres.wordsgame.ui.theme.DarkRed
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
+import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
+import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
+import com.carlostorres.wordsgame.utils.Constants.ONE_LETTER_HINT_PRICE
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.HintType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,6 +87,8 @@ fun HardScreen(
     var showWordAlreadyTried by remember {
         mutableStateOf(false)
     }
+
+    //val userCoins by viewModel.userCoins.collectAsState(initial = 0)
 
     val userDailyStats by viewModel.userDailyStats.collectAsState()
 
@@ -104,13 +114,19 @@ fun HardScreen(
         else LightBackgroundGray,
         topBar = {
             CenterAlignedTopAppBar(
+                modifier = Modifier.height(TOP_BAR_HEIGHT.dp),
                 title = {
-                    Text(
-                        text = "PALABROSO",
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "PALABROSO",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(
@@ -128,7 +144,18 @@ fun HardScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
                     else LightBackgroundGray
-                )
+                ),
+                actions = {
+                    CoinsCounter(
+                        icon = R.drawable.coins,
+                        coinsRemaining = state.userCoins,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(100.dp)
+                    ) {
+                        viewModel.showCoinsDialog(true)
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -154,6 +181,57 @@ fun HardScreen(
 
             if (showWordAlreadyTried) {
                 WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
+            }
+
+            if (state.showCoinsDialog) {
+                GetCoinsDialog(
+                    onAcceptClick = {
+                        viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
+                        viewModel.showCoinsDialog(false)
+                    },
+                    onCancelClick = {
+                        viewModel.showCoinsDialog(false)
+                    }
+                )
+            }
+
+            if (state.showKeyboardHintDialog){
+                BuyHintDialog(
+                    hintType = HintType.KEYBOARD,
+                    onDismiss = {
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.KEYBOARD,
+                            show = false
+                        )
+                    },
+                    onAccept = {
+                        viewModel.disable4KeyboardLettersHint(state.userCoins)
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.KEYBOARD,
+                            show = false
+                        )
+                    }
+                )
+            }
+
+            if (state.showLetterHintDialog){
+                BuyHintDialog(
+                    hintType = HintType.ONE_LETTER,
+                    onDismiss = {
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.ONE_LETTER,
+                            show = false
+                        )
+                    },
+                    onAccept = {
+                        viewModel.getOneLetterWord(state.userCoins)
+                        viewModel.hintDialogHandler(
+                            hintType = HintType.ONE_LETTER,
+                            show = false
+                        )
+                    }
+                )
+
             }
 
             AnimatedContent(state.gameSituation, label = "") { situation ->
@@ -235,10 +313,10 @@ fun HardScreen(
                     }
                     .aspectRatio(1f),
                 icon = R.drawable.text_magnifying_glass,
-                hintsRemaining = state.lettersHintsRemaining,
-                clickEnabled = state.lettersHintsRemaining > 0
+                hintCoast = ONE_LETTER_HINT_PRICE,
+                clickEnabled = state.userCoins >= ONE_LETTER_HINT_PRICE
             ) {
-                viewModel.showRewardedAd(activity, RewardedAdType.ONE_LETTER)
+                viewModel.hintDialogHandler(HintType.ONE_LETTER, true)
             }
 
             HintBox(
@@ -251,10 +329,10 @@ fun HardScreen(
                         height = Dimension.fillToConstraints
                     },
                 icon = R.drawable.packages,
-                hintsRemaining = state.keyboardHintsRemaining,
-                clickEnabled = state.keyboardHintsRemaining > 0
+                hintCoast = KEYBOARD_HINT_PRICE,
+                clickEnabled = state.userCoins >= KEYBOARD_HINT_PRICE
             ) {
-                viewModel.showRewardedAd(activity, RewardedAdType.KEYBOARD)
+                viewModel.hintDialogHandler(HintType.KEYBOARD, true)
             }
 
             BoxWithConstraints(
@@ -565,7 +643,7 @@ fun HardScreen(
                     if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(GameEvents.OnAcceptClick)
+                        viewModel.onEvent(GameEvents.OnAcceptClick(state.userCoins))
                     }
                 },
                 onAcceptState =  if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,

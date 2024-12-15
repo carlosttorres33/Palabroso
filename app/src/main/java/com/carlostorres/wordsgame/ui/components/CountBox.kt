@@ -27,12 +27,11 @@ fun CountBox(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, color),
         colors = CardDefaults.cardColors(
             containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
+            defaultElevation = 0.dp
         )
     ) {
         Text(

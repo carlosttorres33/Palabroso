@@ -19,7 +19,12 @@ object Constants {
     const val LAST_PLAYED_DATE_KEY = "last_played_date"
 
     const val CAN_ACCESS_TO_APP_KEY = "can_access_to_app"
+
+    const val COINS_KEY = "coins"
     //endregion
+
+    const val ONE_LETTER_HINT_PRICE = 75
+    const val KEYBOARD_HINT_PRICE = 50
 
     //region Firebase
     const val REMOTE_CONFIG_MIN_VERSION_KEY = "min_version"

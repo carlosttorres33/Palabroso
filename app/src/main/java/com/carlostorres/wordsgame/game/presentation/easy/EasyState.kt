@@ -6,8 +6,10 @@ import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
 
 data class EasyState(
-    //Variable que almacena el texto ingresado por el usuario
-    //val inputText: String = "",
+
+    val showLetterHintDialog : Boolean = false,
+    val showKeyboardHintDialog : Boolean = false,
+    val userCoins : Int = 0,
 
     val inputList : List<Char?> = (1..4).map { null },
     val indexFocused : Int = 0, ////Podemos hacerlo nulo para liberar el Foco cuando ningun elemento de la lista esta vacio, solo si clickeamos algun elemento se hace focus ahi
@@ -17,6 +19,8 @@ data class EasyState(
 
     val lettersHintsRemaining : Int = 1,
     val keyboardHintsRemaining : Int = 1,
+
+    val showCoinsDialog : Boolean = false,
 
     val indexesGuessed : List<Int> = emptyList(),
 

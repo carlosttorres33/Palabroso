@@ -17,7 +17,6 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
-import com.carlostorres.wordsgame.game.presentation.easy.RewardedAdType
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -25,6 +24,7 @@ import com.carlostorres.wordsgame.utils.Constants.EP_6_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.HintType
 import com.carlostorres.wordsgame.utils.difficultToString
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -70,6 +71,8 @@ class HardViewModel @Inject constructor(
         win = true
     )
 
+    //val userCoins = useCases.getCoinsUseCase()
+
     val gameLostCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
         difficult = difficultToString(GameDifficult.Hard),
         win = false
@@ -77,9 +80,14 @@ class HardViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            useCases.readDailyStatsUseCase().collect { stats ->
-                _userDailyStats.value = stats
-            }
+            getDailyStats()
+            getUserCoins()
+        }
+    }
+
+    private fun getDailyStats() = viewModelScope.launch(Dispatchers.IO) {
+        useCases.readDailyStatsUseCase().collect { stats ->
+            _userDailyStats.value = stats
         }
     }
 
@@ -151,7 +159,7 @@ class HardViewModel @Inject constructor(
         )
     }
 
-    private fun onAcceptClick() = viewModelScope.launch {
+    private fun onAcceptClick(actualUserCoins: Int) = viewModelScope.launch {
 
         state = state.copy(
             wordsTried = state.wordsTried.plus(state.inputList.joinToString(""))
@@ -164,6 +172,7 @@ class HardViewModel @Inject constructor(
                 gameSituation = GameSituations.GameWon
             )
             increaseHardGamesPlayed()
+            getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
         } else if (state.tryNumber >= 4) {
             state = state.copy(
@@ -294,7 +303,7 @@ class HardViewModel @Inject constructor(
         when (event) {
 
             is GameEvents.OnAcceptClick -> {
-                onAcceptClick()
+                onAcceptClick(event.actualUserCoins)
             }
 
             is GameEvents.OnFocusChange -> {
@@ -364,7 +373,7 @@ class HardViewModel @Inject constructor(
         return state.indexFocused.minus(1).coerceAtLeast(0) ?: 0
     }
 
-    private fun disable4KeyboardLettersHint(){
+    fun disable4KeyboardLettersHint(actualUserCoins: Int){
 
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
@@ -374,6 +383,8 @@ class HardViewModel @Inject constructor(
             }
             possibleIndex
         }
+
+        buyHint(HintType.KEYBOARD, actualUserCoins)
 
         state = state.copy(
             keyboard = state.keyboard.mapIndexed { index, keyboardChar ->
@@ -388,15 +399,17 @@ class HardViewModel @Inject constructor(
 
     }
 
-    private fun getOneLetterWord() {
+    fun getOneLetterWord(actualUserCoins: Int) {
 
         if (state.indexesGuessed.size == 6){
-            Toast.makeText(context, "Ya tienes todas las letras pero gracias por ver", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Parece que ya tienes todas las letras", Toast.LENGTH_SHORT).show()
             state = state.copy(
                 lettersHintsRemaining = state.lettersHintsRemaining-1
             )
             return
         }
+
+        buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
 
         val indexesUnknowns = (0..5).mapNotNull { index ->
             if (state.indexesGuessed.contains(index)){
@@ -417,13 +430,32 @@ class HardViewModel @Inject constructor(
                 }
             },
             lettersHintsRemaining = state.lettersHintsRemaining - 1,
-            indexesGuessed = state.indexesGuessed.plus(indexToShow),
+            indexesGuessed = state.indexesGuessed.plus(indexToShow)
+        )
+
+        state = state.copy(
             indexFocused = getNextFocusedIndex()
         )
 
     }
 
-    fun showRewardedAd(activity: Activity, adType: RewardedAdType) {
+    private fun getCoinsFromAd(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 75)
+    }
+
+    private fun getCoinsFromWin(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 25)
+    }
+
+    private fun buyHint(hintType: HintType, actualUserCoins: Int) = viewModelScope.launch {
+        val discount = when(hintType){
+            HintType.ONE_LETTER -> 75
+            HintType.KEYBOARD -> 50
+        }
+        useCases.updateCoinsUseCase(actualUserCoins - discount)
+    }
+
+    fun showRewardedAd(activity: Activity, actualUserCoins: Int) {
         state = state.copy(gameSituation = GameSituations.GameLoading)
         loadRewardedAd(activity){ rewardedAd ->
 
@@ -432,16 +464,7 @@ class HardViewModel @Inject constructor(
                 rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback(){
                     override fun onAdDismissedFullScreenContent() {
                         super.onAdDismissedFullScreenContent()
-                        when(adType){
-                            RewardedAdType.ONE_LETTER ->{
-                                Log.d("EasyViewModel", "One letter hint")
-                                getOneLetterWord()
-                            }
-                            RewardedAdType.KEYBOARD -> {
-                                Log.d("EasyViewModel", "Keyboard hint")
-                                disable4KeyboardLettersHint()
-                            }
-                        }
+                        getCoinsFromAd(actualUserCoins)
                         state = state.copy(gameSituation = GameSituations.GameInProgress)
                     }
                 }
@@ -561,6 +584,36 @@ class HardViewModel @Inject constructor(
             lettersHintsRemaining = 1,
             keyboardHintsRemaining = 1,
             indexesGuessed = emptyList()
+        )
+    }
+
+    private fun getUserCoins() = viewModelScope.launch {
+        useCases.getCoinsUseCase().collectLatest{ coins ->
+            state = state.copy(
+                userCoins = coins
+            )
+        }
+    }
+
+    fun hintDialogHandler(hintType: HintType, show: Boolean){
+        state = when(hintType){
+            HintType.ONE_LETTER -> {
+                state.copy(
+                    showLetterHintDialog = show
+                )
+            }
+
+            HintType.KEYBOARD -> {
+                state.copy(
+                    showKeyboardHintDialog = show
+                )
+            }
+        }
+    }
+
+    fun showCoinsDialog(show: Boolean) {
+        state = state.copy(
+            showCoinsDialog = show
         )
     }
 

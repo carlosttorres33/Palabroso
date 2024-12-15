@@ -17,4 +17,8 @@ interface DataStoreOperations {
 
     fun readCanAccessToApp(): Flow<Boolean>
 
+    suspend fun updateCoins(coins: Int)
+
+    fun getCoins(): Flow<Int>
+
 }

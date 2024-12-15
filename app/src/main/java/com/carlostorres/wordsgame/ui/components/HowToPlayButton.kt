@@ -35,7 +35,7 @@ fun HowToPlayButton(
         onClick = {
             onClick()
         },
-        shape = RoundedCornerShape(topEnd = 20.dp, topStart = 6.dp, bottomStart = 20.dp, bottomEnd = 6.dp)
+        shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp, bottomStart = 20.dp, bottomEnd = 2.dp)
     ) {
         Row {
             Text(

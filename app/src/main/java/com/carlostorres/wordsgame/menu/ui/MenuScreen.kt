@@ -5,20 +5,19 @@ import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
-import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,9 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,7 +47,6 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -60,12 +56,16 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.menu.presentation.MenuViewModel
 import com.carlostorres.wordsgame.ui.components.HowToPlayButton
 import com.carlostorres.wordsgame.ui.components.BannerAd
+import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import java.text.SimpleDateFormat
@@ -82,7 +82,6 @@ fun MenuScreen(
     val context = LocalContext.current
     val activity = context as Activity
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
     val snackBarHostState = remember {
         SnackbarHostState()
     }
@@ -92,7 +91,7 @@ fun MenuScreen(
     val userDailyStats = viewModel.dailyStats.collectAsState()
     val canAccessToApp = viewModel.canAccessToApp.collectAsState()
 
-    val colorText = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
+    val textColor = if (isSystemInDarkTheme()) DarkTextGray else Color.Black
 
     val currentDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
 
@@ -140,21 +139,40 @@ fun MenuScreen(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
-        else LightBackgroundGray,
+            else LightBackgroundGray,
         topBar = {
             CenterAlignedTopAppBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(TOP_BAR_HEIGHT.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
-                    else LightBackgroundGray
+                        else LightBackgroundGray
                 ),
                 title = {
-                    Text(
-                        modifier = Modifier,
-                        text = "PALABROSO",
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            text = "PALABROSO",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                actions = {
+                    CoinsCounter(
+                        icon = R.drawable.coins,
+                        coinsRemaining = state.userCoins,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(100.dp)
+                    ) {
+                        viewModel.showCoinsDialog(true)
+                    }
                 }
             )
         },
@@ -218,7 +236,7 @@ fun MenuScreen(
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "Animation by: naiandersonbruno",
-                            color = colorText.copy(alpha = 0.7f),
+                            color = textColor.copy(alpha = 0.7f),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End,
                             fontSize = 10.sp
@@ -239,7 +257,7 @@ fun MenuScreen(
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorText
+                color = textColor
             )
 
             MyButton(
@@ -254,8 +272,7 @@ fun MenuScreen(
                         context,
                         "Ya jugaste todas las palabras de 4 letras de hoy",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     onDifficultySelected(GameDifficult.Easy)
                 }
@@ -273,8 +290,7 @@ fun MenuScreen(
                         context,
                         "Ya jugaste todas las palabras de 5 letras de hoy",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     onDifficultySelected(GameDifficult.Normal)
                 }
@@ -292,8 +308,7 @@ fun MenuScreen(
                         context,
                         "Ya jugaste todas las palabras de 6 letras de hoy",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 } else {
                     onDifficultySelected(GameDifficult.Hard)
                 }
@@ -317,7 +332,7 @@ fun MenuScreen(
                         width = Dimension.value(30.dp)
                     },
                 colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = colorText.copy(alpha = 0.7f)
+                    contentColor = textColor.copy(alpha = 0.7f)
                 ),
                 onClick = {
                     onStatsClick()
@@ -347,7 +362,23 @@ fun MenuScreen(
                     }
             )
 
-            if (state.blockVersion || !canAccessToApp.value) {
+            if (state.isLoading) {
+                LoadingDialog()
+            }
+
+            if (state.showCoinsDialog) {
+                GetCoinsDialog(
+                    onAcceptClick = {
+                        viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
+                        viewModel.showCoinsDialog(false)
+                    },
+                    onCancelClick = {
+                        viewModel.showCoinsDialog(false)
+                    }
+                )
+            }
+
+            if (state.blockVersion || canAccessToApp.value) {
                 UpdateDialog()
             }
 

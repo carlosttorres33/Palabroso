@@ -1,23 +1,34 @@
 package com.carlostorres.wordsgame.menu.presentation
 
+import android.app.Activity
+import android.content.Context
 import android.icu.util.Calendar
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.MenuUseCases
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnUserEarnedRewardListener
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -25,6 +36,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MenuViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val useCases: GameUseCases,
     private val menuUseCases: MenuUseCases,
     private val connectivityObserver: ConnectivityObserver
@@ -49,24 +61,46 @@ class MenuViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
-    private val _canAccessToApp = MutableStateFlow(true)
+    private val _canAccessToApp = MutableStateFlow(false)
     val canAccessToApp: StateFlow<Boolean> = _canAccessToApp.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             checkUserVersion()
-            useCases.readDailyStatsUseCase().collect { stats ->
-                _dailyStats.value = stats
-            }
-            menuUseCases.readAccessToAppUseCase().collect {
-                _canAccessToApp.value = it
-            }
+            getDailyStats()
+            canAccessToApp()
+            getUserCoins()
         }
+    }
+
+    private fun getCoinsFromAd(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
+        useCases.updateCoinsUseCase(actualUserCoins + 75)
     }
 
     fun updateDailyStats(stats: UserDailyStats) {
         viewModelScope.launch(Dispatchers.IO) {
             useCases.updateDailyStatsUseCase(stats)
+        }
+    }
+
+    //region InitFunctions
+    private fun canAccessToApp() = viewModelScope.launch {
+        menuUseCases.readAccessToAppUseCase().collectLatest { canAccess ->
+            _canAccessToApp.value = canAccess
+        }
+    }
+
+    private fun getDailyStats() = viewModelScope.launch {
+        useCases.readDailyStatsUseCase().collectLatest { stats ->
+            _dailyStats.value = stats
+        }
+    }
+
+    private fun getUserCoins() = viewModelScope.launch {
+        useCases.getCoinsUseCase().collectLatest{ coins ->
+            state = state.copy(
+                userCoins = coins
+            )
         }
     }
 
@@ -77,10 +111,65 @@ class MenuViewModel @Inject constructor(
             state = state.copy(
                 blockVersion = !result
             )
-            if (result != null) {
-                menuUseCases.saveAccessToAppUseCase(!result)
-            }
+            menuUseCases.saveAccessToAppUseCase(!result)
         }
+    }
+    //endregion
+
+    //region Rewarded Ad
+    fun showRewardedAd(activity: Activity, actualUserCoins: Int) {
+        state = state.copy(isLoading = true)
+        loadRewardedAd(activity){ rewardedAd ->
+
+            if (rewardedAd != null){
+
+                rewardedAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+                    override fun onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent()
+                        getCoinsFromAd(actualUserCoins)
+                        state = state.copy(isLoading = false)
+                    }
+                }
+
+                rewardedAd.show(activity, OnUserEarnedRewardListener { rewardItem ->
+                    val amount = rewardItem.amount
+                })
+
+            }else{
+                Toast.makeText(context, "Por ahora no se puede mostrar el anuncio :c", Toast.LENGTH_SHORT).show()
+                state = state.copy(isLoading = false)
+            }
+
+        }
+    }
+
+    private fun loadRewardedAd(activity: Activity, callback: (RewardedAd?) -> Unit) {
+        val adRequest = com.google.android.gms.ads.AdRequest.Builder().build()
+
+        RewardedAd.load(
+            activity,
+            context.getString(R.string.ad_rewarded_id),
+            adRequest,
+            object : RewardedAdLoadCallback(){
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    super.onAdFailedToLoad(error)
+                    callback(null)
+                }
+
+                override fun onAdLoaded(rewardedAd: RewardedAd) {
+                    super.onAdLoaded(rewardedAd)
+                    callback(rewardedAd)
+                }
+            }
+        )
+
+    }
+    //endregion
+
+    fun showCoinsDialog(show: Boolean){
+        state = state.copy(
+            showCoinsDialog = show
+        )
     }
 
 }
