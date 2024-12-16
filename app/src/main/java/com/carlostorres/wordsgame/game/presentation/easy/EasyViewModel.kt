@@ -408,13 +408,11 @@ class EasyViewModel @Inject constructor(
                 }
 
             } else {
-                Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
                 if (ifBack || dailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {
                     setUpGame()
                 }
-
                 Log.e("EasyViewModel", "Ad is null")
             }
         }

@@ -399,7 +399,6 @@ class NormalViewModel @Inject constructor(
                 }
 
             } else {
-                Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
                 if (ifBack || userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {

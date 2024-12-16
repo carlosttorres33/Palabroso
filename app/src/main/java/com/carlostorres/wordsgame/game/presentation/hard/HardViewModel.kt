@@ -527,8 +527,6 @@ class HardViewModel @Inject constructor(
                 }
 
             } else {
-                Toast.makeText(context, "Te Salvaste del anuncio :c", Toast.LENGTH_SHORT).show()
-
                 if (ifBack || userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED) {
                     navHome()
                 } else {
