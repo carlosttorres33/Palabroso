@@ -92,6 +92,7 @@ class MenuViewModel @Inject constructor(
 
     private fun getDailyStats() = viewModelScope.launch {
         useCases.readDailyStatsUseCase().collectLatest { stats ->
+            Log.d("MenuViewModel", stats.toString())
             _dailyStats.value = stats
         }
     }

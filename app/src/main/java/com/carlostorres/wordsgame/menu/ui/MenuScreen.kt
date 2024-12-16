@@ -3,6 +3,7 @@ package com.carlostorres.wordsgame.menu.ui
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.icu.util.Calendar
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -100,8 +101,8 @@ fun MenuScreen(
     val showNoWords by remember {
         derivedStateOf {
             userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED &&
-                    userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED &&
-                    userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+            userDailyStats.value.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED &&
+            userDailyStats.value.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
         }
     }
 
@@ -113,7 +114,9 @@ fun MenuScreen(
         activity?.requestedOrientation = requestedOrientation
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(userDailyStats.value.lastPlayedDate) {
+        Log.d("MenuScreen", "${userDailyStats.value.lastPlayedDate} -- $currentDate")
+        Log.d("MenuScreen", "${userDailyStats.value.lastPlayedDate != currentDate}")
         if (userDailyStats.value.lastPlayedDate != currentDate) {
             viewModel.updateDailyStats(
                 UserDailyStats(
