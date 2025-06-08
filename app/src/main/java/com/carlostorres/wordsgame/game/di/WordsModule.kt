@@ -10,10 +10,12 @@ import com.carlostorres.wordsgame.game.data.local.StatsGameDatabase
 import com.carlostorres.wordsgame.game.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.game.data.remote.WordApi
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl
+import com.carlostorres.wordsgame.game.data.repository.ReportWordRepoImpl
 import com.carlostorres.wordsgame.game.data.repository.StatsRepoImpl
 import com.carlostorres.wordsgame.game.data.repository.WordsRepositoryImplementation
 import com.carlostorres.wordsgame.game.domain.usecases.settings.CanAccessToAppUseCase
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
+import com.carlostorres.wordsgame.game.domain.repository.ReportWordRepository
 import com.carlostorres.wordsgame.game.domain.repository.StatsRepo
 import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
@@ -36,6 +38,10 @@ import com.carlostorres.wordsgame.game.domain.usecases.stats.UpsertStatsUseCase
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.ConnectivityObserverImpl
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL_FIREBASE
+import com.carlostorres.wordsgame.utils.Constants.REPORT_WORD_COLLECTION_PATH
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -210,5 +216,15 @@ object WordsModule {
         saveAccessToAppUseCase = SaveAccessToAppDataStore(dataStoreOperations),
         readAccessToAppUseCase = ReadAccessToAppDataStore(dataStoreOperations)
     )
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore() : FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideReportWordRepository(
+        firestore: FirebaseFirestore
+    ) : ReportWordRepository = ReportWordRepoImpl(firestore = firestore)
 
 }

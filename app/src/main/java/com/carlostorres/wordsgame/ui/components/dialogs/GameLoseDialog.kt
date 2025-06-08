@@ -1,8 +1,10 @@
 package com.carlostorres.wordsgame.ui.components.dialogs
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,7 +40,10 @@ fun GameLoseDialog(
     secretWord: String,
     onRetryClick: () -> Unit,
     onHomeClick: () -> Unit,
-    isGameLimitReached: Boolean
+    isGameLimitReached: Boolean,
+    reportWordEnabled: Boolean = true,
+    onReportWordClick: () -> Unit = {},
+    isConnected: Boolean = true
 ) {
 
     Dialog(onDismissRequest = {}) {
@@ -55,6 +60,21 @@ fun GameLoseDialog(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                if (reportWordEnabled) {
+                    Row {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            modifier = Modifier
+                                .padding(end = 8.dp, top = 3.dp)
+                                .clickable(enabled = isConnected) {
+                                    onReportWordClick()
+                                },
+                            text = "¡Reportar palabra!",
+                            color = if (isSystemInDarkTheme()) DarkRed else LightRed,
+                        )
+                    }
+                }
 
                 Text(
                     modifier = Modifier

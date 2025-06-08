@@ -57,6 +57,7 @@ import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.ReportWordDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
@@ -69,6 +70,7 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
+import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.ONE_LETTER_HINT_PRICE
@@ -87,6 +89,8 @@ fun EasyScreen(
     val activity = context as Activity
 
     val state = viewModel.state
+
+    val isConnected by viewModel.isConnected.collectAsState()
 
     val userDailyStats = viewModel.dailyStats.collectAsState(
         initial = UserDailyStats(
@@ -249,7 +253,12 @@ fun EasyScreen(
                                     ifBack = true
                                 )
                             },
-                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
+                            isConnected = (isConnected == ConnectionStatus.Available),
+                            reportWordEnabled = true,
+                            onReportWordClick = {
+                                viewModel.showReportWordDialog(true)
+                            }
                         )
                     }
 
@@ -265,6 +274,18 @@ fun EasyScreen(
                         )
                     }
                 }
+            }
+
+            if (state.showReportWordDialog) {
+                ReportWordDialog(
+                    word = "Pepe",
+                    onReportClick = {
+
+                    },
+                    onCancelClick = {
+                        viewModel.showReportWordDialog(false)
+                    }
+                )
             }
 
             if (showWordAlreadyTried) {
@@ -283,7 +304,7 @@ fun EasyScreen(
                 )
             }
 
-            if (state.showKeyboardHintDialog){
+            if (state.showKeyboardHintDialog) {
                 BuyHintDialog(
                     hintType = HintType.KEYBOARD,
                     onDismiss = {
@@ -302,7 +323,7 @@ fun EasyScreen(
                 )
             }
 
-            if (state.showLetterHintDialog){
+            if (state.showLetterHintDialog) {
                 BuyHintDialog(
                     hintType = HintType.ONE_LETTER,
                     onDismiss = {

@@ -1,9 +1,10 @@
 package com.carlostorres.wordsgame.ui.components.dialogs
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,14 +25,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.carlostorres.wordsgame.ui.components.CornerButton
-import com.carlostorres.wordsgame.ui.components.GameDifficult
-import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
+import com.carlostorres.wordsgame.ui.theme.DarkRed
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.DarkYellow
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
+import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.LightYellow
 import com.carlostorres.wordsgame.ui.theme.ROUND_CORNER_SIZE
 import com.carlostorres.wordsgame.utils.ButtonPlace
@@ -44,7 +45,10 @@ import java.util.concurrent.TimeUnit
 fun GameWinDialog(
     onRematchClick: () -> Unit,
     onHomeClick: () -> Unit,
-    isGameLimitReached: Boolean
+    isGameLimitReached: Boolean,
+    reportWordEnabled: Boolean = true,
+    onReportWordClick: () -> Unit = {},
+    isConnected: Boolean = true
 ) {
     Dialog(onDismissRequest = {}) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -63,6 +67,21 @@ fun GameWinDialog(
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
+                    if (reportWordEnabled) {
+                        Row {
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                modifier = Modifier
+                                    .padding(end = 8.dp, top = 3.dp)
+                                    .clickable(enabled = isConnected) {
+                                        onReportWordClick()
+                                    },
+                                text = "¡Reportar palabra!",
+                                color = if (isSystemInDarkTheme()) DarkRed else LightRed,
+                            )
+                        }
+                    }
 
                     Text(
                         modifier = Modifier
@@ -151,5 +170,9 @@ fun GameWinDialog(
 @Preview
 @Composable
 private fun GameWinDialogPreview() {
-    GameWinDialog(onRematchClick = { /*TODO*/ }, onHomeClick = { /*TODO*/ }, isGameLimitReached = false)
+    GameWinDialog(
+        onRematchClick = { /*TODO*/ },
+        onHomeClick = { /*TODO*/ },
+        isGameLimitReached = false
+    )
 }

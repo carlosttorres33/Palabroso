@@ -23,3 +23,4 @@ val DarkCustomGray = Color(0xFF7F8C8D)
 val DarkBackgroundGray = Color(0xFF34495E)
 val DarkTextGray = Color(0xFFECF0F1)
 
+val DisableButtonGray = Color(0xFF192128)

@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DisableButtonGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.ROUND_CORNER_SIZE
 import com.carlostorres.wordsgame.utils.ButtonPlace
@@ -21,6 +22,7 @@ fun CornerButton(
     buttonPlace: ButtonPlace,
     buttonText : String,
     textColor : Color,
+    isEnabled: Boolean = true,
     onClick: () -> Unit,
 ) {
 
@@ -48,9 +50,10 @@ fun CornerButton(
 
     Button(
         modifier = modifier,
+        enabled = isEnabled,
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray
-            else LightBackgroundGray
+            containerColor = if (isSystemInDarkTheme()) DarkBackgroundGray else LightBackgroundGray,
+            disabledContainerColor = DisableButtonGray,
         ),
         shape = rounded,
         elevation = ButtonDefaults.buttonElevation(

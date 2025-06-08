@@ -14,12 +14,15 @@ import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
+import com.carlostorres.wordsgame.game.domain.repository.ReportWordRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.utils.ConnectionStatus
+import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.EP_4_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
@@ -39,9 +42,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -50,11 +55,19 @@ import javax.inject.Inject
 class EasyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: GameUseCases,
-    private val gameStatsUseCases: GameStatsUseCases
+    private val gameStatsUseCases: GameStatsUseCases,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
     var state by mutableStateOf(EasyState())
         private set
+
+
+    val isConnected = connectivityObserver.isConnected.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        ConnectionStatus.Available
+    )
 
     private val _dailyStats = MutableStateFlow(
         UserDailyStats(
@@ -600,6 +613,12 @@ class EasyViewModel @Inject constructor(
     fun showCoinsDialog(show: Boolean) {
         state = state.copy(
             showCoinsDialog = show
+        )
+    }
+
+    fun showReportWordDialog(show: Boolean) {
+        state = state.copy(
+            showReportWordDialog = show
         )
     }
 
