@@ -1,6 +1,5 @@
 package com.carlostorres.wordsgame.game.data.remote
 
-import retrofit2.Response
 import javax.inject.Inject
 
 class RemoteWordDataSource @Inject constructor(

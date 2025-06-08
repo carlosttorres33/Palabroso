@@ -1,6 +1,5 @@
 package com.carlostorres.wordsgame.game.data.repository
 
-import android.util.Log
 import com.carlostorres.wordsgame.game.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.domain.repository.StatsRepo
