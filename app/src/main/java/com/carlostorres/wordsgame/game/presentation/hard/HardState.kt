@@ -2,7 +2,6 @@ package com.carlostorres.wordsgame.game.presentation.hard
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
-import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
 
