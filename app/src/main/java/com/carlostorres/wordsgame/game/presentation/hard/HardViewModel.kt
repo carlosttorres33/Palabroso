@@ -123,7 +123,7 @@ class HardViewModel @Inject constructor(
                     dayTries = userDailyStats.value.hardGamesPlayed,
                     group = EP_6_LETTERS,
                     gameDifficult = difficultToString(GameDifficult.Hard)
-                )
+                ).word
 
                 if (!word.isNullOrEmpty()) {
                     state = state.copy(

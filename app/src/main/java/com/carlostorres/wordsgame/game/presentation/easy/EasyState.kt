@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.presentation.easy
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
+import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
@@ -40,7 +41,7 @@ data class EasyState(
     val gameSituation : GameSituations = GameSituations.GameInProgress,
 
     //Palabra secreta a adivinar
-    val secretWord : String = "",
+    val secretWord : WordModel = WordModel("", 0),
 
     //Lista de palabras secretas jugadas
     val secretWordsList : List<String> = emptyList(),

@@ -122,7 +122,7 @@ class NormalViewModel @Inject constructor(
                     dayTries = userDailyStats.value.normalGamesPlayed,
                     group = EP_5_LETTERS,
                     gameDifficult = difficultToString(GameDifficult.Normal)
-                )
+                ).word
 
                 state = if (!word.isNullOrEmpty()) {
                     state.copy(

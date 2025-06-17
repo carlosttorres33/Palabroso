@@ -57,7 +57,7 @@ import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.ReportWordDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.report.ReportWordDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
@@ -115,7 +115,7 @@ fun EasyScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (state.secretWord.isEmpty()) {
+        if (state.secretWord.word.isEmpty()) {
             viewModel.setUpGame()
         }
     }
@@ -217,7 +217,7 @@ fun EasyScreen(
 
                     GameSituations.GameLost -> {
                         GameLoseDialog(
-                            secretWord = state.secretWord,
+                            secretWord = state.secretWord.word,
                             onRetryClick = {
                                 viewModel.showInterstitial(
                                     activity,
@@ -278,10 +278,9 @@ fun EasyScreen(
 
             if (state.showReportWordDialog) {
                 ReportWordDialog(
-                    word = "Pepe",
-                    onReportClick = {
-
-                    },
+                    word = state.secretWord.word,
+                    wordLength = 4,
+                    wordId = state.secretWord.id.toString(),
                     onCancelClick = {
                         viewModel.showReportWordDialog(false)
                     }

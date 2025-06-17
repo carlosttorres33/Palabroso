@@ -13,11 +13,13 @@ import androidx.lifecycle.viewModelScope
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.data.model.TryInfo
+import com.carlostorres.wordsgame.game.data.remote.model.ReportWordDto
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.repository.ReportWordRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
+import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
@@ -108,7 +110,7 @@ class EasyViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             gameStatsUseCases.upsertStatsUseCase(
                 StatsEntity(
-                    wordGuessed = state.secretWord,
+                    wordGuessed = state.secretWord.word,
                     gameDifficult = difficultToString(GameDifficult.Easy),
                     win = win,
                     attempts = tryNumber
@@ -136,11 +138,11 @@ class EasyViewModel @Inject constructor(
                     gameDifficult = difficultToString(GameDifficult.Easy)
                 )
 
-                if (!word.isNullOrEmpty()) {
+                if (word.word.isNotEmpty()) {
                     state = state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
-                        secretWordsList = state.secretWordsList.plus(word)
+                        secretWordsList = state.secretWordsList.plus(word.word)
                     )
                 }else{
                     state = state.copy(
@@ -176,7 +178,7 @@ class EasyViewModel @Inject constructor(
 
         val resultado = validateIfWordContainsLetter()
 
-        if (state.inputList.joinToString("").uppercase() == state.secretWord.uppercase()) {
+        if (state.inputList.joinToString("").uppercase() == state.secretWord.word.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
             )
@@ -193,7 +195,7 @@ class EasyViewModel @Inject constructor(
 
         Log.d(
             "EasyViewModel",
-            "Result: ${state.inputList.joinToString("").uppercase()} == ${state.secretWord.uppercase()}"
+            "Result: ${state.inputList.joinToString("").uppercase()} == ${state.secretWord.word.uppercase()}"
         )
 
         when (state.tryNumber) {
@@ -342,8 +344,8 @@ class EasyViewModel @Inject constructor(
 
         val result = mutableListOf<Pair<String, WordCharState>>()
 
-        for (i in state.secretWord.indices) {
-            if (state.secretWord[i].uppercase() == state.inputList[i]?.uppercase().orEmpty()) {
+        for (i in state.secretWord.word.indices) {
+            if (state.secretWord.word[i].uppercase() == state.inputList[i]?.uppercase().orEmpty()) {
                 result.add(Pair(state.inputList[i].toString(), WordCharState.IsOnPosition))
                 state = state.copy(
                     keyboard = state.keyboard.map {
@@ -354,7 +356,7 @@ class EasyViewModel @Inject constructor(
                     //adding the index to the list of indexes guessed
                     indexesGuessed = if (state.indexesGuessed.contains(i)) state.indexesGuessed else state.indexesGuessed.plus(i)
                 )
-            } else if (state.secretWord.uppercase()
+            } else if (state.secretWord.word.uppercase()
                     .contains(state.inputList[i]?.uppercase().orEmpty())
             ) {
                 result.add(Pair(state.inputList[i].toString(), WordCharState.IsOnWord))
@@ -387,7 +389,7 @@ class EasyViewModel @Inject constructor(
             intento3 = TryInfo(),
             intento4 = TryInfo(),
             isGameWon = null,
-            secretWord = "",
+            secretWord = WordModel("", 0),
             keyboard = keyboardCreator(),
             wordsTried = emptyList(),
             inputList = (1..4).map { null },
@@ -436,7 +438,7 @@ class EasyViewModel @Inject constructor(
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
             var possibleIndex = (0 until state.keyboard.size).random()
-            while (state.secretWord.contains(state.keyboard[possibleIndex].char) || state.keyboard[possibleIndex].type == ButtonType.IsNotInWord){
+            while (state.secretWord.word.contains(state.keyboard[possibleIndex].char) || state.keyboard[possibleIndex].type == ButtonType.IsNotInWord){
                 possibleIndex = (0 until state.keyboard.size).random()
             }
             possibleIndex
@@ -482,7 +484,7 @@ class EasyViewModel @Inject constructor(
         state = state.copy(
             inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
                 if (currentIndex == indexToShow){
-                    state.secretWord[indexToShow]
+                    state.secretWord.word[indexToShow]
                 }else{
                     currentChar
                 }

@@ -35,6 +35,7 @@ import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveInstructions
 import com.carlostorres.wordsgame.game.domain.usecases.stats.GetAllStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpdateDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpsertStatsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.words.ReportWordUseCase
 import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.ConnectivityObserverImpl
 import com.carlostorres.wordsgame.utils.Constants.BASE_URL_FIREBASE
@@ -226,5 +227,11 @@ object WordsModule {
     fun provideReportWordRepository(
         firestore: FirebaseFirestore
     ) : ReportWordRepository = ReportWordRepoImpl(firestore = firestore)
+
+    @Provides
+    @Singleton
+    fun provideReportWordUseCase(
+        repository: ReportWordRepository
+    ) : ReportWordUseCase = ReportWordUseCase(repository)
 
 }

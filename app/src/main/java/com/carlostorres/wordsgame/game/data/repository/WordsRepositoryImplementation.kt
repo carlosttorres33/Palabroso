@@ -5,6 +5,7 @@ import android.util.Log
 import com.carlostorres.wordsgame.game.data.local.LocalWordsDataSource
 import com.carlostorres.wordsgame.game.data.remote.RemoteWordDataSource
 import com.carlostorres.wordsgame.game.domain.repository.WordsRepository
+import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.utils.Constants.REMOTE_CONFIG_MIN_VERSION_KEY
 import com.carlostorres.wordsgame.utils.InternetCheck
 import com.carlostorres.wordsgame.utils.removeAccents
@@ -25,7 +26,7 @@ class WordsRepositoryImplementation @Inject constructor(
         dayTries: Int,
         wordLength: Int,
         gameDifficult: String
-    ): String? {
+    ): WordModel {
 
         var id = (0..250).random()
 
@@ -41,20 +42,26 @@ class WordsRepositoryImplementation @Inject constructor(
 
             if (word != null) {
                 while (wordsGuessedList.contains(word) || word!!.length != wordLength) {
-                    id = (0..250).random()
+                    id = (1..250).random()
                     word = remoteDataSource.getRandomWord(group = group, id = id.toString())
                 }
             }
 
             Log.d("WordsRepo", "New Word: $word")
-            word?.trim()?.take(wordLength)?.uppercase() ?: ""
+            WordModel(
+                word = word?.trim()?.take(wordLength)?.uppercase() ?: "",
+                id = id
+            )
 
         } else {
 
             val word = getOfflineRandomWord(wordsTried = wordsTried, length = wordLength)
 
             Log.d("WordsRepo", word)
-            removeAccents(word.trim().take(wordLength)).uppercase()
+            WordModel(
+                word = word,
+                id = 0
+            )
         }
     }
 
