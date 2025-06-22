@@ -28,7 +28,7 @@ object Constants {
 
     //region Firebase
     const val REMOTE_CONFIG_MIN_VERSION_KEY = "min_version"
-    const val REPORT_WORD_COLLECTION_PATH = "Reported_Words"
+    const val REPORT_WORD_COLLECTION_PATH = "_letters"
     //endregion
 
     //region Game
