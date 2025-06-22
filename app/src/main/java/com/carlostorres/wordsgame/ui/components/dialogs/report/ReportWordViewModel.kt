@@ -17,7 +17,7 @@ class ReportWordViewModel @Inject constructor(
     private val reportWordUseCase: ReportWordUseCase
 ) : ViewModel() {
 
-    val _state = MutableStateFlow<ViewState<Boolean>>(ViewState.IDLE)
+    private val _state = MutableStateFlow<ViewState<Boolean>>(ViewState.IDLE)
     val state = _state.asStateFlow()
 
     fun reportWord(
@@ -43,5 +43,7 @@ class ReportWordViewModel @Inject constructor(
         }
 
     }
+
+    fun resetState() { _state.value = ViewState.IDLE }
 
 }
