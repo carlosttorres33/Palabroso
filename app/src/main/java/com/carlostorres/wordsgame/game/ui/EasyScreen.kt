@@ -93,7 +93,7 @@ fun EasyScreen(
 
     val isConnected by viewModel.isConnected.collectAsState()
 
-    val userDailyStats = viewModel.dailyStats.collectAsState(
+    val userDailyStats by viewModel.dailyStats.collectAsState(
         initial = UserDailyStats(
             easyGamesPlayed = 0,
             normalGamesPlayed = 0,
@@ -236,7 +236,7 @@ fun EasyScreen(
                                     ifBack = true
                                 )
                             },
-                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+                            isGameLimitReached = userDailyStats.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
                         )
                     }
 
@@ -254,7 +254,7 @@ fun EasyScreen(
                                     ifBack = true
                                 )
                             },
-                            isGameLimitReached = userDailyStats.value.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
+                            isGameLimitReached = userDailyStats.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
                             isConnected = (isConnected == ConnectionStatus.Available),
                             reportWordEnabled = true,
                             onReportWordClick = {

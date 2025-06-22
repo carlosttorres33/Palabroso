@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.presentation.hard
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
+import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
@@ -21,6 +22,7 @@ data class HardState(
     val keyboardHintsRemaining : Int = 1,
 
     val showCoinsDialog : Boolean = false,
+    val showReportWordDialog : Boolean = false,
 
     val indexesGuessed : List<Int> = emptyList(),
 
@@ -39,7 +41,7 @@ data class HardState(
     val gameSituation : GameSituations = GameSituations.GameInProgress,
 
     //Palabra secreta a adivinar
-    val secretWord : String = "",
+    val secretWord : WordModel = WordModel("", 0),
 
     //Lista de palabras secretas jugadas
     val secretWordsList : List<String> = emptyList(),

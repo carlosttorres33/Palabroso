@@ -17,9 +17,12 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
+import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.word_line.WordCharState
+import com.carlostorres.wordsgame.utils.ConnectionStatus
+import com.carlostorres.wordsgame.utils.ConnectivityObserver
 import com.carlostorres.wordsgame.utils.Constants.EP_6_LETTERS
 import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
@@ -39,9 +42,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -50,11 +55,18 @@ import javax.inject.Inject
 class HardViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: GameUseCases,
-    private val gameStatsUseCases: GameStatsUseCases
+    private val gameStatsUseCases: GameStatsUseCases,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
     var state by mutableStateOf(HardState())
         private set
+
+    val isConnected = connectivityObserver.isConnected.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        ConnectionStatus.Available
+    )
 
     private val _userDailyStats = MutableStateFlow<UserDailyStats>(
         UserDailyStats(
@@ -96,7 +108,7 @@ class HardViewModel @Inject constructor(
             Log.d("Trackeo", "${state.tryNumber} en update")
             gameStatsUseCases.upsertStatsUseCase(
                 StatsEntity(
-                    wordGuessed = state.secretWord,
+                    wordGuessed = state.secretWord.word,
                     gameDifficult = difficultToString(GameDifficult.Hard),
                     win = win,
                     attempts = tryNumber
@@ -123,16 +135,16 @@ class HardViewModel @Inject constructor(
                     dayTries = userDailyStats.value.hardGamesPlayed,
                     group = EP_6_LETTERS,
                     gameDifficult = difficultToString(GameDifficult.Hard)
-                ).word
+                )
 
-                if (!word.isNullOrEmpty()) {
-                    state = state.copy(
+                state = if (word.word.isNotEmpty()) {
+                    state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
-                        secretWordsList = state.secretWordsList.plus(word)
+                        secretWordsList = state.secretWordsList.plus(word.word)
                     )
                 } else {
-                    state = state.copy(
+                    state.copy(
                         gameSituation = GameSituations.GameError("Error Desconocido")
                     )
                 }
@@ -168,7 +180,7 @@ class HardViewModel @Inject constructor(
 
         val resultado = validateIfWordContainsLetter()
 
-        if (state.inputList.joinToString("").uppercase() == state.secretWord.uppercase()) {
+        if (state.inputList.joinToString("").uppercase() == state.secretWord.word.uppercase()) {
             state = state.copy(
                 gameSituation = GameSituations.GameWon
             )
@@ -185,7 +197,7 @@ class HardViewModel @Inject constructor(
 
         Log.d(
             "secretWord",
-            "${state.inputList.joinToString("").uppercase()} == ${state.secretWord.uppercase()}"
+            "${state.inputList.joinToString("").uppercase()} == ${state.secretWord.word.uppercase()}"
         )
 
         when (state.tryNumber) {
@@ -265,8 +277,8 @@ class HardViewModel @Inject constructor(
 
         val resultado = mutableListOf<Pair<String, WordCharState>>()
 
-        for (i in state.secretWord.indices) {
-            if (state.secretWord[i].uppercase() == state.inputList[i]?.uppercase().orEmpty()) {
+        for (i in state.secretWord.word.indices) {
+            if (state.secretWord.word[i].uppercase() == state.inputList[i]?.uppercase().orEmpty()) {
                 resultado.add(Pair(state.inputList[i].toString(), WordCharState.IsOnPosition))
                 state = state.copy(
                     keyboard = state.keyboard.map {
@@ -274,7 +286,7 @@ class HardViewModel @Inject constructor(
                     },
                     indexesGuessed = if (state.indexesGuessed.contains(i)) state.indexesGuessed else state.indexesGuessed.plus(i)
                 )
-            } else if (state.secretWord.uppercase()
+            } else if (state.secretWord.word.uppercase()
                     .contains(state.inputList[i]?.uppercase().orEmpty())
             ) {
                 resultado.add(Pair(state.inputList[i].toString(), WordCharState.IsOnWord))
@@ -379,7 +391,7 @@ class HardViewModel @Inject constructor(
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
             var possibleIndex = (0 until state.keyboard.size).random()
-            while (state.secretWord.contains(state.keyboard[possibleIndex].char) || state.keyboard[possibleIndex].type == ButtonType.IsNotInWord){
+            while (state.secretWord.word.contains(state.keyboard[possibleIndex].char) || state.keyboard[possibleIndex].type == ButtonType.IsNotInWord){
                 possibleIndex = (0 until state.keyboard.size).random()
             }
             possibleIndex
@@ -425,7 +437,7 @@ class HardViewModel @Inject constructor(
         state = state.copy(
             inputList = state.inputList.mapIndexed { currentIndex, currentChar ->
                 if (currentIndex == indexToShow){
-                    state.secretWord[indexToShow]
+                    state.secretWord.word[indexToShow]
                 }else{
                     currentChar
                 }
@@ -575,7 +587,7 @@ class HardViewModel @Inject constructor(
             intento4 = TryInfo(),
             intento5 = TryInfo(),
             isGameWon = null,
-            secretWord = "",
+            secretWord = WordModel("", 0),
             keyboard = keyboardCreator(),
             wordsTried = emptyList(),
             inputList = (1..6).map { null },
@@ -613,6 +625,12 @@ class HardViewModel @Inject constructor(
     fun showCoinsDialog(show: Boolean) {
         state = state.copy(
             showCoinsDialog = show
+        )
+    }
+
+    fun showReportWordDialog(show: Boolean) {
+        state = state.copy(
+            showReportWordDialog = show
         )
     }
 

@@ -56,6 +56,7 @@ import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.report.ReportWordDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.ui.components.word_line.WordChar
@@ -67,6 +68,9 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
+import com.carlostorres.wordsgame.utils.ConnectionStatus
+import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
+import com.carlostorres.wordsgame.utils.Constants.HARD_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.ONE_LETTER_HINT_PRICE
@@ -89,6 +93,8 @@ fun HardScreen(
         mutableStateOf(false)
     }
 
+    val isConnected by viewModel.isConnected.collectAsState()
+
     val userDailyStats by viewModel.userDailyStats.collectAsState()
 
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -101,7 +107,7 @@ fun HardScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (state.secretWord.isEmpty()) {
+        if (state.secretWord.word.isEmpty()) {
             viewModel.setUpGame()
         }
     }
@@ -194,6 +200,17 @@ fun HardScreen(
 
             //region Game Situations Dialogs
 
+            if (state.showReportWordDialog) {
+                ReportWordDialog(
+                    word = state.secretWord.word,
+                    wordLength = HARD_WORD_LENGTH,
+                    wordId = state.secretWord.id.toString(),
+                    onCancelClick = {
+                        viewModel.showReportWordDialog(false)
+                    }
+                )
+            }
+
             if (showWordAlreadyTried) {
                 WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
             }
@@ -259,7 +276,7 @@ fun HardScreen(
 
                     GameSituations.GameLost -> {
                         GameLoseDialog(
-                            secretWord = state.secretWord,
+                            secretWord = state.secretWord.word,
                             onRetryClick = {
                                 viewModel.showInterstitial(activity, navHome = {onHomeClick()})
                             },
@@ -284,7 +301,12 @@ fun HardScreen(
                                     ifBack = true
                                 )
                             },
-                            isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+                            isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
+                            isConnected = (isConnected == ConnectionStatus.Available),
+                            reportWordEnabled = true,
+                            onReportWordClick = {
+                                viewModel.showReportWordDialog(true)
+                            }
                         )
                     }
 
