@@ -138,14 +138,14 @@ class EasyViewModel @Inject constructor(
                     gameDifficult = difficultToString(GameDifficult.Easy)
                 )
 
-                if (word.word.isNotEmpty()) {
-                    state = state.copy(
+                state = if (word.word.isNotEmpty()) {
+                    state.copy(
                         secretWord = word,
                         gameSituation = GameSituations.GameInProgress,
                         secretWordsList = state.secretWordsList.plus(word.word)
                     )
                 }else{
-                    state = state.copy(
+                    state.copy(
                         gameSituation = GameSituations.GameError("Error desconocido")
                     )
                 }

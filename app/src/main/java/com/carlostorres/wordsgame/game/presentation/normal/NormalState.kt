@@ -1,6 +1,7 @@
 package com.carlostorres.wordsgame.game.presentation.normal
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
+import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
@@ -18,6 +19,7 @@ data class NormalState(
     val keyboardHintsRemaining : Int = 1,
 
     val showCoinsDialog : Boolean = false,
+    val showReportWordDialog : Boolean = false,
 
     val indexesGuessed : List<Int> = emptyList(),
 
@@ -30,7 +32,7 @@ data class NormalState(
     val isGameWon : Boolean? = null,
 
     val gameSituation : GameSituations = GameSituations.GameInProgress,
-    val secretWord : String = "",
+    val secretWord : WordModel = WordModel("", 0),
     val secretWordsList : List<String> = emptyList(),
     val keyboard : List<KeyboardChar> = keyboardCreator(),
     val gameWinsCount : Int = 0,

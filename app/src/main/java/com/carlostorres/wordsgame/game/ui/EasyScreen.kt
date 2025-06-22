@@ -71,6 +71,7 @@ import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
 import com.carlostorres.wordsgame.utils.ConnectionStatus
+import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
 import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.Constants.ONE_LETTER_HINT_PRICE
@@ -279,7 +280,7 @@ fun EasyScreen(
             if (state.showReportWordDialog) {
                 ReportWordDialog(
                     word = state.secretWord.word,
-                    wordLength = 4,
+                    wordLength = EASY_WORD_LENGTH,
                     wordId = state.secretWord.id.toString(),
                     onCancelClick = {
                         viewModel.showReportWordDialog(false)
