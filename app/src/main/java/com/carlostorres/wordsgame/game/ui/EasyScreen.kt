@@ -236,7 +236,12 @@ fun EasyScreen(
                                     ifBack = true
                                 )
                             },
-                            isGameLimitReached = userDailyStats.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED
+                            isGameLimitReached = userDailyStats.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
+                            isConnected = (isConnected == ConnectionStatus.Available),
+                            reportWordEnabled = !state.isAlreadyReported,
+                            onReportWordClick = {
+                                viewModel.showReportWordDialog(true)
+                            }
                         )
                     }
 
