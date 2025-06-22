@@ -214,6 +214,9 @@ fun NormalScreen(
                     word = state.secretWord.word,
                     wordLength = NORMAL_WORD_LENGTH,
                     wordId = state.secretWord.id.toString(),
+                    wasReported = { wasReportedSuccessfully ->
+                        viewModel.reportedWordStatus(wasReportedSuccessfully)
+                    },
                     onCancelClick = {
                         viewModel.showReportWordDialog(false)
                     }
@@ -312,7 +315,7 @@ fun NormalScreen(
                             },
                             isGameLimitReached = userDailyStats.normalGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
                             isConnected = (isConnected == ConnectionStatus.Available),
-                            reportWordEnabled = true,
+                            reportWordEnabled = !state.isAlreadyReported,
                             onReportWordClick = {
                                 viewModel.showReportWordDialog(true)
                             }

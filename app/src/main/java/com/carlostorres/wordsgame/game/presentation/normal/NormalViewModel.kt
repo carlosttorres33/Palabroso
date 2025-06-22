@@ -618,6 +618,12 @@ class NormalViewModel @Inject constructor(
         )
     }
 
+    fun reportedWordStatus(wasReported : Boolean){
+        state = state.copy(
+            isAlreadyReported = wasReported
+        )
+    }
+
     fun showReportWordDialog(show: Boolean) {
         state = state.copy(
             showReportWordDialog = show

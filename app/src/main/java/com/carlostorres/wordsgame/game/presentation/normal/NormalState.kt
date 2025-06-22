@@ -20,6 +20,7 @@ data class NormalState(
 
     val showCoinsDialog : Boolean = false,
     val showReportWordDialog : Boolean = false,
+    val isAlreadyReported : Boolean = false,
 
     val indexesGuessed : List<Int> = emptyList(),
 

@@ -256,7 +256,7 @@ fun EasyScreen(
                             },
                             isGameLimitReached = userDailyStats.easyGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
                             isConnected = (isConnected == ConnectionStatus.Available),
-                            reportWordEnabled = true,
+                            reportWordEnabled = !state.isAlreadyReported,
                             onReportWordClick = {
                                 viewModel.showReportWordDialog(true)
                             }
@@ -282,6 +282,9 @@ fun EasyScreen(
                     word = state.secretWord.word,
                     wordLength = EASY_WORD_LENGTH,
                     wordId = state.secretWord.id.toString(),
+                    wasReported = { wasReportedSuccessfully ->
+                        viewModel.reportedWordStatus(wasReportedSuccessfully)
+                    },
                     onCancelClick = {
                         viewModel.showReportWordDialog(false)
                     }

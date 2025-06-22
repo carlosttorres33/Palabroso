@@ -65,6 +65,7 @@ fun ReportWordDialog(
     wordId: String,
     word: String,
     wordLength: Int,
+    wasReported : (Boolean) -> Unit,
     onCancelClick: () -> Unit
 ) {
 
@@ -256,6 +257,7 @@ fun ReportWordDialog(
                     }
 
                     is ViewState.Success<*> -> {
+                        wasReported(true)
                         onCancelClick()
                         Toast.makeText(context, "Gracias por tu reporte", Toast.LENGTH_SHORT).show()
                     }

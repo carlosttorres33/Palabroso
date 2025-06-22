@@ -205,6 +205,9 @@ fun HardScreen(
                     word = state.secretWord.word,
                     wordLength = HARD_WORD_LENGTH,
                     wordId = state.secretWord.id.toString(),
+                    wasReported = { wasReportedSuccessfully ->
+                        viewModel.reportedWordStatus(wasReportedSuccessfully)
+                    },
                     onCancelClick = {
                         viewModel.showReportWordDialog(false)
                     }
@@ -303,7 +306,7 @@ fun HardScreen(
                             },
                             isGameLimitReached = userDailyStats.hardGamesPlayed >= NUMBER_OF_GAMES_ALLOWED,
                             isConnected = (isConnected == ConnectionStatus.Available),
-                            reportWordEnabled = true,
+                            reportWordEnabled = !state.isAlreadyReported,
                             onReportWordClick = {
                                 viewModel.showReportWordDialog(true)
                             }
