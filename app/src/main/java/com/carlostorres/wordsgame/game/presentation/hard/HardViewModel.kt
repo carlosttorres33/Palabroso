@@ -594,7 +594,8 @@ class HardViewModel @Inject constructor(
             indexFocused = 0,
             lettersHintsRemaining = 1,
             keyboardHintsRemaining = 1,
-            indexesGuessed = emptyList()
+            indexesGuessed = emptyList(),
+            isAlreadyReported = false
         )
     }
 

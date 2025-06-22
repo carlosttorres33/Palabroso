@@ -396,7 +396,8 @@ class EasyViewModel @Inject constructor(
             indexFocused = 0,
             keyboardHintsRemaining = 1,
             lettersHintsRemaining = 1,
-            indexesGuessed = emptyList()
+            indexesGuessed = emptyList(),
+            isAlreadyReported = false
         )
     }
 
