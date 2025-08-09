@@ -61,7 +61,7 @@ import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray

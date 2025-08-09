@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.carlostorres.wordsgame.ui.theme.dynamicPrimaryColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,10 +25,12 @@ fun AnimatedBottomSheet(
     isVisible: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetState: SheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true, // Ignora el estado intermedio
+    ),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     shape: Shape = BottomSheetDefaults.ExpandedShape,
-    containerColor: Color = BottomSheetDefaults.ContainerColor,
+    containerColor: Color = dynamicPrimaryColor(),
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = 0.dp,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,

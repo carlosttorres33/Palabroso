@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.ui.components.dialogs
+package com.carlostorres.wordsgame.ui.components.dialogs.buy_hint
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -29,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.constraintlayout.compose.Dimension
 import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CornerButton
 import com.carlostorres.wordsgame.ui.components.GameDifficult
@@ -40,7 +37,6 @@ import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.DarkYellow
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
-import com.carlostorres.wordsgame.ui.theme.LightYellow
 import com.carlostorres.wordsgame.ui.theme.ROUND_CORNER_SIZE
 import com.carlostorres.wordsgame.utils.ButtonPlace
 import com.carlostorres.wordsgame.utils.HintType
@@ -58,8 +54,8 @@ fun BuyHintDialog(
     }
 
     val dialogText = when (hintType) {
-        HintType.ONE_LETTER -> "Compra una letra de la palabra secreta por 75 pejecoins"
-        HintType.KEYBOARD -> "Descarta 3 letras del teclado por 50 pejecoins"
+        HintType.ONE_LETTER -> "Compra una letra de la palabra secreta por $hintCoast pejecoins"
+        HintType.KEYBOARD -> "Descarta 3 letras del teclado por $hintCoast pejecoins"
     }
     
     Dialog(onDismissRequest = {onDismiss()}) {
@@ -162,79 +158,11 @@ fun BuyHintContent(
 
 }
 
-@Composable
-fun BuyHintContentBS(
-    modifier: Modifier = Modifier,
-    dialogText: String,
-    hintType: HintType,
-    onDismiss: (HintType) -> Unit,
-    onAccept: (HintType) -> Unit
-) {
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-
-        Text(
-            modifier = Modifier
-                .padding(horizontal = 32.dp),
-            text = dialogText,
-            color = if (isSystemInDarkTheme()) DarkTextGray else Color.Black,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            MyButton(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f),
-                difficult = GameDifficult.Easy,
-                text = "Aceptar"
-            ) {
-                when (hintType) {
-                    HintType.ONE_LETTER -> onAccept(HintType.ONE_LETTER)
-                    HintType.KEYBOARD -> onAccept(HintType.KEYBOARD)
-                }
-            }
-
-            MyButton(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f),
-                difficult = GameDifficult.Normal,
-                text = "Cancelar"
-            ) {
-                onDismiss(hintType)
-            }
-
-        }
-
-        BannerAd(
-            modifier = Modifier
-                .height(50.dp)
-                .fillMaxWidth()
-        )
-
-    }
-
-}
 
 @Preview
 @Composable
 private fun PBHD() {
-    BuyHintContentBS(
+    BuyHintContent(
         modifier = Modifier.background(Color.White),
         hintType = HintType.KEYBOARD,
         dialogText = "Compra una letra de la palabra secreta por 75 pejecoins",

@@ -1,7 +1,6 @@
-package com.carlostorres.wordsgame.ui.components.dialogs
+package com.carlostorres.wordsgame.ui.components.dialogs.error
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -27,10 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.carlostorres.wordsgame.ui.bounceClick
 import com.carlostorres.wordsgame.ui.components.CornerButton
-import com.carlostorres.wordsgame.ui.components.GameDifficult
-import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkRed
@@ -40,7 +34,6 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.utils.ButtonPlace
-import com.carlostorres.wordsgame.utils.HintType
 
 @Composable
 fun GameErrorDialog(

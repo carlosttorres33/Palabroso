@@ -19,14 +19,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,16 +52,14 @@ import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HintBox
 import com.carlostorres.wordsgame.ui.components.bottom_sheet.AnimatedBottomSheet
-import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintContent
-import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintContentBS
-import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.buy_hint.BuyHintContentBS
+import com.carlostorres.wordsgame.ui.components.dialogs.error.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.report.ReportWordDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsContentBS
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
 import com.carlostorres.wordsgame.ui.components.word_line.WordChar
@@ -76,7 +71,6 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
-import com.carlostorres.wordsgame.ui.theme.dynamicPrimaryColor
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
@@ -224,6 +218,7 @@ fun EasyScreen(
             //**GAME SITUATIONS
             AnimatedContent(state.gameSituation, label = "") { situation ->
                 when (situation) {
+
                     GameSituations.GameLoading -> {
                         LoadingDialog()
                     }
@@ -231,6 +226,7 @@ fun EasyScreen(
                     GameSituations.GameInProgress -> {}
 
                     GameSituations.GameLost -> {
+
                         GameLoseDialog(
                             secretWord = state.secretWord.word,
                             onRetryClick = {
@@ -314,8 +310,16 @@ fun EasyScreen(
                 WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
             }
 
-            if (state.showCoinsDialog) {
-                GetCoinsDialog(
+            AnimatedBottomSheet(
+                isVisible = state.showCoinsDialog,
+                onDismissRequest = {
+                    viewModel.showCoinsDialog(false)
+                }
+            ) {
+
+                GetCoinsContentBS(
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     onAcceptClick = {
                         viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
                         viewModel.showCoinsDialog(false)
@@ -324,26 +328,36 @@ fun EasyScreen(
                         viewModel.showCoinsDialog(false)
                     }
                 )
+
             }
 
-            if (state.showLetterHintDialog) {
-                BuyHintDialog(
+            //** LETTER HINT
+            AnimatedBottomSheet(
+                isVisible = state.showLetterHintDialog,
+                onDismissRequest = {
+                    viewModel.hintDialogHandler(
+                        hintType = HintType.ONE_LETTER,
+                        show = false
+                    )
+                }
+            ) {
+                BuyHintContentBS(
+                    modifier = Modifier.fillMaxWidth(),
                     hintType = HintType.ONE_LETTER,
-                    onDismiss = {
+                    onDismiss = { hintToDismiss ->
                         viewModel.hintDialogHandler(
-                            hintType = HintType.ONE_LETTER,
+                            hintType = hintToDismiss,
                             show = false
                         )
                     },
-                    onAccept = {
+                    onAccept = { hintToBuy ->
                         viewModel.getOneLetterWord(state.userCoins)
                         viewModel.hintDialogHandler(
-                            hintType = HintType.ONE_LETTER,
+                            hintType = hintToBuy,
                             show = false
                         )
                     }
                 )
-
             }
 
             //** KEYBOARD HINT
@@ -354,12 +368,10 @@ fun EasyScreen(
                         hintType = HintType.KEYBOARD,
                         show = false
                     )
-                },
-                containerColor = dynamicPrimaryColor()
+                }
             ) {
                 BuyHintContentBS(
                     modifier = Modifier.fillMaxWidth(),
-                    dialogText = "Descarta 3 letras del teclado por 50 pejecoins",
                     hintType = HintType.KEYBOARD,
                     onDismiss = { hintToDismiss ->
                         viewModel.hintDialogHandler(

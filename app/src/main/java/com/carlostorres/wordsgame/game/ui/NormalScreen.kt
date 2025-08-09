@@ -51,11 +51,11 @@ import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HintBox
-import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.buy_hint.BuyHintDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.error.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
-import com.carlostorres.wordsgame.ui.components.dialogs.GetCoinsDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.report.ReportWordDialog

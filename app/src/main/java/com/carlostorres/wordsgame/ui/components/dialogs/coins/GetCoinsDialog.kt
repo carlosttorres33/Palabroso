@@ -1,13 +1,11 @@
-package com.carlostorres.wordsgame.ui.components.dialogs
+package com.carlostorres.wordsgame.ui.components.dialogs.coins
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.ui.components.CornerButton
-import com.carlostorres.wordsgame.ui.components.GameDifficult
-import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkGreen
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
@@ -41,7 +37,6 @@ import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightYellow
 import com.carlostorres.wordsgame.ui.theme.ROUND_CORNER_SIZE
 import com.carlostorres.wordsgame.utils.ButtonPlace
-import com.carlostorres.wordsgame.utils.HintType
 
 @Composable
 fun GetCoinsDialog(
