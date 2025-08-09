@@ -53,7 +53,7 @@ fun GetCoinsContentBS(
 
         Icon(
             modifier = Modifier
-                .size(100.dp),
+                .size(75.dp),
             painter = painterResource(id = R.drawable.coins),
             contentDescription = "",
             tint = if (isSystemInDarkTheme()) DarkYellow else LightYellow

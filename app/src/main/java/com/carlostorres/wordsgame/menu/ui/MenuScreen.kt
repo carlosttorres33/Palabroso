@@ -61,8 +61,10 @@ import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.GameDifficult
 import com.carlostorres.wordsgame.ui.components.MyButton
 import com.carlostorres.wordsgame.ui.components.UpdateDialog
+import com.carlostorres.wordsgame.ui.components.bottom_sheet.AnimatedBottomSheet
 import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsContentBS
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
@@ -369,8 +371,13 @@ fun MenuScreen(
                 LoadingDialog()
             }
 
-            if (state.showCoinsDialog) {
-                GetCoinsDialog(
+            AnimatedBottomSheet(
+                isVisible = state.showCoinsDialog,
+                onDismissRequest = {
+                    viewModel.showCoinsDialog(false)
+                }
+            ) {
+                GetCoinsContentBS(
                     onAcceptClick = {
                         viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
                         viewModel.showCoinsDialog(false)
