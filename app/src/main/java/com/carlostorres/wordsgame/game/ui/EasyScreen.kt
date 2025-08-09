@@ -19,11 +19,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -51,6 +54,9 @@ import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HintBox
+import com.carlostorres.wordsgame.ui.components.bottom_sheet.AnimatedBottomSheet
+import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintContent
+import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintContentBS
 import com.carlostorres.wordsgame.ui.components.dialogs.BuyHintDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
@@ -70,6 +76,7 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.TOP_BAR_HEIGHT
+import com.carlostorres.wordsgame.ui.theme.dynamicPrimaryColor
 import com.carlostorres.wordsgame.utils.ConnectionStatus
 import com.carlostorres.wordsgame.utils.Constants.EASY_WORD_LENGTH
 import com.carlostorres.wordsgame.utils.Constants.KEYBOARD_HINT_PRICE
@@ -101,6 +108,10 @@ fun EasyScreen(
             lastPlayedDate = SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().time)
         )
     )
+
+    var showBS by remember {
+        mutableStateOf(false)
+    }
 
     val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
     val losesCont = viewModel.gameLostCount.collectAsState(initial = 0)
@@ -207,7 +218,10 @@ fun EasyScreen(
                 disableLettersHint
             ) = createRefs()
 
-            //region Game Situations Dialogs
+            //!!!!!!
+            //region Game Dialogs
+
+            //**GAME SITUATIONS
             AnimatedContent(state.gameSituation, label = "") { situation ->
                 when (situation) {
                     GameSituations.GameLoading -> {
@@ -312,25 +326,6 @@ fun EasyScreen(
                 )
             }
 
-            if (state.showKeyboardHintDialog) {
-                BuyHintDialog(
-                    hintType = HintType.KEYBOARD,
-                    onDismiss = {
-                        viewModel.hintDialogHandler(
-                            hintType = HintType.KEYBOARD,
-                            show = false
-                        )
-                    },
-                    onAccept = {
-                        viewModel.disable4KeyboardLettersHint(state.userCoins)
-                        viewModel.hintDialogHandler(
-                            hintType = HintType.KEYBOARD,
-                            show = false
-                        )
-                    }
-                )
-            }
-
             if (state.showLetterHintDialog) {
                 BuyHintDialog(
                     hintType = HintType.ONE_LETTER,
@@ -349,6 +344,37 @@ fun EasyScreen(
                     }
                 )
 
+            }
+
+            //** KEYBOARD HINT
+            AnimatedBottomSheet(
+                isVisible = state.showKeyboardHintDialog,
+                onDismissRequest = {
+                    viewModel.hintDialogHandler(
+                        hintType = HintType.KEYBOARD,
+                        show = false
+                    )
+                },
+                containerColor = dynamicPrimaryColor()
+            ) {
+                BuyHintContentBS(
+                    modifier = Modifier.fillMaxWidth(),
+                    dialogText = "Descarta 3 letras del teclado por 50 pejecoins",
+                    hintType = HintType.KEYBOARD,
+                    onDismiss = { hintToDismiss ->
+                        viewModel.hintDialogHandler(
+                            hintType = hintToDismiss,
+                            show = false
+                        )
+                    },
+                    onAccept = { hintToBuy ->
+                        viewModel.disable4KeyboardLettersHint(state.userCoins)
+                        viewModel.hintDialogHandler(
+                            hintType = hintToBuy,
+                            show = false
+                        )
+                    }
+                )
             }
 
             //endregion

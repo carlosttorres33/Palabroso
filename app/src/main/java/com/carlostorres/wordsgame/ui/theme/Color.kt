@@ -1,5 +1,7 @@
 package com.carlostorres.wordsgame.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -24,3 +26,9 @@ val DarkBackgroundGray = Color(0xFF34495E)
 val DarkTextGray = Color(0xFFECF0F1)
 
 val DisableButtonGray = Color(0xFF192128)
+
+@Composable
+fun dynamicPrimaryColor(): Color {
+    val isDarkTheme = isSystemInDarkTheme()
+    return if (isDarkTheme) DarkBackgroundGray else LightBackgroundGray
+}
