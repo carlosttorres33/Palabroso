@@ -190,7 +190,7 @@ fun HardScreen(
                 .padding(12.dp)
         ) {
 
-            val guideline = createGuidelineFromBottom(0.25f)
+            val guideline = createGuidelineFromBottom(0.22f)
 
             val (
                 boardContainer,
