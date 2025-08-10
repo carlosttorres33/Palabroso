@@ -1,18 +1,23 @@
 package com.carlostorres.wordsgame.ui.components.keyboard
 
+import android.app.GameManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.carlostorres.wordsgame.R
+import com.carlostorres.wordsgame.utils.GameSituations
+import com.carlostorres.wordsgame.utils.keyboardCreator
 
 @Composable
 fun GameKeyboard(
@@ -26,8 +31,11 @@ fun GameKeyboard(
 
     BoxWithConstraints(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
+
+        val maxHeight = this.maxHeight
+        val buttonHeight = maxHeight / 3 - 4.dp
 
         val maxWidth = this.maxWidth
         val buttonWidth = maxWidth / 10 - 3.dp
@@ -41,7 +49,7 @@ fun GameKeyboard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(45.dp),
+                    .height(buttonHeight),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 (0..9).forEach { index ->
@@ -61,7 +69,7 @@ fun GameKeyboard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(45.dp),
+                    .height(buttonHeight),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 (10..19).forEach { index ->
@@ -81,7 +89,7 @@ fun GameKeyboard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(45.dp),
+                    .height(buttonHeight),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 ActionKeyboardButton(
@@ -132,3 +140,18 @@ data class KeyboardChar(
     val char: String,
     val type: ButtonType = ButtonType.Unclicked
 )
+
+@Preview
+@Composable
+private fun KeyboardPrev() {
+
+    GameKeyboard(
+        modifier = Modifier.height(150.dp),
+        onButtonClick = {},
+        keyboard = keyboardCreator(),
+        onAcceptClick= {},
+        onAcceptState= ButtonType.Unclicked,
+        onBackspaceClick = {}
+    )
+    
+}

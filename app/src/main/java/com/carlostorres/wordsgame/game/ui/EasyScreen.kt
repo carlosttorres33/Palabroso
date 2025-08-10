@@ -202,6 +202,8 @@ fun EasyScreen(
                 .padding(12.dp)
         ) {
 
+            val guideline = createGuidelineFromBottom(0.25f)
+
             val (
                 boardContainer,
                 gameKeyboard,
@@ -729,9 +731,11 @@ fun EasyScreen(
             GameKeyboard(
                 modifier = Modifier
                     .constrainAs(gameKeyboard) {
+                        top.linkTo(guideline)
                         bottom.linkTo(parent.bottom)
                         end.linkTo(parent.end)
                         start.linkTo(parent.start)
+                        height = Dimension.fillToConstraints
                     },
                 onButtonClick = { charClicked ->
                     viewModel.onEvent(

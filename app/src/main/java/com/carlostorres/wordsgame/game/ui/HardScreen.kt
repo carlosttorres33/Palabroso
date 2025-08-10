@@ -190,6 +190,8 @@ fun HardScreen(
                 .padding(12.dp)
         ) {
 
+            val guideline = createGuidelineFromBottom(0.25f)
+
             val (
                 boardContainer,
                 gameKeyboard,
@@ -252,7 +254,7 @@ fun HardScreen(
                 BuyHintContentBS(
                     hintType = HintType.KEYBOARD,
                     onAccept = { hintToBuy ->
-                        viewModel.getOneLetterWord(state.userCoins)
+                        viewModel.disable4KeyboardLettersHint(state.userCoins)
                         viewModel.hintDialogHandler(
                             hintType = hintToBuy,
                             show = false
@@ -705,9 +707,11 @@ fun HardScreen(
             GameKeyboard(
                 modifier = Modifier
                     .constrainAs(gameKeyboard) {
+                        top.linkTo(guideline)
                         bottom.linkTo(parent.bottom)
                         end.linkTo(parent.end)
                         start.linkTo(parent.start)
+                        height = Dimension.fillToConstraints
                     },
                 onButtonClick = { charClicked ->
                     viewModel.onEvent(
