@@ -95,7 +95,7 @@ class WordsRepositoryImplementation @Inject constructor(
         return try {
 
             val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName.split(".").map { it.toInt() }
+            (packageInfo.versionName ?: "0.0.0").split(".").map { it.toInt() }
 
         } catch (e: Exception) {
             Log.d("", e.message.toString())
