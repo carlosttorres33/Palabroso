@@ -49,6 +49,7 @@ import com.carlostorres.wordsgame.ui.components.BannerAd
 import com.carlostorres.wordsgame.ui.components.CoinsCounter
 import com.carlostorres.wordsgame.ui.components.CountBox
 import com.carlostorres.wordsgame.ui.components.HintBox
+import com.carlostorres.wordsgame.ui.components.bottom_sheet.AnimatedBottomSheet
 import com.carlostorres.wordsgame.ui.components.dialogs.buy_hint.BuyHintDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.error.GameErrorDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.GameLoseDialog
@@ -56,6 +57,8 @@ import com.carlostorres.wordsgame.ui.components.dialogs.GameWinDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.LoadingDialog
 import com.carlostorres.wordsgame.ui.components.dialogs.WordAlreadyTriedDialog
+import com.carlostorres.wordsgame.ui.components.dialogs.buy_hint.BuyHintContentBS
+import com.carlostorres.wordsgame.ui.components.dialogs.coins.GetCoinsContentBS
 import com.carlostorres.wordsgame.ui.components.dialogs.report.ReportWordDialog
 import com.carlostorres.wordsgame.ui.components.keyboard.ButtonType
 import com.carlostorres.wordsgame.ui.components.keyboard.GameKeyboard
@@ -217,8 +220,14 @@ fun HardScreen(
                 WordAlreadyTriedDialog(onDismiss = { showWordAlreadyTried = false })
             }
 
-            if (state.showCoinsDialog) {
-                GetCoinsDialog(
+            AnimatedBottomSheet(
+                isVisible = state.showCoinsDialog,
+                onDismissRequest = {
+                    viewModel.showCoinsDialog(false)
+                },
+            ) {
+
+                GetCoinsContentBS(
                     onAcceptClick = {
                         viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
                         viewModel.showCoinsDialog(false)
@@ -227,40 +236,60 @@ fun HardScreen(
                         viewModel.showCoinsDialog(false)
                     }
                 )
+
             }
 
-            if (state.showKeyboardHintDialog){
-                BuyHintDialog(
+            AnimatedBottomSheet(
+                isVisible = state.showKeyboardHintDialog,
+                onDismissRequest = {
+                    viewModel.hintDialogHandler(
+                        hintType = HintType.KEYBOARD,
+                        show = false
+                    )
+                },
+            ) {
+
+                BuyHintContentBS(
                     hintType = HintType.KEYBOARD,
-                    onDismiss = {
+                    onAccept = { hintToBuy ->
+                        viewModel.getOneLetterWord(state.userCoins)
                         viewModel.hintDialogHandler(
-                            hintType = HintType.KEYBOARD,
+                            hintType = hintToBuy,
                             show = false
                         )
                     },
-                    onAccept = {
-                        viewModel.disable4KeyboardLettersHint(state.userCoins)
+                    onDismiss = { hintToHide ->
                         viewModel.hintDialogHandler(
-                            hintType = HintType.KEYBOARD,
+                            hintType = hintToHide,
                             show = false
                         )
                     }
                 )
+
             }
 
-            if (state.showLetterHintDialog){
-                BuyHintDialog(
+            AnimatedBottomSheet(
+                isVisible = state.showLetterHintDialog,
+                onDismissRequest = {
+                    viewModel.hintDialogHandler(
+                        hintType = HintType.ONE_LETTER,
+                        show = false
+                    )
+                },
+            ) {
+
+                BuyHintContentBS(
                     hintType = HintType.ONE_LETTER,
-                    onDismiss = {
+                    onAccept = { hintToBuy ->
+                        viewModel.getOneLetterWord(state.userCoins)
                         viewModel.hintDialogHandler(
-                            hintType = HintType.ONE_LETTER,
+                            hintType = hintToBuy,
                             show = false
                         )
                     },
-                    onAccept = {
-                        viewModel.getOneLetterWord(state.userCoins)
+                    onDismiss = { hintToHide ->
                         viewModel.hintDialogHandler(
-                            hintType = HintType.ONE_LETTER,
+                            hintType = hintToHide,
                             show = false
                         )
                     }

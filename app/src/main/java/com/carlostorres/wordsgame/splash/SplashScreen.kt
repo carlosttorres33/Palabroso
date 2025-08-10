@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.ui.navigation.NavRoutes
 import com.carlostorres.wordsgame.ui.theme.DarkBackgroundGray
+import com.carlostorres.wordsgame.ui.theme.DarkCustomGray
 import com.carlostorres.wordsgame.ui.theme.DarkTextGray
 import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.utils.Constants
@@ -112,7 +113,7 @@ fun Splash() {
                         bottom.linkTo(parent.bottom)
                     },
                 text = "Desarrollado por Carlos Torres",
-                color = if (isSystemInDarkTheme()) LightBackgroundGray else DarkTextGray,
+                color = if (isSystemInDarkTheme()) DarkTextGray else DarkCustomGray,
                 fontWeight = FontWeight.Bold
             )
 
