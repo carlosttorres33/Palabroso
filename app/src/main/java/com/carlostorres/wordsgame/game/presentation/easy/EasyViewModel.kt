@@ -32,6 +32,7 @@ import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.HintType
 import com.carlostorres.wordsgame.utils.difficultToString
+import com.carlostorres.wordsgame.utils.getHintCoast
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -475,7 +476,9 @@ class EasyViewModel @Inject constructor(
             possibleIndex
         }
 
-        buyHint(HintType.KEYBOARD, actualUserCoins = actualUserCoins)
+        val discount = getHintCoast(HintType.KEYBOARD)
+
+        buyHint(actualUserCoins = actualUserCoins, discount = discount)
 
         state = state.copy(
             keyboard = state.keyboard.mapIndexed { index, keyboardChar ->
@@ -488,7 +491,12 @@ class EasyViewModel @Inject constructor(
             keyboardHintsRemaining = state.keyboardHintsRemaining - 1
         )
 
-        stateUseCases.saveEasyGameStateUseCase(state)
+        stateUseCases.saveEasyGameStateUseCase(
+            state.copy(
+                showKeyboardHintDialog = false,
+                userCoins = actualUserCoins-discount
+            )
+        )
 
     }
 
@@ -502,7 +510,9 @@ class EasyViewModel @Inject constructor(
             return@launch
         }
 
-        buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
+        val discount = getHintCoast(HintType.ONE_LETTER)
+
+        buyHint(actualUserCoins = actualUserCoins, discount = discount)
 
         val indexesUnknowns = (0..3).mapNotNull { index ->
             if (state.indexesGuessed.contains(index)){
@@ -525,9 +535,14 @@ class EasyViewModel @Inject constructor(
             lettersHintsRemaining = state.lettersHintsRemaining - 1,
             indexesGuessed = state.indexesGuessed.plus(indexToShow)
         )
-        stateUseCases.saveEasyGameStateUseCase(state)
         state = state.copy(
             indexFocused = getNextFocusedIndex()
+        )
+        stateUseCases.saveEasyGameStateUseCase(
+            state.copy(
+                showLetterHintDialog = false,
+                userCoins = actualUserCoins-discount
+            )
         )
 
     }
@@ -540,11 +555,7 @@ class EasyViewModel @Inject constructor(
         useCases.updateCoinsUseCase(actualUserCoins + 25)
     }
 
-    private fun buyHint(hintType: HintType, actualUserCoins: Int) = viewModelScope.launch {
-        val discount = when(hintType){
-            HintType.ONE_LETTER -> 75
-            HintType.KEYBOARD -> 50
-        }
+    private fun buyHint(actualUserCoins: Int, discount : Int) = viewModelScope.launch {
         useCases.updateCoinsUseCase(actualUserCoins - discount)
     }
 
