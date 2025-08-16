@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
+import kotlinx.serialization.Serializable
 
 @Composable
 fun GameKeyboard(
@@ -136,6 +137,7 @@ fun GameKeyboard(
     }
 }
 
+@Serializable
 data class KeyboardChar(
     val char: String,
     val type: ButtonType = ButtonType.Unclicked

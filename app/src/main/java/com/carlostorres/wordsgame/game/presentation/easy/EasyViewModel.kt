@@ -18,6 +18,7 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.repository.ReportWordRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.easy.EasyGameStateUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.GameDifficult
@@ -58,7 +59,8 @@ class EasyViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: GameUseCases,
     private val gameStatsUseCases: GameStatsUseCases,
-    private val connectivityObserver: ConnectivityObserver
+    private val connectivityObserver: ConnectivityObserver,
+    private val stateUseCases: EasyGameStateUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(EasyState())
@@ -128,26 +130,36 @@ class EasyViewModel @Inject constructor(
 
             try {
 
-                Log.d("EasyViewModel", "Try number: ${dailyStats.value.easyGamesPlayed}")
+                val lastState = stateUseCases.readEasyGameStateUseCase()
 
-                val word = useCases.getRandomWordUseCase(
-                    wordsTried = state.secretWordsList,
-                    wordLength = EASY_WORD_LENGTH,
-                    dayTries = dailyStats.value.easyGamesPlayed,
-                    group = EP_4_LETTERS,
-                    gameDifficult = difficultToString(GameDifficult.Easy)
-                )
+                Log.d("EasyViewModel", "LastState: $lastState")
 
-                state = if (word.word.isNotEmpty()) {
-                    state.copy(
-                        secretWord = word,
-                        gameSituation = GameSituations.GameInProgress,
-                        secretWordsList = state.secretWordsList.plus(word.word)
+                if (lastState == null){
+
+                    Log.d("EasyViewModel", "Try number: ${dailyStats.value.easyGamesPlayed}")
+
+                    val word = useCases.getRandomWordUseCase(
+                        wordsTried = state.secretWordsList,
+                        wordLength = EASY_WORD_LENGTH,
+                        dayTries = dailyStats.value.easyGamesPlayed,
+                        group = EP_4_LETTERS,
+                        gameDifficult = difficultToString(GameDifficult.Easy)
                     )
+
+                    state = if (word.word.isNotEmpty()) {
+                        state.copy(
+                            secretWord = word,
+                            gameSituation = GameSituations.GameInProgress,
+                            secretWordsList = state.secretWordsList.plus(word.word)
+                        )
+                    }else{
+                        state.copy(
+                            gameSituation = GameSituations.GameError("Error desconocido")
+                        )
+                    }
+
                 }else{
-                    state.copy(
-                        gameSituation = GameSituations.GameError("Error desconocido")
-                    )
+                    state = lastState
                 }
 
             } catch (e: Exception) {
@@ -182,6 +194,7 @@ class EasyViewModel @Inject constructor(
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
             )
+            stateUseCases.clearEasyGameStateUseCase()
             increaseEasyGamesPlayed()
             getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
@@ -189,6 +202,7 @@ class EasyViewModel @Inject constructor(
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
             )
+            stateUseCases.clearEasyGameStateUseCase()
             increaseEasyGamesPlayed()
             updateDailyStats(false, state.tryNumber)
         }
@@ -209,6 +223,9 @@ class EasyViewModel @Inject constructor(
                     inputList = (1..4).map { null },
                     indexFocused = 0,
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveEasyGameStateUseCase(state)
+                }
             }
 
             1 -> {
@@ -221,6 +238,9 @@ class EasyViewModel @Inject constructor(
                     inputList = (1..4).map { null },
                     indexFocused = 0,
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveEasyGameStateUseCase(state)
+                }
             }
 
             2 -> {
@@ -233,6 +253,9 @@ class EasyViewModel @Inject constructor(
                     inputList = (1..4).map { null },
                     indexFocused = 0,
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveEasyGameStateUseCase(state)
+                }
             }
 
             3 -> {
@@ -245,6 +268,9 @@ class EasyViewModel @Inject constructor(
                     inputList = (1..4).map { null },
                     indexFocused = 0,
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveEasyGameStateUseCase(state)
+                }
             }
 
             4 -> {
@@ -257,10 +283,14 @@ class EasyViewModel @Inject constructor(
                     inputList = (1..4).map { null },
                     indexFocused = 0,
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveEasyGameStateUseCase(state)
+                }
             }
 
             else -> {
                 resetGame()
+                stateUseCases.clearEasyGameStateUseCase()
             }
 
         }
@@ -434,7 +464,7 @@ class EasyViewModel @Inject constructor(
 
     }
 
-    fun disable4KeyboardLettersHint(actualUserCoins: Int){
+    fun disable4KeyboardLettersHint(actualUserCoins: Int) = viewModelScope.launch {
 
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
@@ -458,16 +488,18 @@ class EasyViewModel @Inject constructor(
             keyboardHintsRemaining = state.keyboardHintsRemaining - 1
         )
 
+        stateUseCases.saveEasyGameStateUseCase(state)
+
     }
 
-    fun getOneLetterWord(actualUserCoins: Int) {
+    fun getOneLetterWord(actualUserCoins: Int) = viewModelScope.launch {
 
         if (state.indexesGuessed.size == 4){
             Toast.makeText(context, "Parece que ya tienes todas las letras", Toast.LENGTH_SHORT).show()
             state = state.copy(
                 lettersHintsRemaining = state.lettersHintsRemaining -1
             )
-            return
+            return@launch
         }
 
         buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
@@ -493,6 +525,7 @@ class EasyViewModel @Inject constructor(
             lettersHintsRemaining = state.lettersHintsRemaining - 1,
             indexesGuessed = state.indexesGuessed.plus(indexToShow)
         )
+        stateUseCases.saveEasyGameStateUseCase(state)
         state = state.copy(
             indexFocused = getNextFocusedIndex()
         )

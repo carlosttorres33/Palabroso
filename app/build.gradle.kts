@@ -4,6 +4,7 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.google.gms.google.services)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -114,5 +115,7 @@ dependencies {
 
     //extended icons
     implementation("androidx.compose.material:material-icons-extended:1.5.3")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
 }

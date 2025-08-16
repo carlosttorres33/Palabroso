@@ -45,6 +45,7 @@ import com.carlostorres.wordsgame.ui.theme.LightCustomGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightRed
 import com.carlostorres.wordsgame.ui.theme.LightYellow
+import kotlinx.serialization.Serializable
 
 @Composable
 fun WordChar(
@@ -163,9 +164,14 @@ private fun WordCharPreview() {
     )
 }
 
+@Serializable
 sealed class WordCharState {
+    @Serializable
     object Empty : WordCharState()
+    @Serializable
     object IsOnWord : WordCharState()
+    @Serializable
     object IsOnPosition : WordCharState()
+    @Serializable
     object IsNotInWord : WordCharState()
 }

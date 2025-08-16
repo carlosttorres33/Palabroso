@@ -13,9 +13,11 @@ import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.P
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.coinsKey
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.instructionsKey
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
+import com.carlostorres.wordsgame.game.presentation.easy.EasyState
 import com.carlostorres.wordsgame.utils.Constants.CAN_ACCESS_TO_APP_KEY
 import com.carlostorres.wordsgame.utils.Constants.COINS_KEY
 import com.carlostorres.wordsgame.utils.Constants.EASY_GAMES_PLAYED_KEY
+import com.carlostorres.wordsgame.utils.Constants.EASY_GAME_STATE
 import com.carlostorres.wordsgame.utils.Constants.HARD_GAMES_PLAYED_KEY
 import com.carlostorres.wordsgame.utils.Constants.INSTRUCTIONS_KEY
 import com.carlostorres.wordsgame.utils.Constants.LAST_PLAYED_DATE_KEY
@@ -23,7 +25,9 @@ import com.carlostorres.wordsgame.utils.Constants.NORMAL_GAMES_PLAYED_KEY
 import com.carlostorres.wordsgame.utils.Constants.PREFERENCES_NAME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.text.SimpleDateFormat
 import javax.inject.Inject
@@ -38,7 +42,8 @@ data class UserDailyStats(
 val Context.dataStore by preferencesDataStore(name = PREFERENCES_NAME)
 
 class DataStoreOperationsImpl @Inject constructor(
-    context: Context
+    context: Context,
+    jsonSerializer: Json
 ) : DataStoreOperations {
 
     private object PreferencesKeys {
@@ -52,6 +57,8 @@ class DataStoreOperationsImpl @Inject constructor(
         val canAccessToAppKey = booleanPreferencesKey(name = CAN_ACCESS_TO_APP_KEY)
 
         val coinsKey = intPreferencesKey(name = COINS_KEY)
+
+        val easyStatsKey = EASY_GAME_STATE
     }
 
     private val dataStore = context.dataStore
@@ -150,6 +157,29 @@ class DataStoreOperationsImpl @Inject constructor(
                 Log.d("Datastore", "Coins: $coins")
                 coins
             }
+    }
+
+    // Guarda el estado
+    override suspend fun saveEasyGameState(state: EasyState) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.easyStatsKey] = state.toJson()
+        }
+    }
+
+    // Carga el estado
+    override suspend fun loadEasyGameState(): EasyState? {
+        return dataStore.data
+            .catch { emit(emptyPreferences()) }
+            .map { preferences ->
+                preferences[PreferencesKeys.easyStatsKey]?.let { json ->
+                    Json.decodeFromString<EasyState>(json)
+                }
+            }.firstOrNull()
+    }
+
+    // Borra el estado al finalizar la partida
+    override suspend fun clearEasyGameState() {
+        dataStore.edit { it.remove(PreferencesKeys.easyStatsKey) }
     }
 
 }
