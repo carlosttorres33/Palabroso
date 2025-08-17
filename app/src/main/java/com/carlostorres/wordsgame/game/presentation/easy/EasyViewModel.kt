@@ -638,6 +638,9 @@ class EasyViewModel @Inject constructor(
             state = state.copy(
                 userCoins = coins
             )
+            stateUseCases.saveEasyGameStateUseCase(
+                state
+            )
         }
     }
 
