@@ -2,10 +2,15 @@ package com.carlostorres.wordsgame.game.presentation.normal
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.presentation.WordModel
+import com.carlostorres.wordsgame.game.presentation.easy.EasyState
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class NormalState(
 
     val showLetterHintDialog : Boolean = false,
@@ -39,4 +44,16 @@ data class NormalState(
     val gameWinsCount : Int = 0,
     val gameLostCount : Int = 0,
     val wordsTried : List<String> = emptyList()
-)
+){
+
+    fun toJson(): String = Json.encodeToString(this)
+
+    companion object {
+        fun fromJson(json: String): NormalState? = try {
+            Json.decodeFromString(json)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+}

@@ -1,13 +1,13 @@
-package com.carlostorres.wordsgame.game.domain.usecases.easy
+package com.carlostorres.wordsgame.game.domain.usecases.state.normal
 
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 
-class ClearEasyGameStateUseCase(
+class ClearNormalGameStateUseCase(
     private val dataStoreOperations: DataStoreOperations
 ) {
 
     suspend operator fun invoke() {
-        dataStoreOperations.clearEasyGameState()
+        dataStoreOperations.clearNormalGameState()
     }
 
 }

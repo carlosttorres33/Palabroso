@@ -1,4 +1,4 @@
-package com.carlostorres.wordsgame.game.domain.usecases.easy
+package com.carlostorres.wordsgame.game.domain.usecases.state.easy
 
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.presentation.easy.EasyState

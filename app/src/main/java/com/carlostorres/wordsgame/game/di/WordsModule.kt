@@ -27,15 +27,19 @@ import com.carlostorres.wordsgame.game.domain.usecases.OnboardingUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.StatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.coins.GetCoinsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.coins.UpdateCoinsUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.easy.ClearEasyGameStateUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.easy.EasyGameStateUseCases
-import com.carlostorres.wordsgame.game.domain.usecases.easy.ReadEasyGameStateUseCase
-import com.carlostorres.wordsgame.game.domain.usecases.easy.SaveEasyGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.easy.ClearEasyGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.easy.EasyGameStateUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.state.easy.ReadEasyGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.easy.SaveEasyGameStateUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadAccessToAppDataStore
 import com.carlostorres.wordsgame.game.domain.usecases.stats.ReadDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveAccessToAppDataStore
 import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveInstructionsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.normal.ClearNormalGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.normal.NormalGameStateUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.state.normal.ReadNormalGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.normal.SaveNormalGameStateUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.GetAllStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpdateDailyStatsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.stats.UpsertStatsUseCase
@@ -288,6 +292,16 @@ object WordsModule {
         saveEasyGameStateUseCase = SaveEasyGameStateUseCase(dataStoreOperations),
         readEasyGameStateUseCase = ReadEasyGameStateUseCase(dataStoreOperations),
         clearEasyGameStateUseCase = ClearEasyGameStateUseCase(dataStoreOperations)
+    )
+
+    @Provides
+    @Singleton
+    fun provideNormalGamesUseCases(
+        dataStoreOperations: DataStoreOperations
+    ) : NormalGameStateUseCases = NormalGameStateUseCases(
+        saveNormalGameStateUseCase = SaveNormalGameStateUseCase(dataStoreOperations),
+        readNormalGameStateUseCase = ReadNormalGameStateUseCase(dataStoreOperations),
+        clearNormalGameStateUseCase = ClearNormalGameStateUseCase(dataStoreOperations)
     )
 
 }

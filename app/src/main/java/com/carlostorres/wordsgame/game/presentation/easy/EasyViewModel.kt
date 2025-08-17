@@ -18,7 +18,7 @@ import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.repository.ReportWordRepository
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
-import com.carlostorres.wordsgame.game.domain.usecases.easy.EasyGameStateUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.state.easy.EasyGameStateUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.GameDifficult

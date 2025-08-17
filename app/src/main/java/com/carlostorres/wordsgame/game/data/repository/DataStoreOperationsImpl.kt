@@ -14,6 +14,7 @@ import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.P
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.instructionsKey
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.presentation.easy.EasyState
+import com.carlostorres.wordsgame.game.presentation.normal.NormalState
 import com.carlostorres.wordsgame.utils.Constants.CAN_ACCESS_TO_APP_KEY
 import com.carlostorres.wordsgame.utils.Constants.COINS_KEY
 import com.carlostorres.wordsgame.utils.Constants.EASY_GAMES_PLAYED_KEY
@@ -22,6 +23,7 @@ import com.carlostorres.wordsgame.utils.Constants.HARD_GAMES_PLAYED_KEY
 import com.carlostorres.wordsgame.utils.Constants.INSTRUCTIONS_KEY
 import com.carlostorres.wordsgame.utils.Constants.LAST_PLAYED_DATE_KEY
 import com.carlostorres.wordsgame.utils.Constants.NORMAL_GAMES_PLAYED_KEY
+import com.carlostorres.wordsgame.utils.Constants.NORMAL_GAME_STATE
 import com.carlostorres.wordsgame.utils.Constants.PREFERENCES_NAME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -59,6 +61,7 @@ class DataStoreOperationsImpl @Inject constructor(
         val coinsKey = intPreferencesKey(name = COINS_KEY)
 
         val easyStatsKey = EASY_GAME_STATE
+        val normalStatsKey = NORMAL_GAME_STATE
     }
 
     private val dataStore = context.dataStore
@@ -180,6 +183,26 @@ class DataStoreOperationsImpl @Inject constructor(
     // Borra el estado al finalizar la partida
     override suspend fun clearEasyGameState() {
         dataStore.edit { it.remove(PreferencesKeys.easyStatsKey) }
+    }
+
+    override suspend fun saveNormalGameState(state: NormalState) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.normalStatsKey] = state.toJson()
+        }
+    }
+
+    override suspend fun loadNormalGameState(): NormalState? {
+        return dataStore.data
+            .catch { emit(emptyPreferences()) }
+            .map { preferences ->
+                preferences[PreferencesKeys.normalStatsKey]?.let { json ->
+                    Json.decodeFromString<NormalState>(json)
+                }
+            }.firstOrNull()
+    }
+
+    override suspend fun clearNormalGameState() {
+        dataStore.edit { it.remove(PreferencesKeys.normalStatsKey) }
     }
 
 }
