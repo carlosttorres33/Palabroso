@@ -99,6 +99,8 @@ fun HardScreen(
 
     val userDailyStats by viewModel.userDailyStats.collectAsState()
 
+    val userCoins by viewModel.userCoins.collectAsState()
+
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
@@ -161,7 +163,7 @@ fun HardScreen(
                 actions = {
                     CoinsCounter(
                         icon = R.drawable.coins,
-                        coinsRemaining = state.userCoins,
+                        coinsRemaining = userCoins,
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(100.dp)
@@ -231,7 +233,7 @@ fun HardScreen(
 
                 GetCoinsContentBS(
                     onAcceptClick = {
-                        viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
+                        viewModel.showRewardedAd(activity, actualUserCoins = userCoins)
                         viewModel.showCoinsDialog(false)
                     },
                     onCancelClick = {
@@ -254,7 +256,7 @@ fun HardScreen(
                 BuyHintContentBS(
                     hintType = HintType.KEYBOARD,
                     onAccept = { hintToBuy ->
-                        viewModel.disable4KeyboardLettersHint(state.userCoins)
+                        viewModel.disable4KeyboardLettersHint(userCoins)
                         viewModel.hintDialogHandler(
                             hintType = hintToBuy,
                             show = false
@@ -283,7 +285,7 @@ fun HardScreen(
                 BuyHintContentBS(
                     hintType = HintType.ONE_LETTER,
                     onAccept = { hintToBuy ->
-                        viewModel.getOneLetterWord(state.userCoins)
+                        viewModel.getOneLetterWord(userCoins)
                         viewModel.hintDialogHandler(
                             hintType = hintToBuy,
                             show = false
@@ -395,7 +397,7 @@ fun HardScreen(
                     .aspectRatio(1f),
                 icon = R.drawable.text_magnifying_glass,
                 hintCoast = ONE_LETTER_HINT_PRICE,
-                clickEnabled = state.userCoins >= ONE_LETTER_HINT_PRICE
+                clickEnabled = userCoins >= ONE_LETTER_HINT_PRICE
             ) {
                 viewModel.hintDialogHandler(HintType.ONE_LETTER, true)
             }
@@ -411,7 +413,7 @@ fun HardScreen(
                     },
                 icon = R.drawable.packages,
                 hintCoast = KEYBOARD_HINT_PRICE,
-                clickEnabled = state.userCoins >= KEYBOARD_HINT_PRICE
+                clickEnabled = userCoins >= KEYBOARD_HINT_PRICE
             ) {
                 viewModel.hintDialogHandler(HintType.KEYBOARD, true)
             }
@@ -726,7 +728,7 @@ fun HardScreen(
                     if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(GameEvents.OnAcceptClick(state.userCoins))
+                        viewModel.onEvent(GameEvents.OnAcceptClick(userCoins))
                     }
                 },
                 onAcceptState =  if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,

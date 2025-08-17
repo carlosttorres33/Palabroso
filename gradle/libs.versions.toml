@@ -35,5 +35,6 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-android-serialization = { id = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

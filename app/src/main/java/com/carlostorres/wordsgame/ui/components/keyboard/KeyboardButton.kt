@@ -29,6 +29,7 @@ import com.carlostorres.wordsgame.ui.theme.LightBackgroundGray
 import com.carlostorres.wordsgame.ui.theme.LightCustomGray
 import com.carlostorres.wordsgame.ui.theme.LightGreen
 import com.carlostorres.wordsgame.ui.theme.LightYellow
+import kotlinx.serialization.Serializable
 
 @Composable
 fun KeyboardButton(
@@ -103,9 +104,14 @@ private fun KeyboardButtonPreview() {
 
 }
 
+@Serializable
 sealed class ButtonType {
+    @Serializable
     object IsOnWord : ButtonType()
+    @Serializable
     object IsOnPosition : ButtonType()
+    @Serializable
     object IsNotInWord : ButtonType()
+    @Serializable
     object Unclicked : ButtonType()
 }

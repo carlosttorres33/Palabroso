@@ -16,6 +16,7 @@ import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.state.normal.NormalGameStateUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.GameDifficult
@@ -29,6 +30,7 @@ import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.HintType
 import com.carlostorres.wordsgame.utils.difficultToString
+import com.carlostorres.wordsgame.utils.getHintCoast
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -56,7 +58,8 @@ class NormalViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: GameUseCases,
     private val gameStatsUseCases: GameStatsUseCases,
-    private val connectivityObserver: ConnectivityObserver
+    private val connectivityObserver: ConnectivityObserver,
+    private val stateUseCases: NormalGameStateUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(NormalState())
@@ -77,6 +80,9 @@ class NormalViewModel @Inject constructor(
         )
     )
     val userDailyStats: StateFlow<UserDailyStats> = _userDailyStats.asStateFlow()
+
+    private val _userCoins = MutableStateFlow(0)
+    val userCoins: StateFlow<Int> = _userCoins.asStateFlow()
 
     val gameWinsCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
         difficult = difficultToString(GameDifficult.Normal),
@@ -128,24 +134,32 @@ class NormalViewModel @Inject constructor(
 
             try {
 
-                val word = useCases.getRandomWordUseCase(
-                    wordsTried = state.secretWordsList,
-                    wordLength = NORMAL_WORD_LENGTH,
-                    dayTries = userDailyStats.value.normalGamesPlayed,
-                    group = EP_5_LETTERS,
-                    gameDifficult = difficultToString(GameDifficult.Normal)
-                )
+                val lastState = stateUseCases.readNormalGameStateUseCase()
 
-                state = if (word.word.isNotEmpty()) {
-                    state.copy(
-                        secretWord = word,
-                        gameSituation = GameSituations.GameInProgress,
-                        secretWordsList = state.secretWordsList.plus(word.word)
+                if (lastState == null){
+
+                    val word = useCases.getRandomWordUseCase(
+                        wordsTried = state.secretWordsList,
+                        wordLength = NORMAL_WORD_LENGTH,
+                        dayTries = userDailyStats.value.normalGamesPlayed,
+                        group = EP_5_LETTERS,
+                        gameDifficult = difficultToString(GameDifficult.Normal)
                     )
-                } else {
-                    state.copy(
-                        gameSituation = GameSituations.GameError("Error Desconocido")
-                    )
+
+                    state = if (word.word.isNotEmpty()) {
+                        state.copy(
+                            secretWord = word,
+                            gameSituation = GameSituations.GameInProgress,
+                            secretWordsList = state.secretWordsList.plus(word.word)
+                        )
+                    } else {
+                        state.copy(
+                            gameSituation = GameSituations.GameError("Error Desconocido")
+                        )
+                    }
+
+                }else{
+                    state = lastState
                 }
 
             } catch (e: Exception) {
@@ -183,6 +197,7 @@ class NormalViewModel @Inject constructor(
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
             )
+            stateUseCases.clearNormalGameStateUseCase()
             increaseNormalGamesPlayed()
             getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
@@ -190,6 +205,7 @@ class NormalViewModel @Inject constructor(
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
             )
+            stateUseCases.clearNormalGameStateUseCase()
             increaseNormalGamesPlayed()
             updateDailyStats(false, state.tryNumber)
         }
@@ -210,6 +226,9 @@ class NormalViewModel @Inject constructor(
                     inputList = (1..5).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveNormalGameStateUseCase(state)
+                }
             }
 
             1 -> {
@@ -222,6 +241,9 @@ class NormalViewModel @Inject constructor(
                     inputList = (1..5).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveNormalGameStateUseCase(state)
+                }
             }
 
             2 -> {
@@ -234,6 +256,9 @@ class NormalViewModel @Inject constructor(
                     inputList = (1..5).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveNormalGameStateUseCase(state)
+                }
             }
 
             3 -> {
@@ -246,6 +271,9 @@ class NormalViewModel @Inject constructor(
                     inputList = (1..5).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveNormalGameStateUseCase(state)
+                }
             }
 
             4 -> {
@@ -258,10 +286,14 @@ class NormalViewModel @Inject constructor(
                     inputList = (1..5).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveNormalGameStateUseCase(state)
+                }
             }
 
             else -> {
                 resetGame()
+                stateUseCases.clearNormalGameStateUseCase()
             }
         }
 
@@ -310,11 +342,7 @@ class NormalViewModel @Inject constructor(
         useCases.updateCoinsUseCase(actualUserCoins + 75)
     }
 
-    private fun buyHint(hintType: HintType, actualUserCoins: Int) = viewModelScope.launch {
-        val discount = when(hintType){
-            HintType.ONE_LETTER -> 75
-            HintType.KEYBOARD -> 50
-        }
+    private fun buyHint(actualUserCoins: Int, discount: Int) = viewModelScope.launch {
         useCases.updateCoinsUseCase(actualUserCoins - discount)
     }
 
@@ -423,7 +451,7 @@ class NormalViewModel @Inject constructor(
 
     }
 
-    fun disable4KeyboardLettersHint(actualUserCoins: Int){
+    fun disable4KeyboardLettersHint(actualUserCoins: Int) = viewModelScope.launch {
 
         //get random index from keyboard list that doesnt contains secret word chars
         val randomIndex = (0..2). map { counterIndex ->
@@ -434,7 +462,9 @@ class NormalViewModel @Inject constructor(
             possibleIndex
         }
 
-        buyHint(HintType.KEYBOARD, actualUserCoins)
+        val discount = getHintCoast(HintType.KEYBOARD)
+
+        buyHint(actualUserCoins, discount)
 
         state = state.copy(
             keyboard = state.keyboard.mapIndexed { index, keyboardChar ->
@@ -447,19 +477,27 @@ class NormalViewModel @Inject constructor(
             keyboardHintsRemaining = state.keyboardHintsRemaining - 1
         )
 
+        stateUseCases.saveNormalGameStateUseCase(
+            state.copy(
+                showKeyboardHintDialog = false
+            )
+        )
+
     }
 
-    fun getOneLetterWord(actualUserCoins: Int) {
+    fun getOneLetterWord(actualUserCoins: Int) = viewModelScope.launch {
 
         if (state.indexesGuessed.size == 5){
             Toast.makeText(context, "Parece que ya tienes todas las letras", Toast.LENGTH_SHORT).show()
             state = state.copy(
                 lettersHintsRemaining = state.lettersHintsRemaining-1
             )
-            return
+            return@launch
         }
 
-        buyHint(HintType.ONE_LETTER, actualUserCoins)
+        val discount = getHintCoast(HintType.ONE_LETTER)
+
+        buyHint(actualUserCoins, discount)
 
         val indexesUnknowns = (0..4).mapNotNull { index ->
             if (state.indexesGuessed.contains(index)){
@@ -485,6 +523,12 @@ class NormalViewModel @Inject constructor(
 
         state = state.copy(
             indexFocused = getNextFocusedIndex()
+        )
+
+        stateUseCases.saveNormalGameStateUseCase(
+            state = state.copy(
+                showLetterHintDialog = false
+            )
         )
 
     }
@@ -591,9 +635,7 @@ class NormalViewModel @Inject constructor(
 
     private fun getUserCoins() = viewModelScope.launch {
         useCases.getCoinsUseCase().collectLatest{ coins ->
-            state = state.copy(
-                userCoins = coins
-            )
+            _userCoins.value = coins
         }
     }
 

@@ -5,12 +5,15 @@ import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class EasyState(
 
     val showLetterHintDialog : Boolean = false,
     val showKeyboardHintDialog : Boolean = false,
-    val userCoins : Int = 0,
 
     val inputList : List<Char?> = (1..4).map { null },
     val indexFocused : Int = 0, ////Podemos hacerlo nulo para liberar el Foco cuando ningun elemento de la lista esta vacio, solo si clickeamos algun elemento se hace focus ahi
@@ -54,4 +57,16 @@ data class EasyState(
 
     val wordsTried : List<String> = emptyList()
 
-)
+){
+
+    fun toJson(): String = Json.encodeToString(this)
+
+    companion object {
+        fun fromJson(json: String): EasyState? = try {
+            Json.decodeFromString(json)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+}

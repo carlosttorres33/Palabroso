@@ -1,5 +1,7 @@
 package com.carlostorres.wordsgame.utils
 
+import androidx.datastore.preferences.core.stringPreferencesKey
+
 object Constants {
 
     //1st API
@@ -21,6 +23,10 @@ object Constants {
     const val CAN_ACCESS_TO_APP_KEY = "can_access_to_app"
 
     const val COINS_KEY = "coins"
+
+    val EASY_GAME_STATE = stringPreferencesKey("easy_game_state")
+    val NORMAL_GAME_STATE = stringPreferencesKey("normal_game_state")
+    val HARD_GAME_STATE = stringPreferencesKey("hard_game_state")
     //endregion
 
     const val ONE_LETTER_HINT_PRICE = 75
