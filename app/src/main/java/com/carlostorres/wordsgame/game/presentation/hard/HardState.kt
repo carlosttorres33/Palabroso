@@ -15,7 +15,6 @@ data class HardState(
 
     val showLetterHintDialog : Boolean = false,
     val showKeyboardHintDialog : Boolean = false,
-    val userCoins : Int = 0,
 
     val inputList : List<Char?> = (1..6).map { null },
     val indexFocused : Int = 0,

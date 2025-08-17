@@ -109,6 +109,8 @@ fun NormalScreen(
         )
     )
 
+    val userCoins by viewModel.userCoins.collectAsState(0)
+
     val requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
     val winsCont = viewModel.gameWinsCount.collectAsState(initial = 0)
@@ -171,7 +173,7 @@ fun NormalScreen(
                 actions = {
                     CoinsCounter(
                         icon = R.drawable.coins,
-                        coinsRemaining = state.userCoins,
+                        coinsRemaining = userCoins,
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(100.dp)
@@ -241,7 +243,7 @@ fun NormalScreen(
 
                 GetCoinsContentBS(
                     onAcceptClick = {
-                        viewModel.showRewardedAd(activity, actualUserCoins = state.userCoins)
+                        viewModel.showRewardedAd(activity, actualUserCoins = userCoins)
                         viewModel.showCoinsDialog(false)
                     },
                     onCancelClick = {
@@ -264,7 +266,7 @@ fun NormalScreen(
                 BuyHintContentBS(
                     hintType = HintType.KEYBOARD,
                     onAccept = { hintToBuy ->
-                        viewModel.disable4KeyboardLettersHint(state.userCoins)
+                        viewModel.disable4KeyboardLettersHint(userCoins)
                         viewModel.hintDialogHandler(
                             hintType = hintToBuy,
                             show = false
@@ -293,7 +295,7 @@ fun NormalScreen(
                 BuyHintContentBS(
                     hintType = HintType.ONE_LETTER,
                     onAccept = { hintToBuy ->
-                        viewModel.getOneLetterWord(state.userCoins)
+                        viewModel.getOneLetterWord(userCoins)
                         viewModel.hintDialogHandler(
                             hintType = hintToBuy,
                             show = false
@@ -406,7 +408,7 @@ fun NormalScreen(
                     .aspectRatio(1f),
                 icon = R.drawable.text_magnifying_glass,
                 hintCoast = ONE_LETTER_HINT_PRICE,
-                clickEnabled = state.userCoins >= ONE_LETTER_HINT_PRICE
+                clickEnabled = userCoins >= ONE_LETTER_HINT_PRICE
             ) {
                 viewModel.hintDialogHandler(HintType.ONE_LETTER, true)
             }
@@ -422,7 +424,7 @@ fun NormalScreen(
                     },
                 icon = R.drawable.packages,
                 hintCoast = KEYBOARD_HINT_PRICE,
-                clickEnabled = state.userCoins >= KEYBOARD_HINT_PRICE
+                clickEnabled = userCoins >= KEYBOARD_HINT_PRICE
             ) {
                 viewModel.hintDialogHandler(HintType.KEYBOARD, true)
             }
@@ -732,7 +734,7 @@ fun NormalScreen(
                     if (state.wordsTried.contains(state.inputList.joinToString(""))) {
                         showWordAlreadyTried = true
                     } else {
-                        viewModel.onEvent(GameEvents.OnAcceptClick(state.userCoins))
+                        viewModel.onEvent(GameEvents.OnAcceptClick(userCoins))
                     }
                 },
                 onAcceptState = if (state.inputList.none { it == null }) ButtonType.Unclicked else ButtonType.IsNotInWord,

@@ -87,7 +87,8 @@ class HardViewModel @Inject constructor(
         win = true
     )
 
-    //val userCoins = useCases.getCoinsUseCase()
+    private val _userCoins = MutableStateFlow(0)
+    val userCoins: StateFlow<Int> = _userCoins.asStateFlow()
 
     val gameLostCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
         difficult = difficultToString(GameDifficult.Hard),
@@ -451,8 +452,7 @@ class HardViewModel @Inject constructor(
 
         stateUseCases.saveHardGameStateUseCase(
             state.copy(
-                showKeyboardHintDialog = false,
-                userCoins = actualUserCoins - discount
+                showKeyboardHintDialog = false
             )
         )
 
@@ -500,8 +500,7 @@ class HardViewModel @Inject constructor(
 
         stateUseCases.saveHardGameStateUseCase(
             state = state.copy(
-                showLetterHintDialog = false,
-                userCoins = actualUserCoins - discount
+                showLetterHintDialog = false
             )
         )
 
@@ -652,12 +651,7 @@ class HardViewModel @Inject constructor(
 
     private fun getUserCoins() = viewModelScope.launch {
         useCases.getCoinsUseCase().collectLatest{ coins ->
-            state = state.copy(
-                userCoins = coins
-            )
-            stateUseCases.saveHardGameStateUseCase(
-                state
-            )
+            _userCoins.value = coins
         }
     }
 

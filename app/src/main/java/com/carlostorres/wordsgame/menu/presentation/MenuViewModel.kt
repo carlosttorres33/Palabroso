@@ -64,6 +64,9 @@ class MenuViewModel @Inject constructor(
     private val _canAccessToApp = MutableStateFlow(false)
     val canAccessToApp: StateFlow<Boolean> = _canAccessToApp.asStateFlow()
 
+    private val _userCoins = MutableStateFlow(0)
+    val userCoins: StateFlow<Int> = _userCoins.asStateFlow()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             checkUserVersion()
@@ -99,9 +102,7 @@ class MenuViewModel @Inject constructor(
 
     private fun getUserCoins() = viewModelScope.launch {
         useCases.getCoinsUseCase().collectLatest{ coins ->
-            state = state.copy(
-                userCoins = coins
-            )
+            _userCoins.value = coins
         }
     }
 

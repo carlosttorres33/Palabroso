@@ -84,6 +84,9 @@ class EasyViewModel @Inject constructor(
     )
     val dailyStats: StateFlow<UserDailyStats> = _dailyStats.asStateFlow()
 
+    private val _userCoins = MutableStateFlow(0)
+    val userCoins: StateFlow<Int> = _userCoins.asStateFlow()
+
     val gameWinsCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
         difficult = difficultToString(GameDifficult.Easy),
         win = true
@@ -93,8 +96,6 @@ class EasyViewModel @Inject constructor(
         difficult = difficultToString(GameDifficult.Easy),
         win = false
     )
-
-    //val userCoins = useCases.getCoinsUseCase()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -493,8 +494,7 @@ class EasyViewModel @Inject constructor(
 
         stateUseCases.saveEasyGameStateUseCase(
             state.copy(
-                showKeyboardHintDialog = false,
-                userCoins = actualUserCoins-discount
+                showKeyboardHintDialog = false
             )
         )
 
@@ -540,8 +540,7 @@ class EasyViewModel @Inject constructor(
         )
         stateUseCases.saveEasyGameStateUseCase(
             state.copy(
-                showLetterHintDialog = false,
-                userCoins = actualUserCoins-discount
+                showLetterHintDialog = false
             )
         )
 
@@ -635,12 +634,7 @@ class EasyViewModel @Inject constructor(
 
     private fun getUserCoins() = viewModelScope.launch {
         useCases.getCoinsUseCase().collectLatest{ coins ->
-            state = state.copy(
-                userCoins = coins
-            )
-            stateUseCases.saveEasyGameStateUseCase(
-                state
-            )
+            _userCoins.value = coins
         }
     }
 

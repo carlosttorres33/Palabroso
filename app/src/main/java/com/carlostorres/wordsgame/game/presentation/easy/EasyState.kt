@@ -14,7 +14,6 @@ data class EasyState(
 
     val showLetterHintDialog : Boolean = false,
     val showKeyboardHintDialog : Boolean = false,
-    val userCoins : Int = 0,
 
     val inputList : List<Char?> = (1..4).map { null },
     val indexFocused : Int = 0, ////Podemos hacerlo nulo para liberar el Foco cuando ningun elemento de la lista esta vacio, solo si clickeamos algun elemento se hace focus ahi

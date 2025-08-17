@@ -81,6 +81,9 @@ class NormalViewModel @Inject constructor(
     )
     val userDailyStats: StateFlow<UserDailyStats> = _userDailyStats.asStateFlow()
 
+    private val _userCoins = MutableStateFlow(0)
+    val userCoins: StateFlow<Int> = _userCoins.asStateFlow()
+
     val gameWinsCount: Flow<Int> = gameStatsUseCases.getGameModeStatsUseCase(
         difficult = difficultToString(GameDifficult.Normal),
         win = true
@@ -476,8 +479,7 @@ class NormalViewModel @Inject constructor(
 
         stateUseCases.saveNormalGameStateUseCase(
             state.copy(
-                showKeyboardHintDialog = false,
-                userCoins = actualUserCoins - discount
+                showKeyboardHintDialog = false
             )
         )
 
@@ -525,8 +527,7 @@ class NormalViewModel @Inject constructor(
 
         stateUseCases.saveNormalGameStateUseCase(
             state = state.copy(
-                showLetterHintDialog = false,
-                userCoins = actualUserCoins - discount
+                showLetterHintDialog = false
             )
         )
 
@@ -634,12 +635,7 @@ class NormalViewModel @Inject constructor(
 
     private fun getUserCoins() = viewModelScope.launch {
         useCases.getCoinsUseCase().collectLatest{ coins ->
-            state = state.copy(
-                userCoins = coins
-            )
-            stateUseCases.saveNormalGameStateUseCase(
-                state
-            )
+            _userCoins.value = coins
         }
     }
 
