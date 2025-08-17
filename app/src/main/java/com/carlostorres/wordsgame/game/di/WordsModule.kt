@@ -36,6 +36,10 @@ import com.carlostorres.wordsgame.game.domain.usecases.stats.ReadDailyStatsUseCa
 import com.carlostorres.wordsgame.game.domain.usecases.settings.ReadInstructionsUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveAccessToAppDataStore
 import com.carlostorres.wordsgame.game.domain.usecases.settings.SaveInstructionsUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.hard.ClearHardGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.hard.HardGameStateUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.state.hard.ReadHardGameStateUseCase
+import com.carlostorres.wordsgame.game.domain.usecases.state.hard.SaveHardGameStateUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.state.normal.ClearNormalGameStateUseCase
 import com.carlostorres.wordsgame.game.domain.usecases.state.normal.NormalGameStateUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.state.normal.ReadNormalGameStateUseCase
@@ -302,6 +306,16 @@ object WordsModule {
         saveNormalGameStateUseCase = SaveNormalGameStateUseCase(dataStoreOperations),
         readNormalGameStateUseCase = ReadNormalGameStateUseCase(dataStoreOperations),
         clearNormalGameStateUseCase = ClearNormalGameStateUseCase(dataStoreOperations)
+    )
+
+    @Provides
+    @Singleton
+    fun provideHardGamesUseCases(
+        dataStoreOperations: DataStoreOperations
+    ) : HardGameStateUseCases = HardGameStateUseCases(
+        saveHardGameStateUseCase = SaveHardGameStateUseCase(dataStoreOperations),
+        readHardGameStateUseCase = ReadHardGameStateUseCase(dataStoreOperations),
+        clearHardGameStateUseCase = ClearHardGameStateUseCase(dataStoreOperations)
     )
 
 }

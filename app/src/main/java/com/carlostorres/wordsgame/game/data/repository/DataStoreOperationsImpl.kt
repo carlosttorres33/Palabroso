@@ -14,12 +14,14 @@ import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.P
 import com.carlostorres.wordsgame.game.data.repository.DataStoreOperationsImpl.PreferencesKeys.instructionsKey
 import com.carlostorres.wordsgame.game.domain.repository.DataStoreOperations
 import com.carlostorres.wordsgame.game.presentation.easy.EasyState
+import com.carlostorres.wordsgame.game.presentation.hard.HardState
 import com.carlostorres.wordsgame.game.presentation.normal.NormalState
 import com.carlostorres.wordsgame.utils.Constants.CAN_ACCESS_TO_APP_KEY
 import com.carlostorres.wordsgame.utils.Constants.COINS_KEY
 import com.carlostorres.wordsgame.utils.Constants.EASY_GAMES_PLAYED_KEY
 import com.carlostorres.wordsgame.utils.Constants.EASY_GAME_STATE
 import com.carlostorres.wordsgame.utils.Constants.HARD_GAMES_PLAYED_KEY
+import com.carlostorres.wordsgame.utils.Constants.HARD_GAME_STATE
 import com.carlostorres.wordsgame.utils.Constants.INSTRUCTIONS_KEY
 import com.carlostorres.wordsgame.utils.Constants.LAST_PLAYED_DATE_KEY
 import com.carlostorres.wordsgame.utils.Constants.NORMAL_GAMES_PLAYED_KEY
@@ -62,6 +64,7 @@ class DataStoreOperationsImpl @Inject constructor(
 
         val easyStatsKey = EASY_GAME_STATE
         val normalStatsKey = NORMAL_GAME_STATE
+        val hardStatsKey = HARD_GAME_STATE
     }
 
     private val dataStore = context.dataStore
@@ -203,6 +206,26 @@ class DataStoreOperationsImpl @Inject constructor(
 
     override suspend fun clearNormalGameState() {
         dataStore.edit { it.remove(PreferencesKeys.normalStatsKey) }
+    }
+
+    override suspend fun saveHardGameState(state: HardState) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.hardStatsKey] = state.toJson()
+        }
+    }
+
+    override suspend fun loadHardGameState(): HardState? {
+        return dataStore.data
+            .catch { emit(emptyPreferences()) }
+            .map { preferences ->
+                preferences[PreferencesKeys.hardStatsKey]?.let { json ->
+                    Json.decodeFromString<HardState>(json)
+                }
+            }.firstOrNull()
+    }
+
+    override suspend fun clearHardGameState() {
+        dataStore.edit { it.remove(PreferencesKeys.hardStatsKey) }
     }
 
 }

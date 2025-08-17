@@ -10,12 +10,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.carlostorres.wordsgame.R
 import com.carlostorres.wordsgame.game.data.local.model.StatsEntity
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.domain.usecases.GameStatsUseCases
 import com.carlostorres.wordsgame.game.domain.usecases.GameUseCases
+import com.carlostorres.wordsgame.game.domain.usecases.state.hard.HardGameStateUseCases
 import com.carlostorres.wordsgame.game.presentation.GameEvents
 import com.carlostorres.wordsgame.game.presentation.WordModel
 import com.carlostorres.wordsgame.ui.components.GameDifficult
@@ -29,6 +31,7 @@ import com.carlostorres.wordsgame.utils.Constants.NUMBER_OF_GAMES_ALLOWED
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.HintType
 import com.carlostorres.wordsgame.utils.difficultToString
+import com.carlostorres.wordsgame.utils.getHintCoast
 import com.carlostorres.wordsgame.utils.keyboardCreator
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
@@ -56,7 +59,8 @@ class HardViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: GameUseCases,
     private val gameStatsUseCases: GameStatsUseCases,
-    private val connectivityObserver: ConnectivityObserver
+    private val connectivityObserver: ConnectivityObserver,
+    private val stateUseCases: HardGameStateUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(HardState())
@@ -129,24 +133,32 @@ class HardViewModel @Inject constructor(
 
             try {
 
-                val word = useCases.getRandomWordUseCase(
-                    wordsTried = state.secretWordsList,
-                    wordLength = HARD_WORD_LENGTH,
-                    dayTries = userDailyStats.value.hardGamesPlayed,
-                    group = EP_6_LETTERS,
-                    gameDifficult = difficultToString(GameDifficult.Hard)
-                )
+                val lastState = stateUseCases.readHardGameStateUseCase()
 
-                state = if (word.word.isNotEmpty()) {
-                    state.copy(
-                        secretWord = word,
-                        gameSituation = GameSituations.GameInProgress,
-                        secretWordsList = state.secretWordsList.plus(word.word)
+                if (lastState == null){
+
+                    val word = useCases.getRandomWordUseCase(
+                        wordsTried = state.secretWordsList,
+                        wordLength = HARD_WORD_LENGTH,
+                        dayTries = userDailyStats.value.hardGamesPlayed,
+                        group = EP_6_LETTERS,
+                        gameDifficult = difficultToString(GameDifficult.Hard)
                     )
-                } else {
-                    state.copy(
-                        gameSituation = GameSituations.GameError("Error Desconocido")
-                    )
+
+                    state = if (word.word.isNotEmpty()) {
+                        state.copy(
+                            secretWord = word,
+                            gameSituation = GameSituations.GameInProgress,
+                            secretWordsList = state.secretWordsList.plus(word.word)
+                        )
+                    } else {
+                        state.copy(
+                            gameSituation = GameSituations.GameError("Error Desconocido")
+                        )
+                    }
+
+                }else{
+                    state = lastState
                 }
 
             } catch (e: Exception) {
@@ -160,7 +172,6 @@ class HardViewModel @Inject constructor(
             }
 
         }
-
 
     }
 
@@ -187,12 +198,14 @@ class HardViewModel @Inject constructor(
             increaseHardGamesPlayed()
             getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
+            stateUseCases.clearHardGameStateUseCase()
         } else if (state.tryNumber >= 4) {
             state = state.copy(
                 gameSituation = GameSituations.GameLost
             )
             increaseHardGamesPlayed()
             updateDailyStats(false, state.tryNumber)
+            stateUseCases.clearHardGameStateUseCase()
         }
 
         Log.d(
@@ -212,6 +225,9 @@ class HardViewModel @Inject constructor(
                     indexFocused = 0,
                     inputList = (1..6).map { null }
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveHardGameStateUseCase(state)
+                }
             }
 
             1 -> {
@@ -225,6 +241,9 @@ class HardViewModel @Inject constructor(
                     inputList = (1..6).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveHardGameStateUseCase(state)
+                }
             }
 
             2 -> {
@@ -238,6 +257,9 @@ class HardViewModel @Inject constructor(
                     inputList = (1..6).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveHardGameStateUseCase(state)
+                }
             }
 
             3 -> {
@@ -251,6 +273,9 @@ class HardViewModel @Inject constructor(
                     inputList = (1..6).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveHardGameStateUseCase(state)
+                }
             }
 
             4 -> {
@@ -264,10 +289,14 @@ class HardViewModel @Inject constructor(
                     inputList = (1..6).map { null },
                     indexFocused = 0
                 )
+                if (state.gameSituation is GameSituations.GameInProgress){
+                    stateUseCases.saveHardGameStateUseCase(state)
+                }
             }
 
             else -> {
                 resetGame()
+                stateUseCases.clearHardGameStateUseCase()
             }
         }
 
@@ -386,43 +415,62 @@ class HardViewModel @Inject constructor(
         return state.indexFocused.minus(1).coerceAtLeast(0) ?: 0
     }
 
-    fun disable4KeyboardLettersHint(actualUserCoins: Int){
+    fun disable4KeyboardLettersHint(actualUserCoins: Int) = viewModelScope.launch {
 
-        //get random index from keyboard list that doesnt contains secret word chars
-        val randomIndex = (0..2). map { counterIndex ->
-            var possibleIndex = (0 until state.keyboard.size).random()
-            while (state.secretWord.word.contains(state.keyboard[possibleIndex].char) || state.keyboard[possibleIndex].type == ButtonType.IsNotInWord){
-                possibleIndex = (0 until state.keyboard.size).random()
+        // Filtrar todas las letras candidatas (que NO estén en la palabra y que NO estén ya desactivadas)
+        val availableIndices = state.keyboard
+            .mapIndexed { index, key -> index to key }
+            .filter { (index, key) ->
+                !state.secretWord.word.contains(key.char) && key.type != ButtonType.IsNotInWord
             }
-            possibleIndex
+            .map { it.first }
+
+        // Si no hay letras disponibles, salimos de la función
+        if (availableIndices.isEmpty()) {
+            Toast.makeText(context, "No hay más letras para eliminar.", Toast.LENGTH_SHORT).show()
+            Log.d("Hints", "No hay más letras para eliminar.")
+            return@launch
         }
 
-        buyHint(HintType.KEYBOARD, actualUserCoins)
+        // Seleccionar hasta 3 índices al azar de los disponibles
+        val randomIndices = availableIndices.shuffled().take(3)
+
+        val discount = getHintCoast(HintType.KEYBOARD)
+        buyHint(actualUserCoins, discount)
 
         state = state.copy(
             keyboard = state.keyboard.mapIndexed { index, keyboardChar ->
-                if (randomIndex.contains(index)){
+                if (randomIndices.contains(index)) {
                     keyboardChar.copy(type = ButtonType.IsNotInWord)
-                }else{
+                } else {
                     keyboardChar
                 }
             },
             keyboardHintsRemaining = state.keyboardHintsRemaining - 1
         )
 
+        stateUseCases.saveHardGameStateUseCase(
+            state.copy(
+                showKeyboardHintDialog = false,
+                userCoins = actualUserCoins - discount
+            )
+        )
+
     }
 
-    fun getOneLetterWord(actualUserCoins: Int) {
+    fun getOneLetterWord(actualUserCoins: Int) = viewModelScope.launch {
 
         if (state.indexesGuessed.size == 6){
             Toast.makeText(context, "Parece que ya tienes todas las letras", Toast.LENGTH_SHORT).show()
             state = state.copy(
                 lettersHintsRemaining = state.lettersHintsRemaining-1
             )
-            return
+            return@launch
         }
 
-        buyHint(HintType.ONE_LETTER, actualUserCoins = actualUserCoins)
+        val discount = getHintCoast(HintType.ONE_LETTER)
+
+        buyHint(actualUserCoins, discount)
 
         val indexesUnknowns = (0..5).mapNotNull { index ->
             if (state.indexesGuessed.contains(index)){
@@ -450,6 +498,13 @@ class HardViewModel @Inject constructor(
             indexFocused = getNextFocusedIndex()
         )
 
+        stateUseCases.saveHardGameStateUseCase(
+            state = state.copy(
+                showLetterHintDialog = false,
+                userCoins = actualUserCoins - discount
+            )
+        )
+
     }
 
     private fun getCoinsFromAd(actualUserCoins: Int) = viewModelScope.launch(Dispatchers.IO) {
@@ -460,11 +515,7 @@ class HardViewModel @Inject constructor(
         useCases.updateCoinsUseCase(actualUserCoins + 25)
     }
 
-    private fun buyHint(hintType: HintType, actualUserCoins: Int) = viewModelScope.launch {
-        val discount = when(hintType){
-            HintType.ONE_LETTER -> 75
-            HintType.KEYBOARD -> 50
-        }
+    private fun buyHint(actualUserCoins: Int, discount: Int) = viewModelScope.launch {
         useCases.updateCoinsUseCase(actualUserCoins - discount)
     }
 
@@ -603,6 +654,9 @@ class HardViewModel @Inject constructor(
         useCases.getCoinsUseCase().collectLatest{ coins ->
             state = state.copy(
                 userCoins = coins
+            )
+            stateUseCases.saveHardGameStateUseCase(
+                state
             )
         }
     }

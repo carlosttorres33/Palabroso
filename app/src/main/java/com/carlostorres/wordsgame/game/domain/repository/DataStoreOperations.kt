@@ -2,6 +2,7 @@ package com.carlostorres.wordsgame.game.domain.repository
 
 import com.carlostorres.wordsgame.game.data.repository.UserDailyStats
 import com.carlostorres.wordsgame.game.presentation.easy.EasyState
+import com.carlostorres.wordsgame.game.presentation.hard.HardState
 import com.carlostorres.wordsgame.game.presentation.normal.NormalState
 import kotlinx.coroutines.flow.Flow
 
@@ -34,6 +35,10 @@ interface DataStoreOperations {
     suspend fun loadNormalGameState(): NormalState?
     suspend fun clearNormalGameState()
 
+    //**Hard
+    suspend fun saveHardGameState(state: HardState)
+    suspend fun loadHardGameState(): HardState?
+    suspend fun clearHardGameState()
     //endregion
 
 }

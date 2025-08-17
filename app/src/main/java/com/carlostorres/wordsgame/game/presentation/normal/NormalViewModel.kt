@@ -59,7 +59,7 @@ class NormalViewModel @Inject constructor(
     private val useCases: GameUseCases,
     private val gameStatsUseCases: GameStatsUseCases,
     private val connectivityObserver: ConnectivityObserver,
-    private val statsUseCases: NormalGameStateUseCases
+    private val stateUseCases: NormalGameStateUseCases
 ) : ViewModel() {
 
     var state by mutableStateOf(NormalState())
@@ -131,9 +131,9 @@ class NormalViewModel @Inject constructor(
 
             try {
 
-                val lastState = statsUseCases.readNormalGameStateUseCase()
+                val lastState = stateUseCases.readNormalGameStateUseCase()
 
-                    if (lastState == null){
+                if (lastState == null){
 
                     val word = useCases.getRandomWordUseCase(
                         wordsTried = state.secretWordsList,
@@ -194,7 +194,7 @@ class NormalViewModel @Inject constructor(
             state = state.copy(
                 gameSituation = GameSituations.GameWon,
             )
-            statsUseCases.clearNormalGameStateUseCase()
+            stateUseCases.clearNormalGameStateUseCase()
             increaseNormalGamesPlayed()
             getCoinsFromWin(actualUserCoins)
             updateDailyStats(true, state.tryNumber)
@@ -202,7 +202,7 @@ class NormalViewModel @Inject constructor(
             state = state.copy(
                 gameSituation = GameSituations.GameLost,
             )
-            statsUseCases.clearNormalGameStateUseCase()
+            stateUseCases.clearNormalGameStateUseCase()
             increaseNormalGamesPlayed()
             updateDailyStats(false, state.tryNumber)
         }
@@ -224,7 +224,7 @@ class NormalViewModel @Inject constructor(
                     indexFocused = 0
                 )
                 if (state.gameSituation is GameSituations.GameInProgress){
-                    statsUseCases.saveNormalGameStateUseCase(state)
+                    stateUseCases.saveNormalGameStateUseCase(state)
                 }
             }
 
@@ -239,7 +239,7 @@ class NormalViewModel @Inject constructor(
                     indexFocused = 0
                 )
                 if (state.gameSituation is GameSituations.GameInProgress){
-                    statsUseCases.saveNormalGameStateUseCase(state)
+                    stateUseCases.saveNormalGameStateUseCase(state)
                 }
             }
 
@@ -254,7 +254,7 @@ class NormalViewModel @Inject constructor(
                     indexFocused = 0
                 )
                 if (state.gameSituation is GameSituations.GameInProgress){
-                    statsUseCases.saveNormalGameStateUseCase(state)
+                    stateUseCases.saveNormalGameStateUseCase(state)
                 }
             }
 
@@ -269,7 +269,7 @@ class NormalViewModel @Inject constructor(
                     indexFocused = 0
                 )
                 if (state.gameSituation is GameSituations.GameInProgress){
-                    statsUseCases.saveNormalGameStateUseCase(state)
+                    stateUseCases.saveNormalGameStateUseCase(state)
                 }
             }
 
@@ -284,13 +284,13 @@ class NormalViewModel @Inject constructor(
                     indexFocused = 0
                 )
                 if (state.gameSituation is GameSituations.GameInProgress){
-                    statsUseCases.saveNormalGameStateUseCase(state)
+                    stateUseCases.saveNormalGameStateUseCase(state)
                 }
             }
 
             else -> {
                 resetGame()
-                statsUseCases.clearNormalGameStateUseCase()
+                stateUseCases.clearNormalGameStateUseCase()
             }
         }
 
@@ -474,7 +474,7 @@ class NormalViewModel @Inject constructor(
             keyboardHintsRemaining = state.keyboardHintsRemaining - 1
         )
 
-        statsUseCases.saveNormalGameStateUseCase(
+        stateUseCases.saveNormalGameStateUseCase(
             state.copy(
                 showKeyboardHintDialog = false,
                 userCoins = actualUserCoins - discount
@@ -523,7 +523,7 @@ class NormalViewModel @Inject constructor(
             indexFocused = getNextFocusedIndex()
         )
 
-        statsUseCases.saveNormalGameStateUseCase(
+        stateUseCases.saveNormalGameStateUseCase(
             state = state.copy(
                 showLetterHintDialog = false,
                 userCoins = actualUserCoins - discount
@@ -637,7 +637,7 @@ class NormalViewModel @Inject constructor(
             state = state.copy(
                 userCoins = coins
             )
-            statsUseCases.saveNormalGameStateUseCase(
+            stateUseCases.saveNormalGameStateUseCase(
                 state
             )
         }

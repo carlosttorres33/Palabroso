@@ -2,10 +2,15 @@ package com.carlostorres.wordsgame.game.presentation.hard
 
 import com.carlostorres.wordsgame.game.data.model.TryInfo
 import com.carlostorres.wordsgame.game.presentation.WordModel
+import com.carlostorres.wordsgame.game.presentation.normal.NormalState
 import com.carlostorres.wordsgame.ui.components.keyboard.KeyboardChar
 import com.carlostorres.wordsgame.utils.GameSituations
 import com.carlostorres.wordsgame.utils.keyboardCreator
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class HardState(
 
     val showLetterHintDialog : Boolean = false,
@@ -51,4 +56,16 @@ data class HardState(
 
     val wordsTried : List<String> = emptyList()
 
-)
+){
+
+    fun toJson(): String = Json.encodeToString(this)
+
+    companion object {
+        fun fromJson(json: String): HardState? = try {
+            Json.decodeFromString(json)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+}
